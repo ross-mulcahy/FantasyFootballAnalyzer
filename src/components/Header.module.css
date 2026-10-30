@@ -446,3 +446,8 @@
     min-height: 36px;
   }
 }
+
+/* The combined scoreboard has only two navigation links. */
+.compactHeader { padding-top: .75rem; padding-bottom: .5rem; }
+.compactHeader .headerContent { gap: .4rem; }
+.compactHeader .navLink { padding-top: .4rem; padding-bottom: .4rem; }

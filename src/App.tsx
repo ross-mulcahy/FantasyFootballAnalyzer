@@ -12,14 +12,14 @@ import { SeasonFallbackNotice } from '@/components/SeasonFallbackNotice';
 import { RouteErrorBoundary } from '@/components/RouteErrorBoundary';
 // Direct import for the same reason as the components above: the '@/pages'
 // barrel re-exports every lazy()-split page (DraftPage, TeamsPage, AwardsPage
-// all reach the full draft pool), so importing HomePage through it would drag
+// all reach the full draft pool), so importing the homepage through it would drag
 // them — and the pool — back into the eager entry chunk.
-import { HomePage } from '@/pages/HomePage';
+import { MyGameDayPage } from '@/pages/MyGameDayPage';
+import { SettingsPage } from '@/pages/SettingsPage';
 import { ToolLanding } from '@/pages/ToolLanding';
 import { TOOL_LANDINGS } from '@/pages/toolLandings';
 import { posForSlug, labelForPos } from '@/data/rankingsVariants';
 import { Analytics } from '@/utils/analytics';
-import type { GuestDest } from '@/pages/GuestEntry';
 import { DEFAULT_GUEST_SETTINGS, loadGuestSettings, type GuestSettings } from '@/utils/guestLeague';
 import { loadESPNCredentials } from '@/utils/espnCredentials';
 import { lazyPage } from '@/utils/staleChunk';
@@ -36,11 +36,15 @@ const TrendsPage = lazyPage(() => import('@/pages/TrendsPage'), 'TrendsPage');
 const TradesPage = lazyPage(() => import('@/pages/TradesPage'), 'TradesPage');
 const WaiversPage = lazyPage(() => import('@/pages/WaiversPage'), 'WaiversPage');
 const TeamsPage = lazyPage(() => import('@/pages/TeamsPage'), 'TeamsPage');
+const GameDayPage = lazyPage(() => import('@/pages/GameDayPage'), 'GameDayPage');
+const GameDayRecapPage = lazyPage(() => import('@/pages/GameDayRecapPage'), 'GameDayRecapPage');
+const RostersPage = lazyPage(() => import('@/pages/RostersPage'), 'RostersPage');
 const HistoryPage = lazyPage(() => import('@/pages/HistoryPage'), 'HistoryPage');
 const AwardsPage = lazyPage(() => import('@/pages/AwardsPage'), 'AwardsPage');
 const LuckPage = lazyPage(() => import('@/pages/LuckPage'), 'LuckPage');
 const PlayerJourneyPage = lazyPage(() => import('@/pages/PlayerJourneyPage'), 'PlayerJourneyPage');
 import { useLeague } from '@/hooks/useLeague';
+import { GameDayContext, useGameDayState } from '@/hooks/useGameDay';
 import { useSounds } from '@/hooks/useSounds';
 import {
   clearTokens,
@@ -57,6 +61,7 @@ import { findSuccessorLeague } from '@/api/sleeper';
 import type { League, LeagueCredentials, SeasonOption } from '@/types';
 import { logger } from '@/utils/logger';
 import { rememberConnection } from '@/utils/lastConnection';
+import { rememberSavedLeague } from '@/utils/savedLeagues';
 import { loadSeasons } from '@/utils/seasonsCache';
 import { isEmptyPreseason } from '@/utils/leaguePhase';
 import { POOL_SEASON } from '@/data/draftPoolMeta';
@@ -101,7 +106,9 @@ function RankingsVariantRoute({
 }
 
 const PAGE_TITLES: Record<string, string> = {
-  '/': 'Connect Your League',
+  '/': 'Game Day',
+  '/settings': 'Settings',
+  '/recap': 'Game Day Recap',
   '/draft': 'Draft Analysis',
   '/draft-room': 'Draft Room',
   '/rankings': 'Rankings',
@@ -110,6 +117,8 @@ const PAGE_TITLES: Record<string, string> = {
   '/trades': 'Trades',
   '/waivers': 'Waivers',
   '/teams': 'Teams',
+  '/game-day': 'Game Day',
+  '/rosters': 'Rosters',
   '/history': 'History',
   '/awards': 'Awards',
   '/luck': 'Luck',
@@ -141,6 +150,13 @@ function App() {
     league, credentials, isLoading, error, progress, load, refresh, clear, enterGuest, updateGuest,
     seasonFallbackNotice, dismissSeasonFallbackNotice,
   } = useLeague();
+  const gameDay = useGameDayState(league, credentials, { poll: true });
+  const globalPage = ['/', '/settings', '/recap'].includes(location.pathname);
+  useEffect(() => {
+    if (league && !league.isGuest && !rememberSavedLeague(league)) {
+      window.alert('This league loaded, but could not be saved locally. Check browser storage permissions or free up site storage.');
+    }
+  }, [league]);
   const { playLoadComplete, playError } = useSounds();
   const prevLeagueRef = useRef<typeof league>(null);
   // The URL year that's currently being satisfied. Prevents the URL-watch
@@ -272,7 +288,7 @@ function App() {
         window.alert(
           'Yahoo sent you back to a different tab than the one that started the login, so it could not be verified. Try connecting again from this tab.',
         );
-        navigate('/', { replace: true });
+        navigate('/settings', { replace: true });
         return;
       }
 
@@ -308,14 +324,14 @@ function App() {
           ))
           .catch(err => {
             logger.error('Failed to restore league after Yahoo login:', err);
-            navigate('/', { replace: true });
+            navigate('/settings', { replace: true });
           });
         return;
       }
       // Use react-router navigate so the router's basename is preserved.
       // A raw window.history.replaceState('/') would strip the GitHub Pages
       // basename and leave the user on a 404.
-      navigate('/', { replace: true });
+      navigate('/settings', { replace: true });
     } else if (path === '/yahoo-error') {
       const errorMsg = search.get('error');
       logger.error('Yahoo OAuth error:', errorMsg);
@@ -325,7 +341,7 @@ function App() {
       // form with no idea Yahoo rejected the attempt.
       playError();
       window.alert('Yahoo login failed. Please try connecting again.');
-      navigate('/', { replace: true });
+      navigate('/settings', { replace: true });
     }
   }, [location, navigate, load, playError]);
 
@@ -363,25 +379,8 @@ function App() {
     // prefilled next visit. The loaded league's values, not the form's, so a
     // mistyped id is never saved and a followed renewal saves the newest id.
     rememberConnection(loaded.platform, loaded.id, loaded.season);
-    if (isEmptyPreseason(loaded)) {
-      // A fresh connect landing on the Draft Room's setup form otherwise
-      // gives no sign the connect worked (off-season: no draft data to show
-      // yet). The flag rides in navigation state, not the URL, so it
-      // doesn't survive a manual refresh or reappear on later visits to
-      // /draft-room.
-      navigate('/draft-room', { state: { justConnected: true } });
-    } else {
-      navigate('/draft');
-    }
+    navigate('/');
   };
-
-  // Guest mode: synthesize a league from picked settings (no fetch) and jump
-  // straight to the chosen surface. The route guards treat a guest league like
-  // any loaded league for /rankings and /draft-room.
-  const handleEnterGuest = useCallback((settings: GuestSettings, dest: GuestDest) => {
-    enterGuest(settings);
-    navigate(`/${dest}`);
-  }, [enterGuest, navigate]);
 
   // Header Yahoo control: connect from anywhere in the app (the login powers
   // the draft board's live Yahoo prices even for Sleeper/ESPN leagues).
@@ -534,7 +533,7 @@ function App() {
     // (remembered connection) to log in, instead of a doomed 401 load.
     if (shareTarget.platform === 'yahoo' && !isAuthenticated()) {
       rememberConnection('yahoo', shareTarget.id, new Date().getFullYear());
-      navigate('/', { replace: true });
+      navigate('/settings', { replace: true });
       return;
     }
     // Cookies never ride in the URL, but this tab may already hold them: a
@@ -549,7 +548,7 @@ function App() {
     load({
       platform: shareTarget.platform,
       leagueId: shareTarget.id,
-      ...(shareTarget.platform === 'espn' ? { season: new Date().getFullYear(), ...stored } : {}),
+      ...(shareTarget.platform === 'espn' ? { season: Number(searchParams.get('year')) || new Date().getFullYear(), ...stored } : {}),
     }).then(loaded => {
       // Prefill the connect form for next visit, same as a manual connect.
       if (loaded) {
@@ -558,7 +557,7 @@ function App() {
         // Session lapsed or Yahoo refused: the connect form (Yahoo tab,
         // remembered connection) is where they log in again.
         rememberConnection('yahoo', shareTarget.id, new Date().getFullYear());
-        navigate('/', { replace: true });
+        navigate('/settings', { replace: true });
       } else if (shareTarget.platform === 'espn') {
         // A cookie-less load of a private ESPN league fails by design. The
         // link still earns its keep: land on the connect form with the
@@ -566,10 +565,10 @@ function App() {
         // path a manual connect uses), where useLeague's error explains the
         // cookies. The recipient adds their own two values and is in.
         rememberConnection('espn', shareTarget.id, new Date().getFullYear());
-        navigate('/', { replace: true });
+        navigate('/settings', { replace: true });
       }
     });
-  }, [shareTarget, league, isLoading, load, navigate]);
+  }, [shareTarget, league, isLoading, load, navigate, searchParams]);
 
   // A share-link load that hasn't resolved yet. While true, route guards show
   // a spinner instead of redirecting, so /awards?league=… lands on /awards
@@ -605,10 +604,8 @@ function App() {
     const path = location.pathname;
     if (path === '/yahoo-success' || path === '/yahoo-error') return;
     // '/' is not a surface a connected league can sit on — it renders nothing
-    // but the redirect below — so the param can only ever land on a URL the
-    // user is already leaving. Writing it there is what pinned the app to the
-    // blank home route; there is nothing to share here either way.
-    if (path === '/') return;
+    // Homepage and Settings cover every saved league, so keep them unscoped.
+    if (path === '/' || path === '/settings' || path === '/recap') return;
     // React Router 7 commits location updates inside startTransition, so
     // useLocation() lags a navigate() that has ALREADY written history. A
     // rewrite built from the lagging value navigates back to the old path and
@@ -659,43 +656,10 @@ function App() {
     navigate(`${path}?${params.toString()}`, { replace: true });
   }, [league, location.pathname, location.search, navigate, shareLoadPending, isLoading]);
 
-  // Neither of the 2026-09-06 bugs raised a single error event: the app
-  // rendered null forever and graded a board wrong, both without throwing, so
-  // the first report came from Reddit rather than Sentry. This catches the
-  // routing half of that class. '/' with a real league loaded is a pure
-  // redirect - nothing renders there - so still being on it a beat later means
-  // something cancelled the redirect and the user is looking at a blank page
-  // under the header. Fires at most once per session; logger.error scrubs and
-  // throttles on the way to Sentry.
-  const strandReportedRef = useRef(false);
-  useEffect(() => {
-    if (strandReportedRef.current) return;
-    if (!league || league.isGuest || location.pathname !== '/') return;
-    const timer = setTimeout(() => {
-      if (strandReportedRef.current) return;
-      // History already left '/' and the router is still committing it (the
-      // startTransition lag above), held there while the next page's chunk
-      // downloads. A slow phone took over 2s on connect and false-alarmed
-      // (iOS Safari, 2026-10-20). A settled location re-runs this effect.
-      if (window.location.pathname !== routerPathToUrl('/')) return;
-      strandReportedRef.current = true;
-      logger.error('[App] Stranded on the home route with a league loaded', {
-        // No ids: the league is identifiable and Sentry scrubs them anyway.
-        // These are the relations that say WHO cancelled the redirect.
-        platform: league.platform,
-        search: location.search.replace(/=[^&]*/g, '=…'),
-        loading: isLoading,
-        emptyPreseason: isEmptyPreseason(league),
-      });
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, [league, location.pathname, location.search, isLoading]);
-
   // Data pages require a real (non-guest) league. Guests get redirected to
   // Rankings; no league at all goes home. The render callback receives the
   // narrowed, non-null league.
   const dataRoute = (render: (league: League) => ReactNode): ReactNode => {
-    if (league && !league.isGuest) return render(league);
     if (shareLoadPending) {
       return (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
@@ -703,24 +667,25 @@ function App() {
         </div>
       );
     }
-    return <Navigate to={league?.isGuest ? '/rankings' : '/'} replace />;
+    if (league && !league.isGuest) return render(league);
+    return <Navigate to={league?.isGuest ? '/rankings' : '/settings'} replace />;
   };
 
   return (
+    <GameDayContext.Provider value={gameDay}>
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <a href="#main-content" className="skip-nav">Skip to main content</a>
       <Header
-        leagueName={league && !league.isGuest ? league.name : undefined}
-        platform={league && !league.isGuest ? league.platform : undefined}
+        leagueName={league && !league.isGuest && !globalPage ? league.name : undefined}
+        platform={league && !league.isGuest && !globalPage ? league.platform : undefined}
         league={league}
         isGuest={!!league?.isGuest}
-        onChangeLeague={clear}
-        onRefresh={league && !league.isGuest ? refresh : undefined}
+        onRefresh={league && !league.isGuest && !globalPage ? refresh : undefined}
         isRefreshing={isLoading && !!league && !league.isGuest}
         yahooConnected={yahooConnected}
-        onYahooConnect={handleYahooConnect}
-        onYahooDisconnect={handleYahooDisconnect}
-        yearSelector={league && credentials ? (
+        onYahooConnect={location.pathname === '/settings' ? handleYahooConnect : undefined}
+        onYahooDisconnect={location.pathname === '/settings' ? handleYahooDisconnect : undefined}
+        yearSelector={league && credentials && !globalPage ? (
           <YearSelector
             league={league}
             credentials={credentials}
@@ -731,7 +696,7 @@ function App() {
       />
 
       {league?.isGuest && location.pathname !== '/' && (
-        <GuestBanner onConnect={() => { clear(); navigate('/'); }} />
+        <GuestBanner onConnect={() => { clear(); navigate('/settings'); }} />
       )}
 
       {/* Old season on screen, new draft pool bundled: the one-click bridge
@@ -772,30 +737,9 @@ function App() {
             (pageIn, in index.css). Entrance-only - no exit orchestration. */}
         <div key={location.pathname} className="page-in">
         <Routes>
-          <Route
-            path="/"
-            element={
-              league && !league.isGuest ? (
-                // Keyed on the location so the redirect re-fires on every
-                // arrival at '/'. <Navigate> resolves an absolute path, so its
-                // effect deps never change and it otherwise fires exactly once
-                // per mount: anything that put the URL back on '/' left the
-                // league loaded, the nav hidden, and the page blank for good.
-                <Navigate key={location.key} to={isEmptyPreseason(league) ? '/draft-room' : '/draft'} replace />
-              ) : (
-                // No league, or a guest visiting home: show the connect form
-                // and guest entry. This is also where the header's "Connect
-                // your league" CTA lands a guest.
-                <HomePage
-                  onLoadLeague={handleLoadLeague}
-                  onGuest={handleEnterGuest}
-                  isLoading={isLoading}
-                  error={error}
-                  progress={progress}
-                />
-              )
-            }
-          />
+          <Route path="/" element={<MyGameDayPage currentLeague={league} />} />
+          <Route path="/recap" element={<GameDayRecapPage />} />
+          <Route path="/settings" element={<SettingsPage onLoadLeague={handleLoadLeague} isLoading={isLoading} error={error} progress={progress} />} />
 
           {/* Public draft-prep surfaces: a no-league visit auto-enters guest
               mode so these URLs work without logging in (and stay crawlable). */}
@@ -862,6 +806,8 @@ function App() {
           <Route path="/draft" element={dataRoute(l => <DraftPage league={l} />)} />
           <Route path="/trades" element={dataRoute(l => <TradesPage league={l} />)} />
           <Route path="/waivers" element={dataRoute(l => <WaiversPage league={l} />)} />
+          <Route path="/game-day" element={dataRoute(l => <GameDayPage key={`${l.platform}:${l.id}:${l.season}`} league={l} credentials={credentials} />)} />
+          <Route path="/rosters" element={dataRoute(l => <RostersPage key={`${l.platform}:${l.id}:${l.season}`} league={l} credentials={credentials} />)} />
           <Route path="/teams" element={dataRoute(l => <TeamsPage league={l} />)} />
           <Route path="/history" element={dataRoute(l => <HistoryPage league={l} />)} />
           <Route path="/awards" element={dataRoute(l => <AwardsPage league={l} />)} />
@@ -908,6 +854,7 @@ function App() {
         )}
       </footer>
     </div>
+    </GameDayContext.Provider>
   );
 }
 

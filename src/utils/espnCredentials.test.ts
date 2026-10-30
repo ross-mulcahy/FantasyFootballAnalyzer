@@ -3,6 +3,8 @@ import {
   espnCredsKey,
   loadESPNCredentials,
   persistESPNCredentials,
+  remembersESPNCredentials,
+  forgetESPNCredentials,
 } from './espnCredentials';
 import type { LeagueCredentials } from '@/types';
 
@@ -68,5 +70,33 @@ describe('persistESPNCredentials + loadESPNCredentials', () => {
   it('returns undefined when stored payload has neither s2 nor swid', () => {
     sessionStorage.setItem(espnCredsKey('L1'), JSON.stringify({}));
     expect(loadESPNCredentials('L1')).toBeUndefined();
+  });
+});
+
+describe('optional persistent ESPN login', () => {
+  it('keeps the default session-only', () => {
+    persistESPNCredentials({ platform: 'espn', leagueId: 'A', espnS2: 'secret' });
+    expect(localStorage.getItem(espnCredsKey('A'))).toBeNull();
+    sessionStorage.clear();
+    expect(loadESPNCredentials('A')).toBeUndefined();
+  });
+
+  it('survives a closed session only after explicit opt-in', () => {
+    persistESPNCredentials({ platform: 'espn', leagueId: 'A', espnS2: 'secret', swid: '{id}', rememberEspn: true });
+    sessionStorage.clear();
+    expect(remembersESPNCredentials('A')).toBe(true);
+    expect(loadESPNCredentials('A')).toEqual({ espnS2: 'secret', swid: '{id}' });
+    persistESPNCredentials({ platform: 'espn', leagueId: 'A', espnS2: 'updated' });
+    expect(loadESPNCredentials('A')?.espnS2).toBe('updated');
+  });
+
+  it('revokes persistent storage when unchecked and removes both copies on forget', () => {
+    persistESPNCredentials({ platform: 'espn', leagueId: 'A', espnS2: 'secret', rememberEspn: true });
+    persistESPNCredentials({ platform: 'espn', leagueId: 'A', espnS2: 'secret', rememberEspn: false });
+    expect(localStorage.getItem(espnCredsKey('A'))).toBeNull();
+    expect(remembersESPNCredentials('A')).toBe(false);
+    expect(loadESPNCredentials('A')?.espnS2).toBe('secret');
+    forgetESPNCredentials('A');
+    expect(loadESPNCredentials('A')).toBeUndefined();
   });
 });

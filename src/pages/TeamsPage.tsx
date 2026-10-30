@@ -1,3 +1,4 @@
+import { LeagueLink } from '@/components/LeagueLink';
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { TeamCard } from '@/components/TeamCard';
@@ -5,7 +6,7 @@ import type { League } from '@/types';
 import { calculateLuckMetrics, type LuckMetrics, type MatchupData } from '@/utils/luck';
 import { completedMatchups } from '@/utils/completedMatchups';
 import { managerScores } from '@/utils/managerScore';
-import { TeamDetail } from './TeamDetail';
+import { TeamRosterView } from './TeamRosterView';
 import styles from './TeamsPage.module.css';
 
 interface TeamsPageProps {
@@ -105,7 +106,7 @@ export function TeamsPage({ league }: TeamsPageProps) {
     return (
       <div className={styles.page}>
         <div className="container">
-          <TeamDetail league={league} team={detailTeam} onBack={() => openTeam(null)} />
+          <TeamRosterView league={league} team={detailTeam} onBack={() => openTeam(null)} />
         </div>
       </div>
     );
@@ -117,7 +118,7 @@ export function TeamsPage({ league }: TeamsPageProps) {
         <div className={styles.header}>
           <h1 className={styles.title}>Team Overview</h1>
           <p className={styles.subtitle}>
-            {league.totalTeams} teams in {league.name}
+            {league.totalTeams} teams in <LeagueLink league={league}>{league.name}</LeagueLink>
           </p>
           {league.hasMedianMatchup && (
             <p className={styles.subtitle}>

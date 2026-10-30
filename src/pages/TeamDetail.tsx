@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import type { League, Team } from '@/types';
+import type { RosterTeam } from '@/types/gameDay';
 import { NflTeamLabel, PosBadge } from '@/components';
 import { getGradeDisplayText } from '@/utils/grading';
 import { gradeLeaguePicks } from '@/utils/consensusGrade';
@@ -14,12 +15,13 @@ interface TeamDetailProps {
   league: League;
   team: Team;
   onBack: () => void;
+  currentRoster?: RosterTeam | null;
 }
 
 // One team's whole season on a single screen: weekly scores, draft, trades,
 // waivers, head-to-head vs everyone, and the hardware they collected.
 // Reached by clicking any team name across the app.
-export function TeamDetail({ league, team, onBack }: TeamDetailProps) {
+export function TeamDetail({ league, team, onBack, currentRoster }: TeamDetailProps) {
   const weekly = useMemo(() => {
     const rows: Array<{ week: number; points: number; oppPoints: number; oppName: string; won: boolean }> = [];
     for (const m of completedMatchups(league)) {
@@ -166,6 +168,18 @@ export function TeamDetail({ league, team, onBack }: TeamDetailProps) {
           )}
         </div>
       </div>
+
+      {currentRoster !== undefined && <section className={styles.section} aria-labelledby="current-roster-heading">
+        <h3 id="current-roster-heading" className={styles.sectionTitle}>Current Roster</h3>
+        {currentRoster?.roster == null ? <p>This team's current roster was not returned by the platform.</p> : currentRoster.roster.length === 0 ? <p>This roster is empty.</p> : <ul className={styles.list}>
+          {currentRoster.roster.map((player, index) => <li key={`${player.id}-${index}`} className={styles.listRow}>
+            <span className={styles.listMeta}>{player.slot}</span>
+            {player.position && <PosBadge pos={player.position} />}
+            <span className={styles.listName}>{player.name}</span>
+            {player.nflTeam && <NflTeamLabel team={player.nflTeam} />}
+          </li>)}
+        </ul>}
+      </section>}
 
       {sparkline && (
         <section className={styles.section}>

@@ -1,0 +1,38 @@
+
+.panel { border: 2px solid var(--bone); padding: 0 1rem 1rem; background: var(--ink); box-shadow: 4px 4px 0 var(--bone); }
+.panel > :first-child { position: sticky; top: 0; background: var(--ink); z-index: 2; margin: 0 -1rem .75rem; padding: .85rem 1rem; border-bottom: 2px solid var(--bone); }
+.panel h2 { font-size: 1.15rem; }
+.panel > div:last-child > p { font-size: .8rem; }
+.list { list-style: none; padding: 0; }
+.player { border-top: 1px solid var(--rule); overflow-wrap: anywhere; }
+.playerSummary { display: block; cursor: pointer; list-style: none; padding: .85rem 0; }
+.playerSummary::-webkit-details-marker { display: none; }
+.playerHeading { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.playerTitle { color: var(--bone); font: 700 .85rem/1.5 var(--font-mono); }
+.expandMark::before { content: '+'; color: var(--lime); font-family: var(--font-mono); }
+.playerDetails[open] .expandMark::before { content: '−'; }
+.meta { color: var(--bone-dim); font: .7rem/1.6 var(--font-mono); }
+.exposure { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .65rem; margin-top: .3rem; font: .7rem/1.6 var(--font-mono); }
+.owned { color: var(--lime); }
+.opponent { color: var(--gold); }
+.statusLine { display: block; color: var(--bone-dim); font: .7rem/1.6 var(--font-mono); margin-top: .35rem; }
+.previewEvent { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: .8rem; line-height: 1.5; margin-top: .4rem; }
+.playerExpanded { padding-bottom: 1rem; }
+.stats dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; margin: .5rem 0; }
+.stats dt { color: var(--bone-dim); font: .65rem/1.5 var(--font-mono); text-transform: uppercase; }
+.stats dd { color: var(--bone); font: .95rem/1.5 var(--font-mono); margin: .2rem 0 0; }
+.event { background: var(--ink-2); border-left: 2px solid var(--lime); padding: .6rem .75rem; margin-top: .75rem; font-size: .85rem; line-height: 1.5; }
+.breakdownTitle { color: var(--lime); font: .7rem/1.6 var(--font-mono); margin-top: .9rem; }
+.leagues { list-style: none; padding: 0; }
+.leagues li { border-bottom: 1px dashed var(--rule); padding: .6rem 0; font-size: .85rem; }
+.leaguePoints { font: .7rem/1.6 var(--font-mono); margin-top: .4rem; }
+.changed { border-left: 3px solid var(--lime); padding-left: .6rem; background: var(--ink-2); }
+.updated { color: var(--lime); font: .65rem/1.5 var(--font-mono); text-transform: uppercase; }
+
+.points { margin-left: auto; white-space: nowrap; color: var(--lime); font: 700 .8rem/1.5 var(--font-mono); font-variant-numeric: tabular-nums; }
+.pointsNote { display: block; color: var(--bone-dim); font: .65rem/1.5 var(--font-mono); }
+.pointsNote:empty { display: none; }
+
+.playerTotals { display: flex; flex-direction: column; align-items: flex-end; gap: .15rem; margin-left: auto; flex-shrink: 0; }
+.projection { color: var(--bone-dim); font: .7rem/1.5 var(--font-mono); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.playerTitle { min-width: 0; }

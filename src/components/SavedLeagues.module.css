@@ -1,0 +1,17 @@
+.section { border-bottom: 2px dashed var(--bone-dim); padding-bottom: 1.5rem; }
+.title { font-family: var(--font-headline); text-transform: uppercase; font-size: 1.3rem; color: var(--lime); margin-bottom: .75rem; }
+.hint, .empty { color: var(--bone-dim); font-family: var(--font-display); font-style: italic; line-height: 1.5; }
+.empty { margin-top: .75rem; }
+.list { list-style: none; padding: 0; margin: 1rem 0 0; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 0; border-top: 1px dashed var(--rule); }
+.details { min-width: 0; display: flex; flex-direction: column; gap: .5rem; }
+.name { color: var(--bone); overflow-wrap: anywhere; font-weight: 500; }
+.meta { color: var(--bone-dim); font-family: var(--font-mono); font-size: .65rem; text-transform: uppercase; letter-spacing: .12em; overflow-wrap: anywhere; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
+.remove { background: transparent; border: 0; color: var(--bone-dim); font-family: var(--font-mono); text-transform: uppercase; font-size: .65rem; padding: .6rem; cursor: pointer; }
+.remove:hover { color: var(--bone); text-decoration: underline; }
+.remove:disabled { opacity: .4; cursor: not-allowed; }
+@media (max-width: 600px) { .row { align-items: stretch; flex-direction: column; } }
+
+.details label { display: grid; gap: .4rem; min-width: min(100%, 220px); }
+.details select { max-width: 100%; padding: .55rem; font-size: .75rem; }

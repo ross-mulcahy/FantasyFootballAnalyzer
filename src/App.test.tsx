@@ -5,7 +5,7 @@
 // Everything below App itself is stubbed: these tests pin who renders where,
 // not what the pages draw.
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter, useLocation } from 'react-router-dom';
 import App from './App';
@@ -68,6 +68,13 @@ vi.mock('@/hooks/useLeague', async () => {
   };
 });
 
+// Routing tests isolate the shared polling/data layer; its scheduler and
+// provider behavior are verified in dedicated hook tests.
+vi.mock('@/hooks/useGameDay', async importOriginal => ({
+  ...await importOriginal<typeof import('@/hooks/useGameDay')>(),
+  useGameDayState: () => ({ snapshot: null, isRefreshing: false, error: null, cacheWarning: false, refresh: async () => {}, polling: null }),
+}));
+
 // The one thing the strand detector needs and the app no longer does: a
 // <Navigate> that does not navigate. Off by default, so every other test runs
 // against the real router.
@@ -121,17 +128,20 @@ vi.mock('@/components/SeasonFallbackNotice', () => ({
 }));
 // The connect form stands in for the real one: a button that hands App the
 // credentials, so handleLoadLeague (load -> navigate) runs for real.
-vi.mock('@/pages/HomePage', () => ({
-  HomePage: ({ onLoadLeague }: { onLoadLeague: (c: unknown) => void }) => (
-    <div data-testid="home-page">
+vi.mock('@/pages/SettingsPage', () => ({
+  SettingsPage: ({ onLoadLeague }: { onLoadLeague: (c: unknown) => void }) => (
+    <div data-testid="settings-page">
       <button type="button" onClick={() => onLoadLeague({ platform: 'sleeper', leagueId: '77' })}>
         Load League
       </button>
     </div>
   ),
 }));
+vi.mock('@/pages/GameDayRecapPage', () => ({ GameDayRecapPage: () => <div data-testid="recap-page" /> }));
+vi.mock('@/pages/MyGameDayPage', () => ({ MyGameDayPage: () => <div data-testid="home-page" /> }));
 // The lazy pages the routes below can reach (lazyPage resolves these mocks
 // through the same dynamic import).
+vi.mock('@/pages/GameDayPage', () => ({ GameDayPage: () => <div data-testid="league-game-day" /> }));
 vi.mock('@/pages/AwardsPage', () => ({ AwardsPage: () => <div data-testid="awards-page" /> }));
 vi.mock('@/pages/RankingsPage', () => ({ RankingsPage: () => <div data-testid="rankings-page" /> }));
 vi.mock('@/pages/TrendsPage', () => ({ TrendsPage: () => <div data-testid="trends-page" /> }));
@@ -216,7 +226,7 @@ describe('share links (?league=sleeper:<id>)', () => {
     });
     renderApp('/awards?league=sleeper:404404');
     // The failed load resolves the guard to the no-league redirect.
-    expect(await screen.findByTestId('home-page')).toBeTruthy();
+    expect(await screen.findByTestId('settings-page')).toBeTruthy();
     // The attempted-id guard must hold across the re-renders: one try only.
     expect(h.loadMock).toHaveBeenCalledTimes(1);
   });
@@ -259,7 +269,7 @@ describe('share links (?league=sleeper:<id>)', () => {
       return null;
     });
     renderApp('/awards?league=espn:123456789');
-    expect(await screen.findByTestId('home-page')).toBeTruthy();
+    expect(await screen.findByTestId('settings-page')).toBeTruthy();
     expect(h.loadMock).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId('loc').textContent).toMatch(/^\//);
     // The prefill for the connect form persists like a manual attempt would.
@@ -290,7 +300,7 @@ describe('Yahoo reload persistence (?league=yahoo:<league_key>)', () => {
 
   it('sends a logged-out visitor to the connect form on the Yahoo tab without loading', async () => {
     renderApp(`/awards?league=yahoo:${KEY}`);
-    expect(await screen.findByTestId('home-page')).toBeTruthy();
+    expect(await screen.findByTestId('settings-page')).toBeTruthy();
     expect(h.loadMock).not.toHaveBeenCalled();
     expect(JSON.parse(localStorage.getItem('ffa:lastconn:v1') ?? 'null')).toMatchObject({
       platform: 'yahoo',
@@ -301,7 +311,7 @@ describe('Yahoo reload persistence (?league=yahoo:<league_key>)', () => {
   it('ignores a malformed Yahoo key', async () => {
     h.yahooAuthed = true;
     renderApp('/awards?league=yahoo:notakey');
-    expect(await screen.findByTestId('home-page')).toBeTruthy();
+    expect(await screen.findByTestId('settings-page')).toBeTruthy();
     expect(h.loadMock).not.toHaveBeenCalled();
   });
 });
@@ -349,8 +359,8 @@ describe('route guards', () => {
 
   it('sends a visitor with no league from a data route home', async () => {
     renderApp('/teams');
-    expect(await screen.findByTestId('home-page')).toBeTruthy();
-    expect(screen.getByTestId('loc').textContent).toBe('/');
+    expect(await screen.findByTestId('settings-page')).toBeTruthy();
+    expect(screen.getByTestId('loc').textContent).toBe('/settings');
   });
 
   it('auto-enters guest mode on the public /rankings instead of redirecting', async () => {
@@ -381,20 +391,20 @@ describe('Yahoo OAuth return (/yahoo-success)', () => {
   it('rejects a tampered state without saving the tokens riding along', async () => {
     h.validateOAuthState.mockReturnValue(false);
     renderApp(`/yahoo-success?state=forged${tokensHash}`);
-    expect(await screen.findByTestId('home-page')).toBeTruthy();
+    expect(await screen.findByTestId('settings-page')).toBeTruthy();
     expect(h.saveTokens).not.toHaveBeenCalled();
     expect(h.clearOAuthState).toHaveBeenCalled();
     // The stash is discarded so a later login can't replay it.
     expect(h.takeOAuthReturn).toHaveBeenCalled();
-    expect(screen.getByTestId('loc').textContent).toBe('/');
+    expect(screen.getByTestId('loc').textContent).toBe('/settings');
   });
 
   it('saves the fragment tokens on a valid state and lands home', async () => {
     h.validateOAuthState.mockReturnValue(true);
     renderApp(`/yahoo-success?state=good${tokensHash}`);
-    expect(await screen.findByTestId('home-page')).toBeTruthy();
+    expect(await screen.findByTestId('settings-page')).toBeTruthy();
     expect(h.saveTokens).toHaveBeenCalledWith(tokens);
-    expect(screen.getByTestId('loc').textContent).toBe('/');
+    expect(screen.getByTestId('loc').textContent).toBe('/settings');
   });
 });
 
@@ -408,31 +418,31 @@ describe('Yahoo OAuth return (/yahoo-success)', () => {
 // loading a league. These two pin the destinations; the one below pins the
 // rewrite guard that keeps them reachable.
 describe('connect flow lands on a page', () => {
-  it('reaches the draft analysis after connecting, share param and all', async () => {
-    renderApp('/');
+  it('returns to unified Game Day after connecting from Settings', async () => {
+    renderApp('/settings');
     fireEvent.click(await screen.findByRole('button', { name: 'Load League' }));
 
-    expect(await screen.findByTestId('draft-page')).toBeTruthy();
+    expect(await screen.findByTestId('home-page')).toBeTruthy();
     await waitFor(() =>
       expect(decodeURIComponent(screen.getByTestId('loc').textContent ?? '')).toBe(
-        '/draft?league=sleeper:77',
+        '/',
       ),
     );
   });
 
-  it('reaches the draft room when the connected league has not drafted yet', async () => {
+  it('returns to Game Day for a preseason connection too', async () => {
     h.loadMock.mockImplementation(async ({ leagueId }: { leagueId: string }) => {
       const league = sleeperLeague(leagueId, { status: 'preseason' } as Partial<League>);
       h.store.set({ league });
       return league;
     });
-    renderApp('/');
+    renderApp('/settings');
     fireEvent.click(await screen.findByRole('button', { name: 'Load League' }));
 
-    expect(await screen.findByTestId('draft-room-page')).toBeTruthy();
+    expect(await screen.findByTestId('home-page')).toBeTruthy();
     await waitFor(() =>
       expect(decodeURIComponent(screen.getByTestId('loc').textContent ?? '')).toBe(
-        '/draft-room?league=sleeper:77',
+        '/',
       ),
     );
   });
@@ -456,59 +466,32 @@ describe('connect flow lands on a page', () => {
 });
 
 
-// Neither reported bug threw, so nothing reached Sentry and the first report
-// came from Reddit. '/' with a real league is a pure redirect - nothing
-// renders there - so sitting on it means the redirect was cancelled and the
-// user is staring at a blank page under the header.
-describe('stranded-on-home detector', () => {
-  beforeEach(() => { vi.useFakeTimers({ shouldAdvanceTime: true }); });
-  afterEach(() => { vi.useRealTimers(); });
 
-  it('reports once when a real league is left sitting on the home route', async () => {
-    h.blockRedirect = true;
+describe('Game Day homepage and Settings', () => {
+  it('renders the homepage for a connected league without redirecting to analysis or reporting a false stranded page', async () => {
     h.store.league = sleeperLeague('55');
-    window.history.replaceState(null, '', '/');
-    render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>,
-    );
-    expect(h.loggerError).not.toHaveBeenCalled();
-    await vi.advanceTimersByTimeAsync(2500);
-    const strandCalls = h.loggerError.mock.calls.filter(c =>
-      String(c[0]).includes('Stranded on the home route'),
-    );
-    expect(strandCalls).toHaveLength(1);
-    // Never an id: the payload carries only what says who cancelled it.
-    expect(JSON.stringify(strandCalls[0][1])).not.toContain('55');
-  });
-
-  it('stays quiet while history has moved on and the router has not caught up', async () => {
-    // React Router commits navigations in a transition, so useLocation()
-    // reads '/' while the next page's chunk downloads; history already says
-    // /draft. pushState here moves history without telling the router.
-    h.blockRedirect = true;
-    h.store.league = sleeperLeague('55');
-    window.history.replaceState(null, '', '/');
-    render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>,
-    );
-    window.history.pushState(null, '', '/draft');
-    await vi.advanceTimersByTimeAsync(2500);
-    expect(
-      h.loggerError.mock.calls.filter(c => String(c[0]).includes('Stranded on the home route')),
-    ).toHaveLength(0);
-  });
-
-  it('stays quiet on a healthy connect that reaches a page', async () => {
     renderApp('/');
-    fireEvent.click(await screen.findByRole('button', { name: 'Load League' }));
-    expect(await screen.findByTestId('draft-page')).toBeTruthy();
-    await vi.advanceTimersByTimeAsync(2500);
-    expect(
-      h.loggerError.mock.calls.filter(c => String(c[0]).includes('Stranded on the home route')),
-    ).toHaveLength(0);
+    expect(await screen.findByTestId('home-page')).toBeInTheDocument();
+    expect(screen.getByTestId('loc')).toHaveTextContent(/^\/$/);
+    expect(h.loggerError).not.toHaveBeenCalled();
   });
+  it('keeps league connections on Settings even when a league is already connected', async () => {
+    h.store.league = sleeperLeague('55');
+    renderApp('/settings');
+    expect(await screen.findByTestId('settings-page')).toBeInTheDocument();
+    expect(screen.getByTestId('loc')).toHaveTextContent(/^\/settings$/);
+  });
+});
+
+it('opens a scoped league Game Day rather than the combined homepage when a league name is followed', async () => {
+  renderApp('/game-day?league=sleeper:55&year=2025');
+  expect(await screen.findByTestId('league-game-day')).toBeInTheDocument();
+  expect(screen.queryByTestId('home-page')).not.toBeInTheDocument();
+  expect(h.loadMock).toHaveBeenCalledWith(expect.objectContaining({ platform: 'sleeper', leagueId: '55' }));
+});
+
+it('opens Recap directly without requiring or adding a league context', async () => {
+  renderApp('/recap');
+  expect(await screen.findByTestId('recap-page')).toBeInTheDocument();
+  expect(screen.getByTestId('loc')).toHaveTextContent('/recap');
 });

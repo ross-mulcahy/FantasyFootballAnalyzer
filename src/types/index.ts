@@ -362,6 +362,7 @@ export interface LeagueCredentials {
   // ESPN specific
   espnS2?: string;
   swid?: string;
+  rememberEspn?: boolean;
   // Yahoo specific (future use with backend)
   yahooToken?: string;
 }

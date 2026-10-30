@@ -1,3 +1,4 @@
+import { LeagueLink } from '@/components/LeagueLink';
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { League, Player, DraftPick } from '@/types';
@@ -333,7 +334,7 @@ export function PlayerJourneyPage({ league }: PlayerJourneyPageProps) {
         <div className={styles.header}>
           <h1 className={styles.title}>Player Journey</h1>
           <p className={styles.subtitle}>
-            Track any player's path through {league.name}
+            Track any player's path through <LeagueLink league={league}>{league.name}</LeagueLink>
           </p>
         </div>
 

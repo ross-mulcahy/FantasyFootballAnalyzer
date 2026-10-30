@@ -300,7 +300,7 @@ export function yahooPosition(p: { display_position?: string; primary_position?:
 // throttles. Nothing here should call fetch() for Yahoo directly.
 
 // Make authenticated API request
-async function yahooFetch<T>(endpoint: string): Promise<T> {
+export async function yahooFetch<T>(endpoint: string): Promise<T> {
   // Check if token needs refresh
   if (isTokenExpired()) {
     await refreshAccessToken();

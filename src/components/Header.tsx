@@ -7,6 +7,8 @@ import { logger } from '@/utils/logger';
 import { Analytics } from '@/utils/analytics';
 import { hasDraftedPoolSeason } from '@/utils/draftSeasonState';
 import { importChunk } from '@/utils/staleChunk';
+import { LeagueLink } from './LeagueLink';
+import { leagueGameDayHref } from '@/utils/gameDayLinks';
 import styles from './Header.module.css';
 
 interface HeaderProps {
@@ -56,6 +58,8 @@ export function Header({
 }: HeaderProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const globalView = ['/', '/settings', '/recap'].includes(location.pathname);
+  const isRosterView = location.pathname === '/rosters' || (location.pathname === '/teams' && new URLSearchParams(location.search).has('team'));
   const { playClick, playExport, playPageTransition, playError, isMuted, toggleMute } = useSounds();
   // Draft prep routes share a focused nav (Draft + Rankings + Values + Trends). Rankings
   // covers the per-position landing routes (/rankings/qb etc.) too, so they get
@@ -163,19 +167,19 @@ export function Header({
     // app-header is a global hook so the phone draft room can hide the
     // masthead and nav while a draft is live (see .draft-focus in index.css).
     // The module class is hashed, so a stable name is the only way in.
-    <header className={`${styles.header} app-header`}>
+    <header className={`${styles.header} ${globalView ? styles.compactHeader : ''} app-header`}>
       <div className={`container ${styles.headerContent}`}>
         <div
           ref={topRowRef}
           className={`${styles.topRow} ${compactLogo === true ? styles.logoCompact : compactLogo === false ? styles.logoWide : ''}`}
         >
           <div className={styles.logoSection}>
-            {league && !isGuest && (
+            {league && !isGuest && !globalView && (
               <button
                 onClick={handleChangeLeague}
                 className={styles.backButton}
-                title="Change League"
-                aria-label="Change League"
+                title="All leagues"
+                aria-label="All leagues"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.backIcon} aria-hidden="true">
                   <polyline points="15 18 9 12 15 6" />
@@ -196,7 +200,7 @@ export function Header({
             <div className={styles.leagueGroup}>
               {yearSelector}
               <div className={styles.leagueInfo} data-platform={platform}>
-                <span className={styles.leagueName}>{leagueName}</span>
+                {league ? <LeagueLink league={league} className={styles.leagueName}>{leagueName}</LeagueLink> : <span className={styles.leagueName}>{leagueName}</span>}
                 {platform && (
                   <span className={`platform-badge ${platform}`}>{platform}</span>
                 )}
@@ -239,7 +243,7 @@ export function Header({
                   so the header owns the CTA. */}
               {location.pathname === '/' && (
                 <button
-                  onClick={handleChangeLeague}
+                  onClick={() => { playClick(); navigate('/settings'); }}
                   className={styles.connectCta}
                   title="Connect your real league for team names, grades, and history"
                   aria-label="Connect your league"
@@ -277,8 +281,15 @@ export function Header({
           </button>
         </div>
 
-        {location.pathname !== '/' && (
+        {(
           <nav className={styles.nav} aria-label="Main navigation">
+            {globalView && <Link to="/" className={`${styles.navLink} ${location.pathname === '/' ? styles.active : ''}`} onClick={handleNavClick} aria-current={location.pathname === '/' ? 'page' : undefined}>Game Day</Link>}
+            {globalView && <Link to="/recap" className={`${styles.navLink} ${location.pathname === '/recap' ? styles.active : ''}`} onClick={handleNavClick} aria-current={location.pathname === '/recap' ? 'page' : undefined}>Recap</Link>}
+            {!globalView && <>
+            <Link to={league && !isGuest ? leagueGameDayHref(league) : "/"} className={`${styles.navLink} ${['/', '/game-day'].includes(location.pathname) ? styles.active : ''}`} onClick={handleNavClick} aria-current={['/', '/game-day'].includes(location.pathname) ? 'page' : undefined}>Game Day</Link>
+            {league && !isGuest && <>
+              <Link to="/rosters" className={`${styles.navLink} ${isRosterView ? styles.active : ''}`} onClick={handleNavClick} aria-current={isRosterView ? 'page' : undefined}>Rosters</Link>
+            </>}
             {!showLeagueNav ? (
               /* Draft prep is its own focused mode: just the draft-state
                  tabs, no season-analysis noise. It is also the fallback for
@@ -361,9 +372,9 @@ export function Header({
             </Link>
             <Link
               to="/teams"
-              className={`${styles.navLink} ${location.pathname === '/teams' ? styles.active : ''}`}
+              className={`${styles.navLink} ${location.pathname === '/teams' && !isRosterView ? styles.active : ''}`}
               onClick={handleNavClick}
-              aria-current={location.pathname === '/teams' ? 'page' : undefined}
+              aria-current={location.pathname === '/teams' && !isRosterView ? 'page' : undefined}
             >
               Teams
             </Link>
@@ -422,6 +433,7 @@ export function Header({
             </button>
               </>
             )}
+            </>}
             {onYahooConnect && onYahooDisconnect && (
               <button
                 onClick={() => {
@@ -441,6 +453,7 @@ export function Header({
                 Y!
               </button>
             )}
+            <Link to="/settings" className={`${styles.navLink} ${location.pathname === '/settings' ? styles.active : ''}`} onClick={handleNavClick} aria-current={location.pathname === '/settings' ? 'page' : undefined}>Settings</Link>
           </nav>
         )}
 

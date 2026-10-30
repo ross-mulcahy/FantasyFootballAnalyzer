@@ -4,7 +4,9 @@ import { isAuthenticated, getAuthUrl, getUserLeagues, clearTokens, NFL_GAME_KEYS
 import { findLeaguesByUsername } from '@/api/sleeper';
 import { normalizeLeagueId } from '@/utils/leagueId';
 import { loadLastConnection, rememberSleeperUsername } from '@/utils/lastConnection';
-import { loadESPNCredentials } from '@/utils/espnCredentials';
+import { loadESPNCredentials, remembersESPNCredentials, forgetESPNCredentials } from '@/utils/espnCredentials';
+import { SavedLeagues } from './SavedLeagues';
+import type { SavedLeague } from '@/utils/savedLeagues';
 import { normalizeEspnS2, normalizeSwid, isEspnS2Valid, isSwidValid } from '@/utils/espnCookies';
 import { logger } from '@/utils/logger';
 import { Analytics } from '@/utils/analytics';
@@ -148,6 +150,8 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange }: LeagueForm
   const [season, setSeason] = useState(() => defaultSeasonFor(saved?.platform ?? 'sleeper'));
   const [espnS2, setEspnS2] = useState('');
   const [swid, setSwid] = useState('');
+  const [rememberEspn, setRememberEspn] = useState(false);
+  const [savedNotice, setSavedNotice] = useState('');
   const [showEspnHelp, setShowEspnHelp] = useState(false);
 
   // Yahoo OAuth state
@@ -190,20 +194,32 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange }: LeagueForm
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Same-tab ESPN cookie reuse: espn_s2/SWID live in sessionStorage and are
-  // gone when the tab closes, but inside one session there's no reason to
-  // make the user paste them twice. Fill once per league id so deliberately
-  // clearing the fields isn't fought.
-  const cookieFillRef = useRef<string | null>(null);
   useEffect(() => {
-    if (platform !== 'espn' || espnS2 || swid) return;
     const id = leagueId.trim();
-    if (!id || cookieFillRef.current === id) return;
-    cookieFillRef.current = id;
-    const creds = loadESPNCredentials(id);
-    if (creds?.espnS2) setEspnS2(creds.espnS2);
-    if (creds?.swid) setSwid(creds.swid);
-  }, [platform, leagueId, espnS2, swid]);
+    const creds = platform === 'espn' ? loadESPNCredentials(id) : undefined;
+    setEspnS2(creds?.espnS2 ?? '');
+    setSwid(creds?.swid ?? '');
+    setRememberEspn(platform === 'espn' && remembersESPNCredentials(id));
+  }, [platform, leagueId]);
+
+  const connectSavedLeague = (entry: SavedLeague) => {
+    setPlatform(entry.platform);
+    setLeagueId(entry.leagueId);
+    setSeason(entry.season);
+    setLeagueIdError(null);
+    setCookieError(null);
+    setSavedNotice('');
+    const cookies = entry.platform === 'espn' ? loadESPNCredentials(entry.leagueId) : undefined;
+    setEspnS2(cookies?.espnS2 ?? '');
+    setSwid(cookies?.swid ?? '');
+    setRememberEspn(entry.platform === 'espn' && remembersESPNCredentials(entry.leagueId));
+    if (entry.platform === 'yahoo' && !isAuthenticated()) {
+      setSavedNotice('Log in with Yahoo below, then choose your league.');
+      return;
+    }
+    Analytics.connectAttempt(entry.platform);
+    onSubmit({ platform: entry.platform, leagueId: entry.leagueId, season: entry.season, ...cookies });
+  };
 
   // Season the automatic fallback below just loaded leagues for; lets the
   // load-on-mount effect skip the re-run its setSeason triggers.
@@ -489,6 +505,8 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange }: LeagueForm
       season,
     };
 
+    if (platform === 'espn') credentials.rememberEspn = rememberEspn;
+
     if (platform === 'espn' && espnS2 && swid) {
       credentials.espnS2 = espnS2.trim();
       credentials.swid = swid.trim();
@@ -499,6 +517,8 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange }: LeagueForm
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
+      <SavedLeagues onConnect={connectSavedLeague} isLoading={isLoading} />
+      {savedNotice && <p role="status" className={styles.hint}>{savedNotice}</p>}
       <div className={styles.platformSelector}>
         <button
           type="button"
@@ -895,6 +915,13 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange }: LeagueForm
             </div>
           </div>
 
+          <label className={styles.hint}>
+            <input type="checkbox" checked={rememberEspn} onChange={e => {
+              setRememberEspn(e.target.checked);
+              if (!e.target.checked) forgetESPNCredentials(leagueId.trim());
+            }} />{' '}Remember ESPN login on this device
+          </label>
+          <p className={styles.hint}>Optional. Saves these login cookies in this browser after a successful connection. Cookies can expire. Uncheck to forget the saved login.</p>
           {/* Show inconsistency warning if only one cookie is filled */}
           {((espnS2 && !swid) || (!espnS2 && swid)) && (
             <p className={styles.warning} role="alert">Private leagues need both cookies. Add the other one too.</p>

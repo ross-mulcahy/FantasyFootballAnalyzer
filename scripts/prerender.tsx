@@ -8,7 +8,7 @@
 // contract to keep; the injected markup is purely for crawlers and first paint.
 //
 // Pages emitted (each a real dist/<route>/index.html that returns HTTP 200):
-//   - index.html              - homepage hero, manifesto, feature grid.
+//   - index.html              - Game Day entry and Settings link.
 //   - rankings/               - top-200 half-PPR consensus rankings table.
 //   - rankings/<pos>/         - one per position (qb, rb, wr, te, k, dst, flex).
 //   - trends/                 - day/week consensus-board risers and fallers.
@@ -21,17 +21,15 @@
 // route (the ones a guest can land on) gets its own prerendered file; gated
 // data routes stay on the shim and aren't meant to be indexed.
 //
-// Home content comes from the pure presentational components (HomeHero,
-// HomeManifesto, HomeFeatures) so SSR never touches the league form, platform
-// APIs, or jspdf. The rankings snapshot is computed from POOL with pure utils,
-// no React hooks. Vite's ssrLoadModule resolves the @/ alias and CSS imports.
+// The homepage is a generic Game Day shell; private league data is loaded
+// only in the user's browser. Rankings use a static pool snapshot.
 //
 // This must never fail the build: a throw here degrades to the empty-root SPA
 // (crawlers lose the prerendered copy, users are unaffected) rather than
 // breaking `npm run deploy` or the unattended daily rankings Action.
 import { createServer } from 'vite'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { createElement, Fragment } from 'react'
+import { createElement } from 'react'
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { RANKINGS_VARIANTS, FLEX_POSITIONS } from '../src/data/rankingsVariants'
@@ -344,18 +342,7 @@ async function prerender() {
     }
 
     // --- Homepage ---
-    const { HomeHero } = await vite.ssrLoadModule('/src/pages/HomeHero.tsx')
-    const { HomeManifesto } = await vite.ssrLoadModule('/src/pages/HomeManifesto.tsx')
-    const { HomeFeatures } = await vite.ssrLoadModule('/src/pages/HomeFeatures.tsx')
-    const homeMarkup = renderToStaticMarkup(
-      createElement(
-        Fragment,
-        null,
-        createElement(HomeHero),
-        createElement(HomeManifesto),
-        createElement(HomeFeatures),
-      ),
-    )
+    const homeMarkup = `<main class="container"><h1>Game Day</h1><p>Your teams across every saved league, in one scoreboard.</p><p>Leagues and team choices are saved locally in your browser.</p><a href="${basePath}settings">Connect leagues in Settings</a></main>`
     writeFileSync(DIST_HTML, inject(homeMarkup))
     console.log(`[prerender] injected ${homeMarkup.length} bytes of homepage HTML`)
 

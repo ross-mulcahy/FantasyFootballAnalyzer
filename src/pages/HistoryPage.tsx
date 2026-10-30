@@ -1,3 +1,4 @@
+import { LeagueLink } from '@/components/LeagueLink';
 import { useState, useEffect, useMemo } from 'react';
 import type { League, SeasonSummary, HeadToHeadRecord } from '@/types';
 import { loadLeagueHistory as loadSleeperHistory, loadHeadToHeadRecords as loadSleeperH2H } from '@/api/sleeper';
@@ -221,7 +222,7 @@ export function HistoryPage({ league }: HistoryPageProps) {
         <div className={styles.header}>
           <h1 className={styles.title}>League History</h1>
           <p className={styles.subtitle}>
-            {history.length} seasons of {league.name}
+            {history.length} seasons of <LeagueLink league={league}>{league.name}</LeagueLink>
           </p>
         </div>
 

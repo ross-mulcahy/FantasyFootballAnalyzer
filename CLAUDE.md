@@ -22,6 +22,29 @@ Production: https://fantasyfootballanalyzer.app/
 - **No database, no server-side storage.** Credentials live in the browser and
   pass straight through to the platform APIs (or through the stateless proxy).
 
+## Game Day fork additions
+
+The local fork's homepage is the combined Game Day scoreboard. `/settings`
+manages saved leagues and team selection; `/recap` reads locally saved weekly
+summaries. These routes use global navigation without a current-league context.
+League links enter `/game-day?league=platform:id&year=season`, which restores the
+full league navigation. `/rosters` and full `/teams?team=...` views share the
+cached roster display.
+
+`src/api/gameDay.ts` adapts current-week Yahoo/ESPN/Sleeper snapshots;
+`src/hooks/useGameDay.ts` owns caching and shared league state. Saved leagues,
+team choices and an explicit ESPN remember-login preference are browser-only.
+NFL status and event adapters drive adaptive polling, starter progress, alerts,
+shared players and local recap capture. Recap display lives at `/recap`; Game Day
+continues recording summaries without rendering that panel. Shared players sort
+by their highest finite per-league projection and display it below current points.
+
+Start with `docs/GAME_DAY_GUIDE.md` for user behavior and `docs/GAME_DAY_DATA.md`
+for data sources, cadence, route hierarchy, storage and correctness limits.
+`src/data/playerIdentityMap.json` is a separate, explicitly regenerated NFL roster
+ID map; its provenance and terms are in `docs/PLAYER_ID_MAP.md`. It is not part of
+the bot-owned draft pool pipeline.
+
 ## Deployment
 
 GitHub Pages serves the SPA from the `gh-pages` branch. Production is published

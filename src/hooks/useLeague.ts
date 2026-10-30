@@ -106,8 +106,12 @@ export function useLeague(): UseLeagueReturn {
     // Remembered so a failed load of a NEW target can point Refresh back at
     // the league that stays on screen (see the error path below).
     const priorCredentials = lastCredentialsRef.current;
-    lastCredentialsRef.current = credentials;
-    setCredentials(credentials);
+    // Remember-login is a one-time choice for this submit. Reusing it on a
+    // later refresh could undo an explicit Forget action on the home page.
+    const reusableCredentials = { ...credentials };
+    delete reusableCredentials.rememberEspn;
+    lastCredentialsRef.current = reusableCredentials;
+    setCredentials(reusableCredentials);
 
     // A fresh, externally-triggered load supersedes any stale fallback
     // notice; the fallback's own recursive call skips this so its notice

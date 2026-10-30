@@ -1,3 +1,4 @@
+import { LeagueLink } from '@/components/LeagueLink';
 import { useMemo, useState } from 'react';
 import type { League } from '@/types';
 import { calculateAllAwards, groupAwardsByCategory, getCategoryDisplayName, type Award } from '@/utils/awards';
@@ -111,7 +112,7 @@ export function AwardsPage({ league }: AwardsPageProps) {
           <div className={styles.headerText}>
             <h1 className={styles.title}>Season Awards</h1>
             <p className={styles.subtitle}>
-              {league.name} · {awards.length} Awards
+              <LeagueLink league={league}>{league.name}</LeagueLink> · {awards.length} Awards
             </p>
           </div>
           {awards.length > 0 && (

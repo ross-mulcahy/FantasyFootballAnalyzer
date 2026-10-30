@@ -653,3 +653,16 @@ describe('useLeague concurrent loads', () => {
     expect(result.current.error).toBeTruthy();
   });
 });
+
+
+it('does not replay a remember-login choice on refresh after the user forgets it', async () => {
+  mockedLoadLeague.mockResolvedValue(makeLeague({ platform: 'espn' }));
+  const { result } = renderHook(() => useLeague());
+  await act(async () => {
+    await result.current.load({ platform: 'espn', leagueId: 'L1', espnS2: 'test', rememberEspn: true });
+  });
+  expect(mockedPersistESPNCreds).toHaveBeenLastCalledWith(expect.objectContaining({ rememberEspn: true }));
+  expect(result.current.credentials).not.toHaveProperty('rememberEspn');
+  await act(async () => { await result.current.refresh(); });
+  expect(mockedPersistESPNCreds.mock.lastCall?.[0]).not.toHaveProperty('rememberEspn');
+});

@@ -60,7 +60,7 @@ interface FetchOptions {
   extend?: string;
 }
 
-async function fetchESPN<T>(
+export async function fetchESPN<T>(
   season: number,
   leagueId: string,
   views: string[],
@@ -159,7 +159,7 @@ async function fetchESPN<T>(
   return response.json();
 }
 
-function convertPlayer(espnPlayer: ESPNAPI.Player): Player {
+export function convertPlayer(espnPlayer: ESPNAPI.Player): Player {
   return {
     id: String(espnPlayer.id),
     platformId: String(espnPlayer.id),

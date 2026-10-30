@@ -14,10 +14,11 @@ export function HomeManifesto() {
       </p>
       <p className={styles.manifestoBody}>
         Your credentials stay in your browser and are passed through to
-        Sleeper, ESPN, or Yahoo to fetch your league. ESPN cookies clear when
-        the tab closes; a Yahoo login is remembered on this device until you
-        log out. Your last league ID is kept on this device so reconnecting
-        is one click.
+        Sleeper, ESPN, or Yahoo to fetch your league. Connected leagues are saved
+        in this browser under My Leagues. ESPN login cookies clear when the tab
+        closes unless you choose to remember them. A Yahoo login is remembered
+        on this device until you log out. Clearing this site's browser data
+        removes saved leagues and logins.
       </p>
       <a
         className={styles.manifestoLink}

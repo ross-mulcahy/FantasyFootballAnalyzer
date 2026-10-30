@@ -1,3 +1,4 @@
+import { LeagueLink } from '@/components/LeagueLink';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { League } from '@/types';
@@ -442,7 +443,7 @@ function Header({ league, weeks }: { league: League; weeks?: number }) {
     <div className={styles.header}>
       <h1 className={styles.title}>Luck</h1>
       <p className={styles.subtitle}>
-        {league.name}
+        <LeagueLink league={league}>{league.name}</LeagueLink>
         {weeks ? ` · ${weeks} week${weeks === 1 ? '' : 's'} final` : ''}
       </p>
     </div>

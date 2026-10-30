@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import type { League } from '@/types';
 import { Header } from './Header';
@@ -75,4 +75,43 @@ describe('Header nav', () => {
     renderAt('/', { league: LEAGUE, isGuest: true });
     expect(screen.getByRole('button', { name: 'Connect your league' })).toBeInTheDocument();
   });
+});
+
+it('offers Game Day from a connected draft-prep page', () => {
+  renderAt('/draft-room', { league: LEAGUE });
+  expect(screen.getByRole('link', { name: 'Game Day' })).toHaveAttribute('href', '/game-day?league=sleeper%3Al1&year=2025');
+});
+
+it.each(['/game-day', '/rosters', '/teams', '/rankings'])('puts Game Day first and Rosters second on %s', path => {
+  renderAt(path, { league: LEAGUE });
+  const links = within(screen.getByRole('navigation', { name: 'Main navigation' })).getAllByRole('link');
+  expect(links.slice(0, 2).map(link => link.textContent)).toEqual(['Game Day', 'Rosters']);
+  if (path === '/rosters') expect(links[1]).toHaveAttribute('aria-current', 'page');
+  if (path === '/game-day') expect(links[0]).toHaveAttribute('aria-current', 'page');
+});
+
+it('keeps Rosters active on a canonical full team view', () => {
+  renderAt('/teams?league=sleeper:L1&team=2', { league: LEAGUE });
+  expect(screen.getByRole('link', { name: 'Rosters' })).toHaveAttribute('aria-current', 'page');
+  expect(screen.getByRole('link', { name: 'Teams' })).not.toHaveAttribute('aria-current');
+});
+
+
+it.each([{}, { league: LEAGUE, leagueName: 'Test League' }])('shows Game Day and Settings in the homepage navigation regardless of the last connected league', props => {
+  renderAt('/', props);
+  const nav = within(screen.getByRole('navigation', { name: 'Main navigation' }));
+  expect(nav.getAllByRole('link').map(link => link.textContent)).toEqual(['Game Day', 'Recap', 'Settings']);
+  expect(nav.queryByRole('button', { name: /Export PDF/ })).not.toBeInTheDocument();
+});
+it('links the header league name to its Game Day overview', () => {
+  renderAt('/rosters', { league: LEAGUE, leagueName: 'Test League' });
+  expect(screen.getByRole('link', { name: 'Test League' })).toHaveAttribute('href', '/game-day?league=sleeper%3Al1&year=2025');
+});
+
+it('treats Recap as a global page and marks its navigation link active', () => {
+  renderAt('/recap', { league: LEAGUE });
+  const nav = within(screen.getByRole('navigation', { name: 'Main navigation' }));
+  expect(nav.getByRole('link', { name: 'Recap' })).toHaveAttribute('aria-current', 'page');
+  expect(nav.getByRole('link', { name: 'Game Day' })).toHaveAttribute('href', '/');
+  expect(nav.queryByRole('link', { name: 'Rosters' })).not.toBeInTheDocument();
 });
