@@ -1,3 +1,4 @@
+import { ProviderLink } from '@/components/ConnectionHealth';
 import { LeagueLink } from '@/components/LeagueLink';
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -143,7 +144,7 @@ function MatchupDetail({ snapshot, matchup, league, now, events }: { snapshot: G
           <p className={styles.hint}>Starting lineup · Current-week player stats</p>
           <p className={styles.period}>Week {snapshot.week} lineup projection: {score(lineupProjection(snapshot.teams.find(t => t.id === side.id)))}</p>
           <RosterTable team={snapshot.teams.find(t => t.id === side.id)} week={snapshot.week} timeline={events.data} statusStale={statusStale} startersOnly />
-          <Link className={styles.rosterLink} to={rosterHref(side.id, league)}>View full roster →</Link>
+          <Link className={styles.rosterLink} to={rosterHref(side.id, league)}>View full roster →</Link><ProviderLink league={{ platform: league.platform, leagueId: league.id, season: league.season }} teamId={side.id} />
         </> : <p className={styles.hint}>No opposing team was listed by the platform.</p>}
       </MatchupPanel>)}
     </div>

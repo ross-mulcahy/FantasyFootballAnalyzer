@@ -1,3 +1,4 @@
+import { prioritizeEvents, useExperiencePreferences } from '@/utils/experience';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { sortMajorEvents, timelineCacheKey, type MajorEvent, type NFLTimeline } from '@/api/nflTimeline';
 import { useMatchupTimeline } from '@/hooks/useMatchupTimeline';
@@ -55,11 +56,12 @@ function SharedWeek({ players, contexts, season, week, refreshSignal, onTimeline
   const refreshEvents = events.refresh;
   useEffect(() => { if (lastSignal.current !== refreshSignal) { lastSignal.current = refreshSignal; refreshEvents(); } }, [refreshSignal, refreshEvents]);
   const stale = liveStatusIsStale(events.data, events.error, now);
+  const experience = useExperiencePreferences();
   const notifications = useEventNotifications(`${timelineCacheKey(season, week, teams)}:combined-impact-v1`, events.data, events.loading, event => {
     const impacts = eventImpact(event, contexts, events.data);
     const summary = impacts.map(impact => `${impact.league.name}: ${impact.good.length ? `likely helps (${impact.good.join(', ')})` : ''}${impact.good.length && impact.bad.length ? '; ' : ''}${impact.bad.length ? `likely hurts (${impact.bad.join(', ')})` : ''}`).join(' · ');
     return `${event.description}${summary ? ` — ${summary}` : ''}`;
-  });
+  }, batch => prioritizeEvents(batch, experience.alertPriority, contexts, events.data, Date.now()));
   const entries = players.map(player => {
     const game = playerGameStatus(player.nflTeam, events.data);
     const allEvents = sharedPlayerEvents(player, events.data);

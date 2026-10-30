@@ -101,3 +101,13 @@ it('includes the league impact summary without replaying its initial baseline', 
   expect(deliveries).toHaveLength(1);
   expect(deliveries[0].options?.body).toBe('Event new — My League: likely helps');
 });
+
+it('filters notification batches before delivery and does not replay skipped events after a preference change', () => {
+  permission = 'granted'; localStorage.setItem(BROWSER_ALERTS_KEY, 'enabled');
+  const select = (events: MajorEvent[]) => events.filter(play => play.id === 'important');
+  const { rerender } = renderHook(({ timeline, filter }) => useEventNotifications('priority', timeline, false, undefined, filter), { initialProps: { timeline: data([]), filter: select } });
+  rerender({ timeline: data([event('other')]), filter: select }); expect(deliveries).toHaveLength(0);
+  rerender({ timeline: data([event('other'), event('important')]), filter: select }); expect(deliveries).toHaveLength(1);
+  expect(deliveries[0].options?.body).toBe('Event important');
+  rerender({ timeline: data([event('other'), event('important')]), filter: events => events }); expect(deliveries).toHaveLength(1);
+});

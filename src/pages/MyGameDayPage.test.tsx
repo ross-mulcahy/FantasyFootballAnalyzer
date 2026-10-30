@@ -66,7 +66,7 @@ it('keeps cached league scores visible when a connection fails', () => {
   vi.mocked(useGameDayState).mockReturnValue({ ...state(a), error: 'Login expired' });
   mount();
   expect(screen.getByText('8.80')).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: 'Reconnect in Settings' })).toHaveAttribute('href', '/settings');
+  expect(screen.getByRole('link', { name: 'Reconnect in Settings' }).getAttribute('href')).toContain('/settings?reconnect=');
 });
 
 it('refreshes every visible league together, waits for all requests, and shows one conservative update time', async () => {

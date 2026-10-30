@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
 vi.hoisted(() => { process.env.FRONTEND_URL = 'https://app.example.com' })
 import handler from './yahoo-callback.js'
 
@@ -7,6 +7,8 @@ import handler from './yahoo-callback.js'
 // attacker-constructible. These lock the open-redirect / token-leak defense.
 // Most cases hit a redirect or status branch BEFORE the token exchange, so
 // they need no fetch mocking; the final describe covers the exchange itself.
+
+beforeEach(() => { delete process.env.YAHOO_REDIRECT_URI; });
 
 const PROD = 'https://app.example.com'
 

@@ -200,3 +200,20 @@
 .recapCardFooter { border-top: 1px solid var(--rule); padding-top: .8rem; color: var(--bone-dim); font: .75rem/1.6 var(--font-mono); }
 @media (max-width: 950px) { .recapCards { grid-template-columns: 1fr; } }
 @media (max-width: 600px) { .recapCard { padding: 1rem; } .recapStats > div { padding: .65rem .5rem; } .recapStats dt { font-size: .65rem; } .recapStats dd { font-size: 1.5rem; } .recapScoreboard { gap: .75rem; } .recapScoreboard > div + div { padding-left: .75rem; } }
+
+.connectionBar { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: .6rem 1rem; margin: 0 0 1.25rem; padding: .75rem 1rem; border: 1px solid var(--rule); background: var(--ink); font: .75rem/1.6 var(--font-mono); }
+.connectionBar ul { width: 100%; list-style: none; padding: 0; }
+.connectionBar li { padding: .35rem 0; color: var(--gold); }
+.connectionLabel { color: var(--bone-dim); font: .7rem/1.6 var(--font-mono); }
+.providerLink { display: inline-block; color: var(--lime); margin-top: .5rem; font: .7rem/1.6 var(--font-mono); text-transform: uppercase; }
+.experienceFields { display: grid; gap: .75rem; margin-bottom: 1.5rem; }
+.experienceFields label, .backupFile { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; font: .8rem/1.6 var(--font-mono); }
+.experienceFields select { max-width: 100%; padding: .6rem; }
+.experienceFields button { justify-self: start; }
+.backupFile { margin-top: 1rem; }
+.backupFile input { max-width: 100%; font: inherit; }
+.backupPreview { padding: 1rem; border: 1px solid var(--bone-dim); margin-top: 1rem; background: var(--ink-2); }
+.backupPreview p, .backupPreview li { font: .8rem/1.6 var(--font-mono); margin-bottom: .6rem; }
+.backupPreview button { margin: .5rem .75rem 0 0; }
+
+.settingsSections { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; margin-bottom: 1.25rem; font: .8rem/1.6 var(--font-mono); text-transform: uppercase; }

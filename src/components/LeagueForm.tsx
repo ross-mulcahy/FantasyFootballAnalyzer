@@ -106,17 +106,18 @@ function fetchExtensionCookies(): Promise<ExtensionProbe | null> {
 interface LeagueFormProps {
   onSubmit: (credentials: LeagueCredentials) => void;
   isLoading: boolean;
+  initialLeague?: SavedLeague;
   onPlatformChange?: (platform: Platform) => void;
 }
 
-export function LeagueForm({ onSubmit, isLoading, onPlatformChange }: LeagueFormProps) {
+export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeague }: LeagueFormProps) {
   // Last successful connection (public identifiers only): prefills the form
   // so a repeat visitor reconnects in one click. Read once per mount.
   const [saved] = useState(loadLastConnection);
   const savedIdFor = (p: Platform): string =>
     (p === 'sleeper' ? saved?.sleeper?.leagueId : p === 'espn' ? saved?.espn?.leagueId : undefined) ?? '';
 
-  const [platform, setPlatformState] = useState<Platform>(saved?.platform ?? 'sleeper');
+  const [platform, setPlatformState] = useState<Platform>(initialLeague?.platform ?? saved?.platform ?? 'sleeper');
 
   // The saved ESPN season prefills only a deliberate history visit (two or
   // more years back). A last-year save is usually the 404 fallback's artifact
@@ -142,16 +143,16 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange }: LeagueForm
     setPlatformState(p);
     onPlatformChange?.(p);
   };
-  const [leagueId, setLeagueId] = useState(() => savedIdFor(saved?.platform ?? 'sleeper'));
+  const [leagueId, setLeagueId] = useState(() => initialLeague?.leagueId ?? savedIdFor(saved?.platform ?? 'sleeper'));
   const [leagueIdError, setLeagueIdError] = useState<string | null>(null);
   // Cookie problems render next to the cookie fields, not in the League ID
   // slot, so the alert and focus land where the fix is.
   const [cookieError, setCookieError] = useState<string | null>(null);
-  const [season, setSeason] = useState(() => defaultSeasonFor(saved?.platform ?? 'sleeper'));
+  const [season, setSeason] = useState(() => initialLeague?.season ?? defaultSeasonFor(saved?.platform ?? 'sleeper'));
   const [espnS2, setEspnS2] = useState('');
   const [swid, setSwid] = useState('');
   const [rememberEspn, setRememberEspn] = useState(false);
-  const [savedNotice, setSavedNotice] = useState('');
+  const [savedNotice, setSavedNotice] = useState(initialLeague ? `Reconnect ${initialLeague.name} below. Your saved team selection will be kept.` : '');
   const [showEspnHelp, setShowEspnHelp] = useState(false);
 
   // Yahoo OAuth state
@@ -244,7 +245,7 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange }: LeagueForm
       // (renewal pending), which would strand the form on "No leagues
       // found". Fall back one season so the default lands on data; the
       // season dropdown updates to match.
-      if (leagues.length === 0 && season === currentYear && !autoFallbackTriedRef.current) {
+      if (leagues.length === 0 && season === currentYear && !autoFallbackTriedRef.current && !initialLeague) {
         autoFallbackTriedRef.current = true;
         const prior = await getUserLeagues(season - 1);
         if (requestId !== yahooLeaguesRequestRef.current) return;
@@ -259,7 +260,7 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange }: LeagueForm
       // otherwise the first one. Never keep the previous in-form selection
       // (it's from a different season and won't be valid).
       if (leagues.length > 0) {
-        const remembered = saved?.yahoo?.leagueId;
+        const remembered = initialLeague?.platform === 'yahoo' ? initialLeague.leagueId : saved?.yahoo?.leagueId;
         setSelectedYahooLeague(
           remembered && leagues.some(l => l.id === remembered)
             ? remembered
@@ -281,7 +282,7 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange }: LeagueForm
         setLoadingYahooLeagues(false);
       }
     }
-  }, [season, saved]);
+  }, [season, saved, initialLeague]);
 
   // Load Yahoo leagues when authenticated
   useEffect(() => {

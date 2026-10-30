@@ -28,3 +28,9 @@ it('does not render the alert box when games end', () => {
   render(<MatchupAlerts data={{ ...data, games: [{ ...data.games![0], state: 'post' }] }} loading={false} error={null} now={now} />);
   expect(screen.queryByRole('region', { name: 'Latest Alerts' })).not.toBeInTheDocument();
 });
+
+it('applies the chosen alert priority before taking the three visible alerts', () => {
+  render(<MatchupAlerts data={data} loading={false} error={null} now={now} rankEvents={events => events.filter(event => event.id === '1')} />);
+  expect(screen.getAllByRole('listitem')).toHaveLength(1); expect(screen.getByText('Event 1')).toBeInTheDocument();
+  expect(screen.queryByText('Event 4')).not.toBeInTheDocument();
+});

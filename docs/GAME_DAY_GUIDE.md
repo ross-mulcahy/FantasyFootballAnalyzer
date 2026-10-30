@@ -97,3 +97,47 @@ Failures keep saved data visible instead of replacing it with empty values.
 
 Sources and implementation details are in [GAME_DAY_DATA.md](GAME_DAY_DATA.md).
 Player identity attribution and regeneration are in [PLAYER_ID_MAP.md](PLAYER_ID_MAP.md).
+
+## Connection health and quick provider links
+
+Game Day shows a connection summary. Settings shows each league's last successful
+refresh, reconnect requirement or setup problem. A cached snapshot alone is not
+labelled as a verified live connection. Offline status uses saved data. Select
+Reconnect to open the matching platform, league and season in Settings; your
+saved My team selection is kept, and a failed connection bypasses metadata cache
+when submitted again. Reconnecting Yahoo does not fall back to a different season.
+
+Open ESPN/Yahoo links include available league and team identifiers. Sleeper
+opens the league's team tab, which uses the team associated with your provider
+session. Provider pages may require their own login. These links do not submit
+lineup changes or include authentication credentials.
+
+## Pre-kickoff checks and personalised alerts
+
+In Settings → Game Day preferences, enable pre-kickoff checks and, if desired,
+browser alerts. During the 15 minutes before an upcoming starter's game, Game Day
+refreshes that league's roster and the NFL feed, then checks for starter warnings.
+It sends at most one browser reminder per league/week/kickoff on this device.
+Clean lineups stay quiet. Past, cancelled and postponed starts do not produce
+reminders. Saved-data warnings are marked. Keep Game Day open; the browser may
+throttle background activity, and no operating-system scheduler runs while closed.
+
+Choose All events, My lineup impact only, or Close matchups first. This affects
+Latest Alerts and browser event notifications; the full Major Events timeline
+always stays newest first. Close means a current margin within 10 points, falling
+back to a valid projected margin when current progress is unavailable. Personalised
+priority considers recent events and does not replay older events when changed.
+
+## Move your local setup to another browser
+
+Settings → Backup & restore downloads a JSON file containing saved leagues,
+My team selections, recap history and Game Day preferences. Cookies, OAuth tokens,
+app secrets, notification permissions and cached API snapshots are excluded.
+The file stays local and includes league/team names, so keep it private.
+
+Choose a backup file to preview its league list and recap count, then explicitly
+click Restore this backup. Import validates the format, version and size before
+writing. Leagues and recap history merge; existing My team choices take precedence,
+and preferences come from the backup. Existing logins remain unchanged. On another
+browser, reconnect private leagues and enable notifications there if desired.
+Restoring does not automatically connect accounts or grant browser permissions.

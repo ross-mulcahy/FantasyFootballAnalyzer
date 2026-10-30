@@ -1,3 +1,4 @@
+import { LeagueConnectionHealth, ProviderLink } from './ConnectionHealth';
 import { useEffect, useState } from 'react';
 import { loadSavedLeagues, removeSavedLeague, savedLeagueTeams, savedLeagueTeamId, selectSavedLeagueTeam, savedLeagueKey, SAVED_LEAGUES_CHANGED, type SavedLeague } from '@/utils/savedLeagues';
 import { LeagueLink } from './LeagueLink';
@@ -32,6 +33,8 @@ export function SavedLeagues({ onConnect, isLoading }: Props) {
               <div className={styles.details}>
                 <strong className={styles.name}><LeagueLink league={{ platform: league.platform, id: league.leagueId, season: league.season }}>{league.name}</LeagueLink></strong>
                 <span className={styles.meta}>{league.platform} · {league.season}{league.teamName ? ` · ${league.teamName}` : ''}</span>
+                <LeagueConnectionHealth league={league} />
+                <ProviderLink league={league} teamId={savedLeagueTeamId(league)} />
                 <label className={styles.meta}>My team
                   <select aria-label={`My team in ${league.name} ${league.season}`} value={savedLeagueTeamId(league) ?? ''} disabled={isLoading || !savedLeagueTeams(league).length} onChange={event => {
                     if (!selectSavedLeagueTeam(league, event.target.value)) setNotice('Could not save your team. Check browser storage permissions.');

@@ -1,3 +1,6 @@
+import { ConnectionHealthBar, ProviderLink } from '@/components/ConnectionHealth';
+import { useExperiencePreferences, prioritizeEvents, reconnectHref } from '@/utils/experience';
+import { useKickoffReminders } from '@/hooks/useKickoffReminders';
 import { EventImpactDetails, GameDayRecapRecorder, LineupWarnings } from '@/components/GameDayInsights';
 import { matchupMargin, myMatchups } from '@/utils/gameDayInsights';
 import type { SharedLeagueContext } from '@/utils/sharedPlayers';
@@ -48,7 +51,7 @@ function LeagueMatchups({ saved, currentLeague, onUpdate, timelines, focus, clos
   if (closeOnly && snapshot && myTeam && !shown.length) return null;
   return <section className={styles.matchRow} aria-label={`${saved.name} matchups`}>
     <div className={styles.matchRowHeader}><h3><LeagueLink league={{ platform: saved.platform, id: saved.leagueId, season: saved.season }}>{saved.name}</LeagueLink></h3><span>{saved.platform}{snapshot ? ` · Week ${snapshot.week}` : ''}</span></div>
-    {error && <p className={styles.hint} role="status">{snapshot ? 'Showing saved scores. ' : ''}Could not refresh this league. <Link to="/settings">Reconnect in Settings</Link>.</p>}
+    {error && <p className={styles.hint} role="status">{snapshot ? 'Showing saved scores. ' : ''}Could not refresh this league. <Link to={reconnectHref(saved)}>Reconnect in Settings</Link>.</p>}
     {!snapshot && !error && <p className={styles.hint}>Loading matchups…</p>}
     {snapshot && !myTeam && <p className={styles.hint}><Link to="/settings">Choose your team in Settings</Link> to show its matchup.</p>}
     {shown.map(match => {
@@ -73,7 +76,7 @@ function LeagueMatchups({ saved, currentLeague, onUpdate, timelines, focus, clos
         {teamInfo(own, true)}
         <div className={styles.rowScores}><strong>{score(own.points)}</strong><span aria-hidden="true">:</span><strong>{score(opponent.points)}</strong></div>
         {teamInfo(opponent, false)}
-      </Link>{difference !== null && Math.abs(difference) <= 10 && <p className={styles.closeBadge}>Close matchup · {Math.abs(difference).toFixed(2)} pts {focus === 'current' ? 'current' : 'projected'} margin{focus !== 'current' ? ' · Weekly estimate' : ''}</p>}</div>;
+      </Link>{difference !== null && Math.abs(difference) <= 10 && <p className={styles.closeBadge}>Close matchup · {Math.abs(difference).toFixed(2)} pts {focus === 'current' ? 'current' : 'projected'} margin{focus !== 'current' ? ' · Weekly estimate' : ''}</p>}<ProviderLink league={saved} teamId={myTeam} /></div>;
     })}
     {snapshot && myTeam && !matches.length && <p className={styles.hint}>No matchup scheduled for your team this week.</p>}
     {saved.platform === 'yahoo' && <p className={styles.hint}>Fantasy data provided by Yahoo Fantasy.</p>}
@@ -138,6 +141,9 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
     return value !== null && Math.abs(value) <= 10;
   }).length, 0);
 
+  const experience = useExperiencePreferences();
+  const refreshLeague = useCallback(async (key: string) => { setEventRefreshSignal(value => value + 1); await updates[key]?.refresh(); }, [updates]);
+  const kickoff = useKickoffReminders(contexts, timelines, now, refreshLeague);
   return <div className={`${styles.page} ${styles.dashboardPage}`}><div className="container">
     <div className={styles.dashboardHeader}>
       <div className={styles.dashboardHeading}><h1>Game Day</h1><p>{weeks.length ? `${weeks.length === 1 ? 'Week' : 'Weeks'} ${weeks.join(' / ')} · ` : ''}{leagues.length} {leagues.length === 1 ? 'league' : 'leagues'}</p></div>
@@ -146,6 +152,9 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
         {!!leagues.length && <button className="btn btn-primary" onClick={() => void refreshAll()} disabled={!ready || refreshing} aria-busy={refreshing}>{refreshing ? 'Refreshing…' : 'Refresh all'}</button>}
       </div>
     </div>
+    {!!leagues.length && <ConnectionHealthBar contexts={contexts} />}
+    {!!kickoff.checks.length && <p className={styles.period}>Kickoff within 15 minutes · Review your lineup warnings before games start.</p>}
+    {kickoff.problem && <p role="status" className={styles.warningText}>{kickoff.problem}</p>}
     {seasons.length > 1 && <label className={styles.selector}>Season<select value={season} onChange={event => setChosenSeason(Number(event.target.value))}>{seasons.map(year => <option key={year} value={year}>{year}</option>)}</select></label>}
     {mobile && !!leagues.length && <div className={styles.mobileTabs} role="tablist" aria-label="Game Day views">
       {(['matchups', 'players'] as const).map((tab, index) => <button key={tab} id={`${tab}-tab`} type="button" role="tab" aria-selected={view === tab} aria-controls={`${tab}-panel`} tabIndex={view === tab ? 0 : -1} ref={element => { tabRefs.current[tab] = element; }} onClick={() => setView(tab)} onKeyDown={event => {
@@ -159,7 +168,7 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
       : <div className={styles.homeLayout}>
         <aside id="players-panel" role={mobile ? 'tabpanel' : undefined} hidden={mobile && view !== 'players'} className={styles.sharedSidebar} aria-labelledby={mobile ? 'players-tab' : 'shared-players-heading'}><SharedPlayersSidebar onCountChange={setSharedCount} onTimeline={onTimeline} refreshSignal={eventRefreshSignal} contexts={contexts} /></aside>
         <div id="matchups-panel" role={mobile ? 'tabpanel' : undefined} hidden={mobile && view !== 'matchups'} aria-labelledby={mobile ? 'matchups-tab' : 'your-matchups-heading'} className={styles.matchupsColumn}><section className={styles.matchupsPanel}><h2 id="your-matchups-heading">Your Matchups</h2><div className={styles.focusToolbar}><label>Sort matchups<select value={focus} onChange={event => setFocus(event.target.value as typeof focus)}><option value="league">League order</option><option value="projected">Closest projected margin</option><option value="current">Closest current margin</option></select></label><label className={styles.closeFilter}><input type="checkbox" checked={closeOnly} onChange={event => setCloseOnly(event.target.checked)} />Only close (≤10 pts)</label></div>{closeOnly && !qualifying && <p className={styles.empty}>No close matchups with available {focus === 'current' ? 'current' : 'weekly projected'} margins.</p>}<div className={styles.homeGrid}>{sortedLeagues.map(league => <LeagueMatchups focus={focus} closeOnly={closeOnly} key={savedLeagueKey(league)} saved={league} currentLeague={currentLeague} onUpdate={onUpdate} timelines={timelines} />)}</div></section>
-          {Object.entries(timelines).filter(([key]) => key.startsWith(`${season}:`) && weeks.includes(Number(key.split(':')[1]))).map(([key, feed]) => <div key={key} className={styles.combinedEvents}><MatchupAlerts data={feed.data} error={feed.error} loading={feed.loading} now={now} renderImpact={event => <EventImpactDetails event={event} contexts={contexts.filter(context => `${context.snapshot?.season}:${context.snapshot?.week}` === key)} data={feed.data} />} idPrefix={`home-${key}-`} /></div>)}
+          {Object.entries(timelines).filter(([key]) => key.startsWith(`${season}:`) && weeks.includes(Number(key.split(':')[1]))).map(([key, feed]) => <div key={key} className={styles.combinedEvents}><MatchupAlerts data={feed.data} error={feed.error} loading={feed.loading} now={now} rankEvents={events => prioritizeEvents(events, experience.alertPriority, contexts.filter(context => `${context.snapshot?.season}:${context.snapshot?.week}` === key), feed.data, now)} renderImpact={event => <EventImpactDetails event={event} contexts={contexts.filter(context => `${context.snapshot?.season}:${context.snapshot?.week}` === key)} data={feed.data} />} idPrefix={`home-${key}-`} /></div>)}
           <LineupWarnings contexts={contexts} feeds={timelines} now={now} />
           {Object.entries(timelines).filter(([key]) => key.startsWith(`${season}:`) && weeks.includes(Number(key.split(':')[1]))).map(([key, feed]) => <div key={key} className={styles.combinedEvents}>
             <MatchupTimeline week={Number(key.split(':')[1])} data={feed.data} error={feed.error} loading={feed.loading} refresh={() => setEventRefreshSignal(value => value + 1)} canRefresh={true} renderImpact={event => <EventImpactDetails event={event} contexts={contexts.filter(context => `${context.snapshot?.season}:${context.snapshot?.week}` === key)} data={feed.data} />} idPrefix={`home-${key}-`} />

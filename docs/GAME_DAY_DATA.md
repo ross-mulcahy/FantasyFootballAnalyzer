@@ -281,3 +281,38 @@ metadata. Shared players sort by the highest finite projection across their
 league occurrences, descending, with missing estimates last. That highest
 projection appears beneath the current points/range even while collapsed. Zero
 projections remain valid, and live status does not override this ranking.
+
+### Connection health, reminders, provider shortcuts and backup
+
+`ffa:connection-health:v1` stores only normalized state (ok/login/setup/unavailable),
+check time and last-success time per saved league key. Raw errors and credentials
+are not persisted. Successful live metadata/snapshot loads clear failure state;
+failed cached connections bypass metadata-cache hydration on the next load.
+`/settings?reconnect=<savedLeagueKey>` prefills the exact league and season without
+automatically submitting or dropping the saved team choice.
+
+`ffa:experience:v1` persists kickoff checks and all/impact/close alert preference.
+The preference is shared by the combined Latest Alerts and browser event batches;
+standalone matchup alerts retain their existing chronological behavior. Notification
+baselines record all seen events before preference filtering, preventing replay.
+The full timeline is never reprioritized. Close priority uses current margin, with
+projected fallback, and the existing multiweek/missing-data guards.
+
+`useKickoffReminders` checks future relevant starter kickoffs within 15 minutes,
+refreshes roster/NFL data once per mounted league/week/kickoff, then reports warnings
+through already-enabled browser notifications. Delivery deduplication persists in
+`ffa:kickoff-reminders:v1`; it is not a background service or closed-browser timer.
+Postponed/cancelled starts, clean lineups, opt-out and missing game statuses stay
+quiet. Automatic refresh remains available without notification permission.
+
+Provider URLs use validated identifiers and contain no session data. ESPN links
+include league/team/season; Yahoo links use numeric league/team IDs. Sleeper links
+open the league team tab rather than claiming a direct arbitrary-roster URL.
+
+Backups use explicit versioned display schemas, not localStorage enumeration.
+They reconstruct saved leagues and recaps field-by-field, cap files at 2 MB,
+validate version/date/values, and omit authentication, env data, notification
+permission/enabling, health records, caches and notification dedup state. Restore
+previews before a user click, merges leagues (existing selections win) and recaps,
+and replaces only the allowed preferences. A failed write attempts rollback
+before reporting failure. Storage-change events update visible selections.

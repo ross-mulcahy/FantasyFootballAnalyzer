@@ -1,3 +1,5 @@
+import { readConnectionHealth, recordConnectionHealth } from '@/utils/connectionHealth';
+import { savedLeagueKey } from '@/utils/savedLeagues';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import type { League, LeagueCredentials } from '@/types';
 import {
@@ -133,7 +135,7 @@ export function useLeague(): UseLeagueReturn {
     // blank loading screen.
     let isBackgroundRefresh = false;
     let hydrated: League | null = null;
-    if (!options?.forceRefresh) {
+    if (!options?.forceRefresh && !['login', 'setup', 'unavailable'].includes(readConnectionHealth()[savedLeagueKey({ platform: credentials.platform, leagueId: credentials.leagueId, season: credentials.season ?? 0, name: '' })]?.state ?? 'ok')) {
       const cached = loadCachedLeagueForCredentials(credentials);
       if (cached) {
         const stale = isStale(cached);
@@ -186,6 +188,7 @@ export function useLeague(): UseLeagueReturn {
         }
         setLeague(loadedLeague);
         cacheLeague(loadedLeague);
+        recordConnectionHealth({ platform: loadedLeague.platform, leagueId: loadedLeague.id, season: loadedLeague.season, name: loadedLeague.name }, null);
         // A real connection supersedes any guest session: drop the persisted
         // guest settings so a later logout + no-league visit starts clean.
         clearGuestSettings();
@@ -259,6 +262,7 @@ export function useLeague(): UseLeagueReturn {
         }
 
         setError(message);
+        recordConnectionHealth({ platform: credentials.platform, leagueId: credentials.leagueId, season: credentials.season ?? 0, name: '' }, message);
         // A failed load must not destroy a REAL league already on screen
         // (a season switch that 404s, a share link that errors): stale data
         // beats no data, same reasoning as the background-refresh path. A

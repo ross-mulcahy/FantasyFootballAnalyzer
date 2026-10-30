@@ -1,3 +1,4 @@
+import { recordConnectionHealth, readConnectionHealth } from '@/utils/connectionHealth';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import type { League, LeagueCredentials } from '@/types';
@@ -47,6 +48,7 @@ function makeLeague(overrides: Partial<League> = {}): League {
 const sleeperCreds: LeagueCredentials = { platform: 'sleeper', leagueId: 'L1' };
 
 beforeEach(() => {
+  localStorage.clear();
   mockedLoadLeague.mockReset();
   mockedLoadCachedLeague.mockReset();
   mockedCacheLeague.mockReset();
@@ -665,4 +667,14 @@ it('does not replay a remember-login choice on refresh after the user forgets it
   expect(result.current.credentials).not.toHaveProperty('rememberEspn');
   await act(async () => { await result.current.refresh(); });
   expect(mockedPersistESPNCreds.mock.lastCall?.[0]).not.toHaveProperty('rememberEspn');
+});
+
+it('checks the provider instead of trusting fresh metadata when the saved connection needs reconnecting', async () => {
+  const cached = makeLeague({ platform: 'espn', id: '123', season: 2026 });
+  mockedLoadCachedLeague.mockReturnValue(cached); mockedLoadLeague.mockResolvedValue(cached);
+  recordConnectionHealth({ platform: 'espn', leagueId: '123', season: 2026, name: 'Test' }, '401 login expired');
+  const { result } = renderHook(() => useLeague());
+  await act(async () => { await result.current.load({ platform: 'espn', leagueId: '123', season: 2026 }); });
+  expect(mockedLoadLeague).toHaveBeenCalledOnce();
+  expect(Object.values(readConnectionHealth())[0].state).toBe('ok');
 });

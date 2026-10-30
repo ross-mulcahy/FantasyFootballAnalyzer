@@ -1,3 +1,4 @@
+import { recordConnectionHealth } from '@/utils/connectionHealth';
 import { createContext, useContext, useCallback, useEffect, useRef, useState } from 'react';
 import type { League, LeagueCredentials } from '@/types';
 import type { GameDaySnapshot } from '@/types/gameDay';
@@ -36,11 +37,12 @@ export function useGameDayState(league: League | null, credentials: LeagueCreden
     try {
       const fresh = await loadGameDay(league, credentials);
       if (id !== request.current) return;
+      recordConnectionHealth({ platform: league.platform, leagueId: league.id, season: league.season, name: league.name }, null, fresh.fetchedAt);
       updatedAt.current = fresh.fetchedAt;
       setSnapshot(fresh);
       setCacheWarning(!saveGameDayCache(fresh));
     } catch (err) {
-      if (id === request.current) setError(err instanceof Error ? err.message : 'Could not refresh rosters and scores.');
+      if (id === request.current) { const message = err instanceof Error ? err.message : 'Could not refresh rosters and scores.'; setError(message); recordConnectionHealth({ platform: league.platform, leagueId: league.id, season: league.season, name: league.name }, message); }
     } finally {
       if (id === request.current) { busy.current = false; setIsRefreshing(false); }
     }

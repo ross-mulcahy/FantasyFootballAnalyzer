@@ -118,6 +118,19 @@ earlier weeks are not backfilled. Finished-lineup results are provisional and
 subject to corrections. Missing data and unfinished multiweek rounds remain
 pending. Scores and contributors retain their own league's scoring rules.
 
+### Connection health and everyday shortcuts
+
+Game Day shows connection health and links back to the exact league's reconnect
+form. Provider shortcuts open ESPN/Yahoo teams or Sleeper's league team tab.
+Settings contains 15-minute pre-kickoff lineup checks, browser notification
+controls and event priorities (all events, lineup impact only, close matchups first).
+The full timeline remains chronological. Reminders require Game Day to stay open.
+
+Settings also exports and restores a previewed local backup of league selections,
+team choices, recap history and preferences. Logins, cookies, app credentials,
+notification permissions and API snapshots are excluded. Restore keeps existing
+team choices and merges history; reconnect private leagues on another browser.
+
 ### Local setup and refresh
 
 Use Node.js 20 or later; Node.js 24 LTS is the verified local runtime.

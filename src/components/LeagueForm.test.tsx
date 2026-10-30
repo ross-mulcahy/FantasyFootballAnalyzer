@@ -46,3 +46,12 @@ it('asks for Yahoo login instead of requesting league data without authenticatio
 });
 
 function render(ui: ReactElement) { return renderComponent(<MemoryRouter>{ui}</MemoryRouter>); }
+
+it('prefills a reconnect target with its original platform and season without changing team selection', () => {
+  const onSubmit = vi.fn();
+  render(<LeagueForm onSubmit={onSubmit} isLoading={false} initialLeague={{ platform: 'espn', leagueId: '123456', season: 2024, name: 'Reconnect League', teamId: '7' }} />);
+  expect(screen.getByLabelText(/LEAGUE ID/i)).toHaveValue('123456');
+  expect(screen.getByLabelText(/SEASON/i)).toHaveValue('2024');
+  expect(screen.getByText(/Reconnect Reconnect League below/)).toBeInTheDocument();
+  expect(onSubmit).not.toHaveBeenCalled();
+});

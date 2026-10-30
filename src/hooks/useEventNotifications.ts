@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { sortMajorEvents, type NFLTimeline, type MajorEvent } from '@/api/nflTimeline';
 import { browserAlertsEnabled, browserAlertsSupported, setBrowserAlertsEnabled, useBrowserAlertsEnabled } from '@/utils/browserAlerts';
 
-export function useEventNotifications(key: string, data: NFLTimeline | null, loading: boolean, describeEvent?: (event: MajorEvent) => string) {
+export function useEventNotifications(key: string, data: NFLTimeline | null, loading: boolean, describeEvent?: (event: MajorEvent) => string, rankEvents?: (events: MajorEvent[]) => MajorEvent[]) {
   const enabled = useBrowserAlertsEnabled();
   const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>(() => browserAlertsSupported() ? Notification.permission : 'unsupported');
   const [problem, setProblem] = useState<string | null>(null);
@@ -35,16 +35,18 @@ export function useEventNotifications(key: string, data: NFLTimeline | null, loa
     // One alert per polling batch avoids a burst when several games score together.
     const recent = fresh.filter(event => data.games?.some(game => game.id === event.gameId && game.state === 'in') && (!event.occurredAt || Date.now() - Date.parse(event.occurredAt) <= 10 * 60000));
     if (!recent.length) return;
-    const latest = recent[0];
+    const ranked = rankEvents ? rankEvents(recent) : recent;
+    if (!ranked.length) return;
+    const latest = ranked[0];
     try {
-      const notification = new Notification(recent.length === 1 ? `${latest.game} · ${latest.kind}` : `${recent.length} new matchup events`, {
-        body: `${describeEvent?.(latest) ?? latest.description}${recent.length > 1 ? ` (+${recent.length - 1} more in the timeline)` : ''}`,
+      const notification = new Notification(ranked.length === 1 ? `${latest.game} · ${latest.kind}` : `${ranked.length} new matchup events`, {
+        body: `${describeEvent?.(latest) ?? latest.description}${ranked.length > 1 ? ` (+${ranked.length - 1} more in the timeline)` : ''}`,
         tag: `ffa-event:${key}:${latest.id}`,
       });
       notification.onclick = () => { window.focus(); notification.close(); };
       setProblem(null);
     } catch { setProblem('This browser could not display an alert. Check its notification settings or try a desktop browser.'); }
-  }, [key, data, loading, enabled, seenKey, describeEvent]);
+  }, [key, data, loading, enabled, seenKey, describeEvent, rankEvents]);
 
   const toggle = async () => {
     setProblem(null);
@@ -59,7 +61,7 @@ export function useEventNotifications(key: string, data: NFLTimeline | null, loa
       const result = Notification.permission === 'granted' ? 'granted' : await Notification.requestPermission();
       setPermission(result);
       if (result !== 'granted') return;
-      const test = new Notification('Game Day alerts enabled', { body: 'New events in this open matchup will appear here.', tag: 'ffa-alerts-enabled' });
+      const test = new Notification('Game Day alerts enabled', { body: 'New events while Game Day is open will appear here.', tag: 'ffa-alerts-enabled' });
       test.onclick = () => { window.focus(); test.close(); };
       setBrowserAlertsEnabled(true);
     } catch { setProblem('Browser alerts could not be enabled. Check notification permissions and browser storage, or try a desktop browser.'); }
