@@ -22,7 +22,7 @@ export function HomeManifesto() {
       </p>
       <a
         className={styles.manifestoLink}
-        href="https://github.com/Krool/FantasyFootballAnalyzer"
+        href="https://github.com/ross-mulcahy/FantasyFootballAnalyzer"
         target="_blank"
         rel="noopener noreferrer"
       >

@@ -5,7 +5,9 @@ a static site with no backend of its own, plus a thin Vercel serverless layer in
 `api/` that exists only to hold secrets and bypass CORS. League data (Sleeper,
 ESPN, Yahoo) is fetched in the browser; draft rankings are bundled at build time.
 
-Production: https://fantasyfootballanalyzer.app/
+Fork: https://github.com/ross-mulcahy/FantasyFootballAnalyzer
+
+The local app runs at http://127.0.0.1:5173/.
 
 ## Architecture at a glance
 
@@ -21,6 +23,23 @@ Production: https://fantasyfootballanalyzer.app/
   deploy pipelines. Details and the domain-change gotcha: `extension/CLAUDE.md`.
 - **No database, no server-side storage.** Credentials live in the browser and
   pass straight through to the platform APIs (or through the stateless proxy).
+
+## Yahoo sign-in in this fork
+
+`src/api/yahoo.ts` defaults to same-origin Yahoo endpoints, not the inherited
+hosted service. `scripts/localYahooApi.ts` mounts the four Yahoo handlers during
+Vite development, accepting only loopback clients and allowed local origins.
+Server-only credentials come from `.env.local`; they are never VITE_* variables.
+Real sign-in requires the user's own Yahoo developer app and registered callback.
+Hosted APIs require an explicit FRONTEND_URL; disallowed login return addresses
+are rejected rather than replaced with the original website. The frontend checks
+the state return base before navigating to Yahoo. `YAHOO_REDIRECT_URI`, when set,
+is shared by authorization and token exchange. See `docs/YAHOO_SETUP.md`.
+
+The original hosted ESPN proxy remains the fallback unless VITE_ESPN_PROXY_URL
+is configured; do not change that independently without verifying private ESPN
+connections. Historical upstream references and required attribution in license
+and documentation files remain distinct from user-facing branding.
 
 ## Game Day fork additions
 
@@ -49,8 +68,9 @@ the bot-owned draft pool pipeline.
 
 GitHub Pages serves the SPA from the `gh-pages` branch. Production is published
 by CI, not from your machine. The custom domain is pinned by `public/CNAME`
-(`fantasyfootballanalyzer.app`); that file must ship in every deploy or GitHub
-resets the custom domain. Vite `base` is `/` (the app used to live under the
+(`fantasyfootballanalyzer.app`) in the inherited deployment configuration.
+Choose the fork's own domain before deploying a public frontend; local use
+does not require Pages or a custom domain. Vite `base` is `/` (the app used to live under the
 `/FantasyFootballAnalyzer/` github.io subpath; it now serves at root).
 
 Two deploy paths that do not overlap:
@@ -203,7 +223,7 @@ provisioning, not our OAuth. Details in `docs/API_REFERENCE.md` (Yahoo
 section).
 
 The client points at the proxy via `VITE_ESPN_PROXY_URL` / `VITE_YAHOO_API_URL`
-(default to the Vercel host above). Sleeper needs no proxy (CORS-open). See
+(Yahoo defaults to same-origin; ESPN retains the inherited Vercel fallback). Sleeper needs no proxy (CORS-open). See
 `docs/API_REFERENCE.md` for per-platform endpoint reality.
 
 ## Draft data pipeline

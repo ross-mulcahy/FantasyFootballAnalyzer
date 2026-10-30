@@ -1,20 +1,20 @@
-import { allowedFrontendBase, applyCors } from './_cors.js';
+import { allowedFrontendBase, applyCors, configuredFrontendBase } from './_cors.js';
 
 const YAHOO_TOKEN_URL = 'https://api.login.yahoo.com/oauth2/get_token';
-const FRONTEND_FALLBACK = process.env.FRONTEND_URL || 'https://fantasyfootballanalyzer.app';
+
 
 // The frontend base rides inside the state after the CSRF nonce (see
 // yahoo-auth.js). Validate it against the allowlist before redirecting -
 // the state came back through Yahoo's URL, so treat it as untrusted input.
 function frontendFromState(state) {
-  if (typeof state !== 'string') return FRONTEND_FALLBACK;
+  if (typeof state !== 'string') return configuredFrontendBase();
   const encoded = state.split('.')[1];
-  if (!encoded) return FRONTEND_FALLBACK;
+  if (!encoded) return configuredFrontendBase();
   try {
     const url = Buffer.from(encoded, 'base64url').toString('utf8');
-    return allowedFrontendBase(url) ?? FRONTEND_FALLBACK;
+    return allowedFrontendBase(url) ?? configuredFrontendBase();
   } catch {
-    return FRONTEND_FALLBACK;
+    return configuredFrontendBase();
   }
 }
 
@@ -27,6 +27,9 @@ export default async function handler(req, res) {
 
   const { code, state, error, error_description } = req.query;
   const FRONTEND_URL = frontendFromState(state);
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  if (!FRONTEND_URL) return res.status(503).json({ error: 'Yahoo sign-in return address is not configured for this installation.' });
 
   // Validate state parameter for CSRF protection
   // The state should be validated against a stored value on the client side
@@ -53,7 +56,7 @@ export default async function handler(req, res) {
   try {
     const protocol = req.headers['x-forwarded-proto'] || 'https';
     const host = req.headers.host;
-    const redirectUri = `${protocol}://${host}/api/yahoo-callback`;
+    const redirectUri = process.env.YAHOO_REDIRECT_URI || `${protocol}://${host}/api/yahoo-callback`;
 
     // Exchange code for tokens
     const credentials = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64');

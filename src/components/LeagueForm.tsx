@@ -403,7 +403,7 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange }: LeagueForm
       // Deliberately stay busy on success: the page is navigating away.
     } catch (err) {
       logger.error('Failed to get Yahoo auth URL:', err);
-      setYahooError('Could not start Yahoo login. Try again.');
+      setYahooError(err instanceof Error ? err.message : 'Could not start Yahoo login. Try again.');
       setYahooLoginBusy(false);
     }
   };

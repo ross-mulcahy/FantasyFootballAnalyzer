@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+vi.hoisted(() => { process.env.FRONTEND_URL = 'https://app.example.com' })
 import handler from './yahoo-auth.js'
 
 // yahoo-auth packs the caller's return base into the OAuth `state`. The
@@ -37,11 +38,11 @@ describe('yahoo-auth handler', () => {
     else process.env.ALLOW_DEV_OAUTH = originalDev
   })
 
-  it('puts the production base in state when return_base is an attacker origin', () => {
+  it('rejects a disallowed return address instead of silently sending the user elsewhere', () => {
     const res = mockRes()
     handler(mockReq({ query: { return_base: 'https://evil.example.com' } }), res)
-    expect(res.statusCode).toBe(200)
-    expect(new URL(decodeBase(res.body.state)).origin).toBe('https://fantasyfootballanalyzer.app')
+    expect(res.statusCode).toBe(400)
+    expect(res.body.authUrl).toBeUndefined()
   })
 
   it('honors an allowlisted dev base only when ALLOW_DEV_OAUTH is set', () => {
@@ -51,11 +52,12 @@ describe('yahoo-auth handler', () => {
     expect(decodeBase(res.body.state)).toBe('http://localhost:5173')
   })
 
-  it('ignores a dev base when ALLOW_DEV_OAUTH is not set', () => {
+  it('rejects a dev base when ALLOW_DEV_OAUTH is not set', () => {
     delete process.env.ALLOW_DEV_OAUTH
     const res = mockRes()
     handler(mockReq({ query: { return_base: 'http://localhost:5173' } }), res)
-    expect(new URL(decodeBase(res.body.state)).origin).toBe('https://fantasyfootballanalyzer.app')
+    expect(res.statusCode).toBe(400)
+    expect(res.body.authUrl).toBeUndefined()
   })
 
   it('returns 500 when the Yahoo client id is not configured', () => {
@@ -81,3 +83,12 @@ describe('yahoo-auth handler', () => {
     expect(res.body.state).toMatch(/^[a-f0-9]{64}\.[A-Za-z0-9_-]+$/)
   })
 })
+
+it('uses the registered callback URI when explicitly configured', () => {
+  process.env.YAHOO_CLIENT_ID = 'test-client-id';
+  process.env.YAHOO_REDIRECT_URI = 'https://my-api.example.com/api/yahoo-callback';
+  try {
+    const res = mockRes(); handler(mockReq(), res);
+    expect(new URL(res.body.authUrl).searchParams.get('redirect_uri')).toBe(process.env.YAHOO_REDIRECT_URI);
+  } finally { delete process.env.YAHOO_REDIRECT_URI; }
+});

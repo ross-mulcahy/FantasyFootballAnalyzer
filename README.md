@@ -5,8 +5,6 @@ ESPN, and Yahoo fantasy football leagues. No accounts, no ads, no server-side
 storage: credentials stay in the browser and pass straight through to the
 platform APIs.
 
-**Upstream site:** https://fantasyfootballanalyzer.app/
-
 This fork adds a local Game Day dashboard across your connected leagues.
 
 ## License for this fork
@@ -136,8 +134,8 @@ Clearing site data removes local preferences, snapshots and recap history.
 
 Private ESPN connections offer **Remember ESPN login on this device**, off by
 default. Clearing that option forgets the persistent login; cookies may expire
-and require reconnecting. Yahoo uses the existing OAuth connection and configured
-proxy. Credentials are never included in saved matchup/recap snapshots or links.
+and require reconnecting. Yahoo uses your own app credentials and login service; see
+[Yahoo setup](docs/YAHOO_SETUP.md). Credentials are never included in saved matchup/recap snapshots or links.
 
 Matchup snapshots poll every **60 seconds** while NFL games are live for the
 season and every **3 hours** otherwise, with kickoff-aware status checks.
@@ -169,13 +167,15 @@ npm run deploy       # publish dist/ to gh-pages
 Draft data lives in `src/data/draftPool.<season>.json`, built by
 `npm run update:rankings` (see CLAUDE.md for pipeline details). The Yahoo
 OAuth and ESPN proxy serverless functions in `api/` deploy to Vercel;
-everything else is a static site on GitHub Pages at the custom domain. The
+the frontend can run locally or on static hosting. Vite also supplies Yahoo
+handlers during local development; public hosting needs your own API service. The
 Vercel functions read `FRONTEND_URL` and the Yahoo client id/secret from env
 (`VITE_SENTRY_DSN` is frontend-only, consumed at build time); see CLAUDE.md for
 the full list.
 
 ## Docs
 
+- [Yahoo setup](docs/YAHOO_SETUP.md) — configure login for this installation
 - [Game Day guide](docs/GAME_DAY_GUIDE.md) — setup, navigation and daily use
 - [Game Day data reference](docs/GAME_DAY_DATA.md) — adapters, polling, caching,
   alerts and recap storage

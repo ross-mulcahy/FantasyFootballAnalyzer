@@ -1,7 +1,7 @@
 import crypto from 'crypto';
-import { allowedFrontendBase, applyCors } from './_cors.js';
+import { allowedFrontendBase, applyCors, configuredFrontendBase } from './_cors.js';
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://fantasyfootballanalyzer.app';
+
 
 export default function handler(req, res) {
   if (applyCors(req, res, { methods: 'GET, OPTIONS' })) return;
@@ -20,15 +20,19 @@ export default function handler(req, res) {
     // Get the redirect URI from the request
     const protocol = req.headers['x-forwarded-proto'] || 'https';
     const host = req.headers.host;
-    const redirectUri = `${protocol}://${host}/api/yahoo-callback`;
+    const redirectUri = process.env.YAHOO_REDIRECT_URI || `${protocol}://${host}/api/yahoo-callback`;
 
     // Where the browser lands after the round trip: the frontend sends its
     // own base URL (the vite dev server during development). Anything off
-    // the allowlist falls back to production; the allowlist check also
+    // the allowlist is rejected; the allowlist check also
     // canonicalizes (strips trailing slashes, rejects query/fragment).
     const requested =
       typeof req.query.return_base === 'string' ? allowedFrontendBase(req.query.return_base) : null;
-    const frontendBase = requested ?? FRONTEND_URL;
+    if (req.query.return_base !== undefined && !requested) {
+      return res.status(400).json({ error: 'Yahoo sign-in cannot return to this app. Configure FRONTEND_URL for this installation and ALLOW_DEV_OAUTH=1 for local use.' });
+    }
+    const frontendBase = requested ?? configuredFrontendBase();
+    if (!frontendBase) return res.status(503).json({ error: 'Yahoo sign-in is not configured for this installation. Set FRONTEND_URL on your Yahoo service.' });
 
     // CSRF nonce, with the return destination riding along after it - the
     // callback has no other way to know whether this login started on dev

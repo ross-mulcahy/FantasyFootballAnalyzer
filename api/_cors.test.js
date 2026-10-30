@@ -1,10 +1,14 @@
-import { describe, it, expect, afterEach } from 'vitest'
+import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
+vi.hoisted(() => { process.env.FRONTEND_URL = 'https://app.example.com' })
+
 import { allowedFrontendBase, applyCors, isAllowedFrontend } from './_cors.js'
+
+beforeEach(() => { process.env.FRONTEND_URL = 'https://app.example.com' })
 
 // isAllowedFrontend gates where the OAuth callback redirects freshly minted
 // access/refresh tokens. It is deliberately stricter than CORS reflection: a
 // regression that widens it leaks tokens to an attacker-supplied origin. These
-// lock the contract. (PROD_ORIGIN resolves to https://fantasyfootballanalyzer.app at import
+// lock the contract. (PROD_ORIGIN resolves to https://app.example.com at import
 // time from the default FRONTEND_URL.)
 describe('isAllowedFrontend (OAuth token-redirect allowlist)', () => {
   const original = process.env.ALLOW_DEV_OAUTH
@@ -14,7 +18,7 @@ describe('isAllowedFrontend (OAuth token-redirect allowlist)', () => {
   })
 
   it('allows the production origin', () => {
-    expect(isAllowedFrontend('https://fantasyfootballanalyzer.app/')).toBe(true)
+    expect(isAllowedFrontend('https://app.example.com/')).toBe(true)
   })
 
   it('rejects an arbitrary attacker origin', () => {
@@ -47,20 +51,20 @@ describe('isAllowedFrontend (OAuth token-redirect allowlist)', () => {
 // token-bearing redirect. These lock the canonicalization.
 describe('allowedFrontendBase (canonical OAuth redirect base)', () => {
   it('returns the base with trailing slashes stripped, path preserved', () => {
-    expect(allowedFrontendBase('https://fantasyfootballanalyzer.app/'))
-      .toBe('https://fantasyfootballanalyzer.app')
-    expect(allowedFrontendBase('https://fantasyfootballanalyzer.app'))
-      .toBe('https://fantasyfootballanalyzer.app')
+    expect(allowedFrontendBase('https://app.example.com/'))
+      .toBe('https://app.example.com')
+    expect(allowedFrontendBase('https://app.example.com'))
+      .toBe('https://app.example.com')
   })
 
   it('rejects an allowed origin carrying a query string or fragment', () => {
-    expect(allowedFrontendBase('https://fantasyfootballanalyzer.app/?q=1')).toBeNull()
-    expect(allowedFrontendBase('https://fantasyfootballanalyzer.app/#frag')).toBeNull()
-    expect(allowedFrontendBase('https://fantasyfootballanalyzer.app/path?x=#')).toBeNull()
+    expect(allowedFrontendBase('https://app.example.com/?q=1')).toBeNull()
+    expect(allowedFrontendBase('https://app.example.com/#frag')).toBeNull()
+    expect(allowedFrontendBase('https://app.example.com/path?x=#')).toBeNull()
   })
 
   it('rejects embedded credentials on an allowed origin', () => {
-    expect(allowedFrontendBase('https://user:pw@fantasyfootballanalyzer.app/')).toBeNull()
+    expect(allowedFrontendBase('https://user:pw@app.example.com/')).toBeNull()
   })
 
   it('returns null for a disallowed origin', () => {
@@ -73,9 +77,9 @@ describe('allowedFrontendBase (canonical OAuth redirect base)', () => {
 // (Access-Control-Allow-Credentials: true) with an Allow-Origin value. The risk
 // is reflecting an off-allowlist origin back, which would let any site read
 // those responses. These lock that the reflection never widens past the
-// allowlist. (PROD_ORIGIN resolves to https://fantasyfootballanalyzer.app from the default
+// allowlist. (PROD_ORIGIN resolves to https://app.example.com from the default
 // FRONTEND_URL at import time.)
-const PROD = 'https://fantasyfootballanalyzer.app'
+const PROD = 'https://app.example.com'
 
 function mockReq({ method = 'GET', headers = {} } = {}) {
   return { method, headers }
@@ -148,3 +152,13 @@ describe('applyCors (credentialed CORS reflection)', () => {
     expect(res.headers['access-control-allow-methods']).toBe('POST, OPTIONS')
   })
 })
+
+it('has no inherited frontend fallback when this installation is not configured', () => {
+  delete process.env.FRONTEND_URL;
+  expect(allowedFrontendBase('https://app.example.com')).toBeNull();
+});
+it('restricts hosted callbacks to the configured app path on shared hosting', () => {
+  process.env.FRONTEND_URL = 'https://app.example.com/my-app/';
+  expect(allowedFrontendBase('https://app.example.com/my-app/')).toBe('https://app.example.com/my-app');
+  expect(allowedFrontendBase('https://app.example.com/another-app')).toBeNull();
+});

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
+vi.hoisted(() => { process.env.FRONTEND_URL = 'https://app.example.com' })
 import handler from './yahoo-callback.js'
 
 // The callback redirects freshly minted OAuth tokens to a frontend base that
@@ -7,7 +8,7 @@ import handler from './yahoo-callback.js'
 // Most cases hit a redirect or status branch BEFORE the token exchange, so
 // they need no fetch mocking; the final describe covers the exchange itself.
 
-const PROD = 'https://fantasyfootballanalyzer.app'
+const PROD = 'https://app.example.com'
 
 function mockReq({ method = 'GET', query = {}, headers = {} } = {}) {
   return { method, query, headers: { host: 'api.example.com', ...headers } }

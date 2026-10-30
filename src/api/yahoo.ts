@@ -8,7 +8,7 @@ import { safeLocalStorage, safeSessionStorage } from '@/utils/safeStorage';
 import { pacedYahooFetch } from './yahooPacing';
 
 // Backend API URL - Vercel deployment
-const API_BASE = import.meta.env.VITE_YAHOO_API_URL || 'https://fantasy-football-analyzer-mu.vercel.app';
+const API_BASE = (import.meta.env.VITE_YAHOO_API_URL || '').replace(/\/+$/, '');
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -137,25 +137,36 @@ export function isAuthenticated(): boolean {
 // switch to a different Yahoo account.
 export async function getAuthUrl(forceLogin = false): Promise<string> {
   // Tell the server where to send the browser back after Yahoo: production
-  // is the GitHub Pages URL, dev is the vite server. The server allowlists
-  // the value, so a bad one just falls back to production.
+  // is this installation, dev is the Vite server. The server rejects return
+  // destinations not explicitly configured for this installation.
+  clearOAuthState();
   const returnBase = `${window.location.origin}${import.meta.env.BASE_URL}`.replace(/\/+$/, '');
   const response = await fetch(
     `${API_BASE}/api/yahoo-auth?return_base=${encodeURIComponent(returnBase)}${
       forceLogin ? '&force_login=1' : ''
     }`,
   );
-  if (!response.ok) {
-    throw new Error('Failed to get auth URL');
+  let data: { authUrl?: string; state?: string; error?: string };
+  try { data = await response.json(); }
+  catch { throw new Error('Yahoo sign-in needs a login service for this installation. See docs/YAHOO_SETUP.md.'); }
+  if (!response.ok) throw new Error(data.error || 'Yahoo sign-in is not configured for this installation. See docs/YAHOO_SETUP.md.');
+  // An older shared service silently replaces a local return URL with its own
+  // homepage. Stop here before sending the user into the wrong installation.
+  try {
+    const auth = new URL(data.authUrl!);
+    const encoded = data.state?.split('.')[1];
+    const destination = encoded ? atob(encoded.replace(/-/g, '+').replace(/_/g, '/')) : '';
+    if (auth.origin !== 'https://api.login.yahoo.com' || auth.pathname !== '/oauth2/request_auth' || !data.state || auth.searchParams.get('state') !== data.state || destination !== returnBase) throw new Error('Invalid Yahoo login destination');
+  } catch {
+    throw new Error('Yahoo sign-in is pointing at another installation. Configure your own Yahoo login service; see docs/YAHOO_SETUP.md.');
   }
-  const data = await response.json();
 
   // Store state in sessionStorage for CSRF validation
   if (data.state) {
     safeSessionStorage.setItem(STORAGE_KEYS.OAUTH_STATE, data.state);
   }
 
-  return data.authUrl;
+  return data.authUrl!;
 }
 
 // Validate OAuth state for CSRF protection

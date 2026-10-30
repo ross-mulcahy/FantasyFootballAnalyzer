@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 import path from 'path'
 import { execSync } from 'node:child_process'
+import { localYahooApi } from './scripts/localYahooApi'
 import { blockerSafeName } from './scripts/chunkNames'
 
 const SITE_URL = 'https://fantasyfootballanalyzer.app/'
@@ -75,6 +76,7 @@ export default defineConfig({
   preview: { port: 4173, strictPort: true },
   plugins: [
     react(),
+    localYahooApi(),
     sitemap(),
     // De-minifies production stack traces in Sentry. Must come last. Uploads
     // maps under the same release name as VITE_BUILD_SHA so they attach to the

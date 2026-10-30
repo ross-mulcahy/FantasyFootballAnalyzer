@@ -3,7 +3,18 @@
 // allowlist so both work; any other origin gets the production value back
 // and the browser blocks the read.
 
-const PROD_ORIGIN = new URL(process.env.FRONTEND_URL || 'https://fantasyfootballanalyzer.app').origin;
+export function configuredFrontendBase() {
+  try {
+    const url = new URL(process.env.FRONTEND_URL || '');
+    if (url.username || url.password || url.search || url.hash || !['https:', 'http:'].includes(url.protocol)) return null;
+    if (url.protocol === 'http:' && !['localhost', '127.0.0.1'].includes(url.hostname)) return null;
+    return url.origin + url.pathname.replace(/\/+$/, '');
+  } catch { return null; }
+}
+function productionOrigin() {
+  const base = configuredFrontendBase();
+  return base ? new URL(base).origin : 'null';
+}
 const DEV_ORIGINS = new Set([
   'http://localhost:5173',
   'http://127.0.0.1:5173',
@@ -13,7 +24,7 @@ const DEV_ORIGINS = new Set([
 
 function allowedOrigin(req) {
   const origin = req.headers.origin;
-  return origin && (origin === PROD_ORIGIN || DEV_ORIGINS.has(origin)) ? origin : PROD_ORIGIN;
+  return origin && (origin === productionOrigin() || DEV_ORIGINS.has(origin)) ? origin : productionOrigin();
 }
 
 // Whether a frontend base URL is a safe OAuth token-redirect destination.
@@ -21,7 +32,7 @@ function allowedOrigin(req) {
 // freshly minted access/refresh tokens to this URL, and the `state` it comes
 // from round-trips through Yahoo (attacker-constructible). So localhost is
 // only honored when ALLOW_DEV_OAUTH is explicitly set on the deployment;
-// the production API defaults to redirecting tokens to PROD_ORIGIN only.
+// the hosted API returns tokens only to the explicitly configured frontend.
 // (CORS reflection of localhost stays on for data endpoints: those use
 // header-based auth a localhost page can't read, so reflecting them is safe.)
 // Returns the canonical base (origin + pathname, trailing slashes stripped)
@@ -34,9 +45,8 @@ export function allowedFrontendBase(url) {
   try {
     const parsed = new URL(url);
     if (parsed.search !== '' || parsed.hash !== '' || parsed.username || parsed.password) return null;
-    const allowed =
-      parsed.origin === PROD_ORIGIN ||
-      (process.env.ALLOW_DEV_OAUTH === '1' && DEV_ORIGINS.has(parsed.origin));
+    const base = parsed.origin + parsed.pathname.replace(/\/+$/, '');
+    const allowed = base === configuredFrontendBase() || (process.env.ALLOW_DEV_OAUTH === '1' && DEV_ORIGINS.has(base));
     return allowed ? parsed.origin + parsed.pathname.replace(/\/+$/, '') : null;
   } catch {
     return null;

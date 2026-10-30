@@ -404,7 +404,7 @@ function App() {
     } catch (err) {
       logger.error('Failed to start Yahoo login:', err);
       playError();
-      window.alert('Could not start Yahoo login. Please try again.');
+      window.alert(err instanceof Error ? err.message : 'Could not start Yahoo login. Please try again.');
     }
   }, [credentials, location.pathname, location.search, playError]);
 
@@ -824,20 +824,7 @@ function App() {
       <footer className="site-footer">
         <div className="container">
           <p>
-            Part of{' '}
-            <a
-              href="https://krool.github.io/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="footer-link"
-            >
-              Krool World
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                <polyline points="15 3 21 3 21 9" />
-                <line x1="10" y1="14" x2="21" y2="3" />
-              </svg>
-            </a>
+            <a href="https://github.com/ross-mulcahy/FantasyFootballAnalyzer" target="_blank" rel="noopener noreferrer" className="footer-link">View source on GitHub</a>
           </p>
           {/* Yahoo's API agreement requires this wherever its data shows:
               a Yahoo league, and the draft-prep boards, which carry Yahoo's
