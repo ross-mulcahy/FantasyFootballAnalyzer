@@ -21,6 +21,24 @@ Register the exact callback address your service can receive, ending in
 HTTPS callback on your own hosted service if Yahoo does not accept a local
 HTTP callback; this fork does not bypass Yahoo's callback restrictions.
 
+## New personal app checklist
+
+1. Open [Yahoo Developer Apps](https://developer.yahoo.com/apps/) and create
+   your app. A suggested name is **Personal Game Day** and a description is:
+   “Personal read-only dashboard for my fantasy football leagues and matchups.”
+2. Request Fantasy Sports read access if it is offered. If it is missing or
+   access is not provisioned, use Yahoo's [Fantasy Sports access application](https://sports.yahoo.com/developer/access/).
+   Follow Yahoo's current approval and application-confirmation instructions.
+3. Register a callback that Yahoo accepts and that reaches your installation.
+   For the local HTTP server, the candidate is
+   `http://127.0.0.1:5173/api/yahoo-callback`. If Yahoo requires HTTPS, adjust the
+   callback setup before attempting login; do not register an unreachable URL.
+4. Enter your client ID and secret in the ignored `.env.local` file. Keep
+   `VITE_YAHOO_API_URL` blank for the local handler. Never put the secret in
+   a `VITE_*` setting or send it through chat.
+5. Restart the local server and choose Settings → Yahoo → Log in with Yahoo.
+   A successful login still needs API access approval to load fantasy leagues.
+
 ## Local development
 
 Copy `.env.example` to `.env.local` (ignored by Git), and set:
