@@ -7,6 +7,14 @@ platform APIs.
 
 **Live:** https://fantasyfootballanalyzer.app/
 
+## License for this fork
+
+Ross Mulcahy's original contributions are licensed under the MIT License.
+This applies only to those contributions, not to inherited upstream code or
+third-party materials. See [LICENSE](LICENSE) for the full terms and scope.
+No explicit upstream license was found when this notice was added; this fork
+does not grant a license to the combined project as a whole.
+
 ## What it does
 
 **Draft tools (upcoming season)**
