@@ -1,4 +1,4 @@
-import { ProviderLink } from './ConnectionHealth';
+import { providerTeamUrl } from '@/utils/experience';
 import { useEffect, useState } from 'react';
 import type { MajorEvent, NFLTimeline } from '@/api/nflTimeline';
 import type { SharedLeagueContext } from '@/utils/sharedPlayers';
@@ -25,8 +25,15 @@ export function LineupWarnings({ contexts, feeds, now }: { contexts: SharedLeagu
   return <MatchupPanel title={warnings.length ? `${warnings.length} LINEUP HAZARDS // CHECK LOCK STATUS` : 'Lineup Hazards'} panelKey="home-lineup-warnings" className={`${styles.card} ${styles.insightPanel} ${warnings.length ? styles.hazardStrip : ''}`}>
     {!warnings.length && <p className={styles.hint}>{missing ? 'Waiting for roster data to check your starting lineups.' : 'All rosters legal. Your fate is in the hands of the fantasy gods now.'}</p>}
     {!!missing && !!warnings.length && <p className={styles.hint}>{missing} leagues still need roster data or a team selection.</p>}
-    <ul className={styles.warningList}>{warnings.map(warning => <li key={warning.key}><span className={styles.warningText}>{warning.message}</span><span className={styles.rowMeta}>{warning.league.name}{warning.locked ? ' · Game started; check league lock rules' : ''}{warning.saved ? ' · Saved roster; refresh before making changes' : ''}</span><Link className={styles.rosterLink} to={`/teams?${new URLSearchParams({ league: `${warning.league.platform}:${warning.league.leagueId}`, year: String(warning.league.season), team: warning.teamId })}`}>View roster →</Link><ProviderLink league={warning.league} teamId={warning.teamId} /></li>)}</ul>
-    <p className={styles.insightNote}>Your starters only. Injury flags depend on the provider; an empty warning list does not confirm everyone is healthy.</p>
+    <ul className={styles.warningList}>{warnings.map(warning => {
+      const split = warning.message.indexOf(': ');
+      const player = split >= 0 ? warning.message.slice(0, split) : warning.message;
+      const issue = split >= 0 ? warning.message.slice(split + 2) : 'CHECK LINEUP';
+      const status = /empty/i.test(issue) ? 'EMPTY SLOT' : /bye/i.test(issue) ? 'ON BYE' : issue.toUpperCase();
+      const url = providerTeamUrl(warning.league, warning.teamId);
+      const roster = `/teams?${new URLSearchParams({ league: `${warning.league.platform}:${warning.league.leagueId}`, year: String(warning.league.season), team: warning.teamId })}`;
+      return <li key={warning.key} className={styles.triageTicket}><div className={styles.triagePlayer}><strong>{player}</strong><span className={styles.triageStatus}>{status}</span></div><div className={styles.triageMeta}><span className={styles.triageLeague}>{warning.league.name}</span>{warning.saved && <span title="Cached roster snapshot">CACHED</span>}{warning.locked && <span title="Game started; your league's lock rules apply">LOCKED</span>}</div>{url ? <a className={styles.triageAction} href={url} target="_blank" rel="noopener noreferrer">FIX IN {warning.league.platform.toUpperCase()} ↗</a> : <Link className={styles.triageAction} to={roster}>REVIEW ROSTER ↗</Link>}</li>;
+    })}</ul>
   </MatchupPanel>;
 }
 function useRecapHistory(contexts: SharedLeagueContext[], feeds: TimelineFeeds, now: number, record: boolean) {

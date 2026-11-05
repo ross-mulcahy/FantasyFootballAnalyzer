@@ -1,3 +1,4 @@
+import { StudioChyronTicker } from '@/components/StudioChyronTicker';
 import { useCallback, useEffect, useMemo, useRef, useState, Suspense, type ReactNode } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation, useSearchParams, useParams } from 'react-router-dom';
 // Direct imports, not the '@/components' barrel: App is the always-mounted
@@ -776,6 +777,7 @@ function App() {
         </RouteErrorBoundary>
       </main>
 
+      <StudioChyronTicker league={league} />
       <footer className="site-footer">
         <div className="container">
           <p>

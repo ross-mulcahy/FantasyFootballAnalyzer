@@ -4,7 +4,7 @@ Where Losses Become Wins. A dense production switcher desk for multi-league fant
 
 ## Identity and tokens
 
-Inter supplies UI, league, team and player names. The extra-bold wordmark tracks at -0.03em: WITCHING in #F8FAFC, HOUR in #10B981. Pair with the ON AIR / QUAD-BOX // LIVE broadcast pill. JetBrains Mono supplies scores, projections, records, PAR, percentages and timestamps. Enforce tabular figures globally.
+Inter supplies body UI and player names. Self-hosted Google Font Chakra Petch (600/700) supplies uppercase display headers, franchise names and tabular digital scoreboards. The extra-bold wordmark tracks at -0.03em: WITCHING in #F8FAFC, HOUR in #10B981. Pair with the ON AIR / QUAD-BOX // LIVE broadcast pill. JetBrains Mono supplies projections, records, PAR, percentages and timestamps. Enforce tabular figures globally.
 
 | Token | Hex | Purpose |
 | --- | --- | --- |
@@ -14,12 +14,12 @@ Inter supplies UI, league, team and player names. The extra-bold wordmark tracks
 | --rule | #233047 | Structural 1px borders |
 | --lime | #10B981 | Turf Emerald brand / healthy / winning |
 | --gold | #F59E0B | Octobox Gold: projected margins ≤10 points |
-| --broadcast | #E11D48 | Hanson Crimson: live badges / scoring plays only |
+| --broadcast | #E11D48 | Hanson Crimson: live badges / scoring plays / clearly marked satire wire |
 | --blood | #EF4444 | Penalty Red: injury, OUT, IR, bye, bust, negative outliers |
 | --bone | #F8FAFC | Floodlight White text |
 | --bone-dim | #94A3B8 | Sideline Silver muted text |
 
-No white borders, offset block shadows, glass blur, glowing blobs, purple/blue/pink/cyan gradients, emoji, or NFL bitmap logos. Use 4–6px corners and 10–16px panel padding. Preserve visible focus, 36px controls, keyboard navigation, reduced motion and honest missing-data states.
+No white borders, decorative offset block shadows, glass blur, glowing blobs, purple/blue/pink/cyan gradients, emoji, or NFL bitmap logos. Use 4–6px corners and 10–16px panel padding. Preserve visible focus, 36px controls, keyboard navigation, reduced motion and honest missing-data states.
 
 ## Shared primitives
 
@@ -45,3 +45,33 @@ Close filter: “Witching Hour margins only (≤10 pts)”. Value grades: LEAGUE
 ## Preservation contract
 
 Presentation changes must not alter fetching, caches, storage keys, routing contracts, calculations, provider IDs, attribution or generated data. See CLAUDE.md for architecture and validation commands.
+
+## Studio hardware personality
+
+The Quad-Box is a 2-column monitor wall at viewport widths ≥1280px, with a spare standby channel for an odd league count. Each bay stacks two team rows with 28px digital scores, channel bezel, small LED, inset rim and faint 12px dot-grid canvas. Studio LINE pills derive from the existing projected margin (sign reversed for the user's spread), read TOSS-UP within one point, and LINE: OFF when projection data is unavailable; they are entertainment, not sportsbook odds.
+
+League dock controls and refresh actions use physical switcher keys: slate faces, 1px #334155 rim, 3px #020617 bottom bevel, 2px active travel and a small semantic LED edge. This is the explicit exception to the earlier flat-control direction; panel shadows remain restrained inset rims.
+
+Lineup hazards use a 6px diagonal penalty-red caution strip and emergency triage tickets: player, uppercase status, league pill, compact CACHED/LOCKED context where needed, and per-league provider actions. In the Game Day Hub these now live in the consolidated StudioAnchorDesk, grouped by player. Avoid repeated boilerplate. Preserve real errors and unavailable-data notices.
+
+CortisolMeter is a playful fantasy index, never a medical measurement: 72 + 12 × reported lineup hazards + 15 × players rostered both for and against the user. COMPOSED <110, ELEVATED 110–149, CRITICAL ≥150. ECG motion respects reduced motion.
+
+A 28px fixed StudioChyronTicker labels all ten fictional headlines SATIRE WIRE // OCTOBOX, interpolating cached user team/player names and using neutral fallbacks. It can pause or collapse; hover/focus pauses motion, reduced motion removes it. DRAFT EXCUSE generates a local, matchup-specific coaching quote; no external service or posting.
+
+## Current visual personality: 16-bit SNES TV Sports Studio
+
+This supersedes the stacked hardware-monitor arrangement above. The Game Day Hub opens with StudioAnchorDesk: a native 64×48 crispEdges pixel-art SVG of blond Pixel Scott behind a curved crimson/gold desk, plus a royal-blue RPG dialogue panel. Hazard warnings take priority over ≤10-point projected matchup sweat, then calm/all-clear. Missing roster data is explicitly awaiting signal. The three poses point urgently under a red beacon, hold a microphone with pixel sweat, or relax with a studio mug. Motion honours reduced motion.
+
+The anchor consumes existing warnings, projected margins and the largest mapped rooting conflict. Warning counts remain per league, but the triage display groups by normalized player name, retains distinct statuses, and offers every affected league/team fix link once. CACHED and LOCKED stay available as compact context. MIC CHECK cycles current-state commentary, closest matchup, biggest rooting paradox, and a local coaching excuse. No domain calculations, API calls or storage contracts change.
+
+Monitors use #0D1836 royal-blue surfaces, 2px #2A3F7A bezels and CRT scanlines. Close games use 2px #FFB800 bezels with 4px black pixel shadows; active/sweat headers use a crimson #E11D48→#9F1239 strip. User team left, black recessed 24px JetBrains Mono scoreboard and gold VS badge center, opponent right. The segmented emerald/crimson tug-of-war meter remains a share of known weekly projections, not an invented win probability; absent projections remain unavailable.
+
+Silkscreen (Google Fonts, self-hosted, OFL-1.1) is restricted to small arcade badges: CH, LIVE, VS, status, ROOTING PARADOX and SATIRE WIRE. Chakra Petch handles readable uppercase franchise/player names and headers; JetBrains Mono handles scores and data. Interactive keys use 2px #3B5284 rims, 2px black pixel shadows and 2px active travel. These explicit arcade shadows supersede the prior prohibition on decorative offset shadows. No connection-summary boilerplate bar or Game status pending filler in the Hub.
+
+## Studio polish
+
+Matchup monitor interiors have three independent bands: compact metadata/hazards, an uncluttered score row, then provider/presser actions with the segmented bar flush below. Franchise names use 18px Chakra Petch, a 22-character display limit and full-name tooltips; CSS ellipsis handles smaller available widths. VS overlaps the LED frame rather than floating above it. Container queries give the LED score its own centered row on bays ≤460px, keeping both team labels readable without collisions.
+
+Pixel Scott uses one-unit pixel details on a 64×48 SVG grid: swept hair in #FDE047/#EAB308/#A16207, face and jaw shading, wrap-around headset, double-breasted #1E3A8A/#172554 suit, tablet and mug. The stage and dialogue are compact; cortisol telemetry sits inline with THE QUAD-BOX title. No duplicate Your Matchups heading.
+
+Rooting Conflicts and RedZone Wire share royal-blue 2px monitor chrome, a #162752 bezel, square gold LED and accessible [−]/[+] collapse controls. Player cards are recessed #081024 with #1E3264 rules. Sidebar canvas is #080E20 with a 2px #1E3264 edge; the latched active key uses #162752, a 4px gold left indicator and a restrained inset highlight.

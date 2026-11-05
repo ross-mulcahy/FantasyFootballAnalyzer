@@ -40,7 +40,7 @@ it('combines only my matchups across platforms and includes the league and seaso
   const url = new URL(links.find(link => link.getAttribute('href')?.includes('espn'))!.getAttribute('href')!, 'http://localhost');
   expect(url.searchParams.get('league')).toBe('espn:A'); expect(url.searchParams.get('year')).toBe('2026');
   expect(url.searchParams.has('matchup')).toBe(false);
-  expect(screen.getAllByRole('link', { name: 'ESPN League' })[0]).toHaveAttribute('href', url.pathname + url.search);
+  expect(screen.getAllByRole('link', { name: /CH .*ESPN League/ })[0]).toHaveAttribute('href', url.pathname + url.search);
   expect(screen.getAllByText('Your team')).toHaveLength(2);
   expect(screen.getAllByRole('button', { name: 'Refresh all' })).toHaveLength(1);
   expect(screen.queryByText(/Matchups update every/)).not.toBeInTheDocument();
@@ -139,7 +139,7 @@ it('sorts and filters close projected matchups while retaining all league feeds 
   expect(screen.getAllByRole('link', { name: /View matchup:/ })[0]).toHaveAccessibleName('View matchup: My Sleeper team vs Opponent B');
   fireEvent.click(screen.getByLabelText('Witching Hour margins only (≤10 pts)'));
   expect(screen.getAllByRole('link', { name: /View matchup:/ })).toHaveLength(1);
-  expect(screen.getByText('WITCHING HOUR SWEAT')).toBeInTheDocument();
+  expect(within(screen.getByRole('link', { name: /View matchup:/ }).closest('article')!).getByText('WITCHING HOUR SWEAT')).toBeInTheDocument();
   expect(screen.queryByRole('heading', { name: 'Game Day Recap' })).not.toBeInTheDocument();
   await waitFor(() => expect(loadRecaps().map(row => row.league.name)).toEqual(expect.arrayContaining(['ESPN League', 'Sleeper League'])));
 });

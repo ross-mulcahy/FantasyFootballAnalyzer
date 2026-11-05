@@ -1,0 +1,43 @@
+import { afterEach, expect, it } from 'vitest';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import type { LineupWarning } from '@/utils/gameDayInsights';
+import { groupStudioHazards } from '@/utils/studioAnchor';
+import { StudioAnchorDesk } from './StudioAnchorDesk';
+afterEach(cleanup);
+const leagues = ['Sunday Syndicate', 'Salsa Pear', 'Parse.ly'];
+const warnings: LineupWarning[] = leagues.flatMap((name, i) => ['Derrick Henry: Out', 'Jayden Reed: Questionable'].map((message, j) => ({ key: `${i}:${j}`, league: { platform: 'sleeper', leagueId: `123456789${i}`, season: 2026, name }, teamId: '1', message, locked: false, saved: false })));
+const closest = { league: 'Salsa Pear', own: "Sam's Spudz", opponent: 'My Kittle Tony', margin: 6 };
+it('turns six warning occurrences into two player rows with all six league actions', () => {
+  render(<MemoryRouter><StudioAnchorDesk warnings={warnings} closest={closest} conflict={null} /></MemoryRouter>);
+  expect(screen.getByRole('img', { name: /hazard alert, leaning forward/ })).toBeInTheDocument();
+  const list = within(screen.getByRole('list', { name: 'Lineup hazards grouped by player' }));
+  expect(list.getAllByRole('listitem')).toHaveLength(2);
+  expect(list.getAllByRole('link')).toHaveLength(6);
+  expect(screen.getByRole('status')).toHaveTextContent('6 lineup hazards');
+  expect(screen.getByRole('status')).toHaveTextContent('Derrick Henry is flagged OUT across 3 leagues');
+  expect(list.getAllByRole('link', { name: 'Salsa Pear ↗' })[0]).toHaveAttribute('href', 'https://sleeper.com/leagues/1234567891/team');
+});
+it('deduplicates repeated targets but retains conflicting statuses and lock context', () => {
+  const grouped = groupStudioHazards([warnings[0], { ...warnings[0], key: 'duplicate', message: 'derrick henry: Questionable', saved: true, locked: true }]);
+  expect(grouped).toHaveLength(1);
+  expect(grouped[0].statuses).toEqual(['OUT', 'QUESTIONABLE']);
+  expect(grouped[0].leagues).toHaveLength(1);
+  expect(grouped[0].leagues[0]).toMatchObject({ saved: true, locked: true });
+});
+it('cycles contextual takes and reacts from hazard to sweaty to calm without claiming unknown rosters are clear', () => {
+  const props = { closest, conflict: { name: 'Puka Nacua', owned: 2, opposing: 1 } };
+  const { rerender } = render(<MemoryRouter><StudioAnchorDesk {...props} warnings={warnings} /></MemoryRouter>);
+  fireEvent.click(screen.getByRole('button', { name: 'MIC CHECK // NEXT TAKE' }));
+  expect(screen.getByRole('status')).toHaveTextContent("Sam's Spudz versus My Kittle Tony");
+  fireEvent.click(screen.getByRole('button', { name: 'MIC CHECK // NEXT TAKE' }));
+  expect(screen.getByRole('status')).toHaveTextContent('Puka Nacua');
+  rerender(<MemoryRouter><StudioAnchorDesk {...props} warnings={[]} /></MemoryRouter>);
+  expect(screen.getByRole('img', { name: /sweat, holding a microphone/ })).toBeInTheDocument();
+  expect(screen.getByRole('status')).toHaveTextContent("We've entered the Witching Hour");
+  rerender(<MemoryRouter><StudioAnchorDesk warnings={[]} closest={null} conflict={null} /></MemoryRouter>);
+  expect(screen.getByRole('img', { name: /all clear, smiling with a studio mug/ })).toBeInTheDocument();
+  rerender(<MemoryRouter><StudioAnchorDesk warnings={[]} closest={null} conflict={null} missing={2} /></MemoryRouter>);
+  expect(screen.getByText('AWAITING SIGNAL')).toBeInTheDocument();
+  expect(screen.getByRole('status')).toHaveTextContent("I can't give you the all-clear");
+});

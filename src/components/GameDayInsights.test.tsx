@@ -11,10 +11,12 @@ const feeds = { '2026:8': { data, error: null } };
 beforeEach(() => localStorage.clear()); afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 it('links a warning to the full roster with its league and team context and supports minimising', () => {
   render(<MemoryRouter><LineupWarnings contexts={[context]} feeds={{ '2026:8': { data: { ...data, games: data.games!.map(game => ({ ...game, state: 'in' })) }, error: null } }} now={now} /></MemoryRouter>);
-  expect(screen.getByText('Player One: Out')).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: 'View roster →' })).toHaveAttribute('href', '/teams?league=sleeper%3AL&year=2026&team=1');
+  expect(screen.getByText('Player One')).toBeInTheDocument();
+  expect(screen.getByText('OUT')).toBeInTheDocument();
+  expect(screen.queryByText(/Your starters only/)).not.toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'REVIEW ROSTER ↗' })).toHaveAttribute('href', '/teams?league=sleeper%3AL&year=2026&team=1');
   fireEvent.click(screen.getByRole('button', { name: 'Minimise 1 LINEUP HAZARDS // CHECK LOCK STATUS' }));
-  expect(screen.getByText('Player One: Out')).not.toBeVisible();
+  expect(screen.getByText('Player One')).not.toBeVisible();
 });
 it('keeps earlier recaps available after moving to a new week and excludes another selected team', async () => {
   const { rerender } = render(<MemoryRouter><GameDayRecap contexts={[context]} feeds={feeds} now={now} /></MemoryRouter>);
@@ -33,4 +35,13 @@ it('continues showing the current recap if local storage cannot save history', a
   render(<MemoryRouter><GameDayRecap contexts={[context]} feeds={feeds} now={now} /></MemoryRouter>);
   expect(await screen.findByRole('status')).toHaveTextContent('could not save recap history');
   expect(screen.getByText('Player One')).toBeInTheDocument();
+});
+
+it('provides one direct provider fix action for each triage ticket', () => {
+  const saved = { ...context.saved, leagueId: '1234567890' };
+  render(<MemoryRouter><LineupWarnings contexts={[{ ...context, saved }]} feeds={{}} now={now} /></MemoryRouter>);
+  const fix = screen.getByRole('link', { name: 'FIX IN SLEEPER ↗' });
+  expect(fix).toHaveAttribute('href', 'https://sleeper.com/leagues/1234567890/team');
+  expect(fix).toHaveAttribute('target', '_blank');
+  expect(screen.getAllByRole('link')).toHaveLength(1);
 });

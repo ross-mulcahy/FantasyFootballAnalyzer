@@ -1,3 +1,4 @@
+import type { StudioConflict } from '@/utils/studioAnchor';
 import { prioritizeEvents, useExperiencePreferences } from '@/utils/experience';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { sortMajorEvents, timelineCacheKey, type MajorEvent, type NFLTimeline } from '@/api/nflTimeline';
@@ -129,7 +130,7 @@ function SharedWeek({ players, contexts, season, week, refreshSignal, onTimeline
   </>;
 }
 
-export function SharedPlayersSidebar({ contexts, refreshSignal = 0, onCountChange, onTimeline }: { contexts: SharedLeagueContext[]; refreshSignal?: number; onCountChange?: (count: number) => void; onTimeline?: TimelineReport }) {
+export function SharedPlayersSidebar({ contexts, refreshSignal = 0, onCountChange, onConflictCountChange, onBiggestConflictChange, onTimeline }: { contexts: SharedLeagueContext[]; refreshSignal?: number; onCountChange?: (count: number) => void; onConflictCountChange?: (count: number) => void; onBiggestConflictChange?: (conflict: StudioConflict | null) => void; onTimeline?: TimelineReport }) {
   const [index, setIndex] = useState<ReturnType<typeof playerIdentityIndex> | null>(null);
   const [mappingFailed, setMappingFailed] = useState(false);
   useEffect(() => {
@@ -139,10 +140,15 @@ export function SharedPlayersSidebar({ contexts, refreshSignal = 0, onCountChang
     return () => { active = false; };
   }, []);
   const groups = useMemo(() => index ? sharedPlayers(contexts, index) : [], [contexts, index]);
+  const biggest = groups.filter(player => player.owned > 0 && player.opposing > 0).sort((a, b) => b.owned + b.opposing - a.owned - a.opposing || a.name.localeCompare(b.name))[0];
+  const conflictName = biggest?.name, conflictOwned = biggest?.owned, conflictOpposing = biggest?.opposing;
+  useEffect(() => { onBiggestConflictChange?.(conflictName ? { name: conflictName, owned: conflictOwned!, opposing: conflictOpposing! } : null); }, [conflictName, conflictOwned, conflictOpposing, onBiggestConflictChange]);
+  const conflicts = groups.filter(player => player.owned > 0 && player.opposing > 0).length;
+  useEffect(() => { onConflictCountChange?.(conflicts); }, [conflicts, onConflictCountChange]);
   const weeks = [...new Set(contexts.flatMap(context => context.snapshot ? [`${context.snapshot.season}:${context.snapshot.week}`] : []))];
   useEffect(() => { onCountChange?.(groups.length); }, [groups.length, onCountChange]);
   const missing = contexts.filter(context => !context.snapshot || !context.myTeamId).length;
-  return <MatchupPanel title="ROOTING CONFLICTS // SHARED STARTERS" panelKey="shared-players" headingId="shared-players-heading" className={styles.panel}>
+  return <MatchupPanel studio title="ROOTING CONFLICTS // SHARED STARTERS" panelKey="shared-players" headingId="shared-players-heading" className={styles.panel}>
     <p className={pageStyles.hint}>Starters shared across 2+ matchups. Highest league projection first.</p>
     {mappingFailed && <p className={pageStyles.hint}>Player IDs unavailable. Using unambiguous name, position and team matches.</p>}
     {!!missing && <p className={pageStyles.hint}>{missing} {missing === 1 ? 'league needs' : 'leagues need'} data or a My team selection in Settings.</p>}

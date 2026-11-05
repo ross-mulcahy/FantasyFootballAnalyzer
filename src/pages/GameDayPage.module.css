@@ -25,7 +25,7 @@
 
 .matchupLink { display: block; color: var(--bone); text-decoration: none; transition: transform 0.1s ease, box-shadow 0.1s ease; }
 .matchupLink:hover { border-color: var(--lime); background: #1e293b; box-shadow: none; transform: none; }
-.teamName { font-family: var(--font-body); font-weight: 600; font-style: normal; overflow-wrap: anywhere; }
+.teamName { font-family: var(--font-display); font-weight: 600; font-style: normal; overflow-wrap: anywhere; }
 .openMatchup, .backLink, .rosterLink { display: inline-block; color: var(--lime); font-family: var(--font-mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; }
 .openMatchup { margin-top: 1.25rem; }
 .backLink { margin-bottom: 1.25rem; }
@@ -119,10 +119,10 @@
 .opponentTeam { text-align: right; }
 .teamRole { font: .6rem/1.5 var(--font-mono); color: var(--bone-dim); text-transform: uppercase; letter-spacing: .08em; }
 .ownTeam .teamRole { color: var(--lime); }
-.rowTeamName { font: 600 1rem/1.25 var(--font-body); overflow-wrap: anywhere; }
+.rowTeamName { font: 600 1rem/1.25 var(--font-display); overflow-wrap: anywhere; }
 .rowMeta { font: .7rem/1.5 var(--font-mono); color: var(--bone-dim); }
 .rowLive { color: var(--lime); }
-.rowScores { display: flex; gap: .5rem; align-items: center; font: 1.8rem/1.2 var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
+.rowScores { display: flex; gap: .5rem; align-items: center; font: 1.8rem/1.2 var(--font-display); font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
 .rowScores strong:first-child { color: var(--lime); }
 .rowScores > span { color: var(--bone-dim); font-size: 1rem; }
 .sharedSidebar { grid-column: 8 / span 5; grid-row: 1; min-width: 0; }
@@ -260,8 +260,8 @@
 .sweat { border: 1.5px solid var(--gold); }
 .sweatLabel { background: #f59e0b14; color: var(--gold); padding: 5px 12px; font: 600 9px var(--font-mono); letter-spacing: .08em; }
 .compactMatchup { padding: 16px 12px; gap: 10px; }
-.rowScores { padding: 8px; background: var(--ink); border-radius: 4px; font: 700 20px var(--font-mono); gap: 4px; }
-.rowTeamName { font: 650 13px/1.4 var(--font-body); }
+.rowScores { padding: 8px; background: var(--ink); border-radius: 4px; font: 700 20px var(--font-display); gap: 4px; }
+.rowTeamName { font: 650 13px/1.4 var(--font-display); }
 .rowScores strong:first-child { color: var(--bone); }
 .rowLive { color: #fb7185; }
 .scorebug > :global(a):last-child { display: block; font-size: 10px; padding: 5px 12px; }
@@ -294,3 +294,130 @@
 .exportSummary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 20px 0; }
 .exportSummary dt { font-size: 11px; color: var(--bone-dim); }
 .exportSummary dd { font: 700 18px var(--font-mono); margin-top: 6px; }
+/* THE QUAD-BOX: monitor wall, rather than a list of wide cards. */
+.homeLayout { grid-template-columns: minmax(0, 8fr) minmax(300px, 4fr); gap: 16px; }
+.matchupsColumn { grid-column: 1; }
+.sharedSidebar { grid-column: 2; }
+.homeGrid { display: grid; grid-template-columns: 1fr; gap: 12px; align-items: start; }
+.matchRow, .matchRow + .matchRow { margin: 0; padding: 0; border: 0; min-width: 0; }
+.matchRow > .hint { padding: 10px; border: 1px solid var(--rule); }
+.matchRow > .hint:first-child::before { content: 'SIGNAL STATUS // '; color: var(--gold); }
+.matchRow + .matchRow { border-top: 0; }
+.homeGrid { margin-top: 12px; }
+.monitorBay { background: #101725; border-color: #334155; border-radius: 4px; box-shadow: inset 0 0 0 2px #020617; }
+.monitorBay.sweat { border: 1.5px solid var(--gold); }
+.channelBezel { display: flex; align-items: center; gap: 7px; padding: 8px 10px; background: #1e293b; border-bottom: 3px solid #020617; }
+.channelBezel h3 { min-width: 0; flex: 1; margin: 0; font: 700 11px/1.3 var(--font-display); letter-spacing: .06em; text-transform: uppercase; }
+.channelBezel h3 a { color: var(--bone); overflow-wrap: anywhere; }
+.channelLed { display: inline-block; width: 5px; height: 5px; flex: none; border-radius: 50%; background: var(--lime); box-shadow: 0 0 6px var(--lime); }
+.hazardLed { background: var(--blood); box-shadow: 0 0 6px var(--blood); }
+.sweatLed { background: var(--gold); box-shadow: 0 0 6px var(--gold); }
+.studioLine { color: var(--gold); background: #0b0f17; border: 1px solid #334155; border-radius: 2px; padding: 3px 5px; font: 700 9px var(--font-mono); white-space: nowrap; }
+.monitorStatus { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; padding: 7px 10px 3px; color: var(--bone-dim); font: 8px var(--font-mono); letter-spacing: .06em; }
+.monitorStatus b { color: var(--gold); font-weight: 600; }
+.monitorCanvas { display: block; padding: 4px 12px 0; color: var(--bone); background-color: #0b111d; background-image: radial-gradient(#1e293b 1px, transparent 1px); background-size: 12px 12px; box-shadow: inset 0 1px 5px #020617; }
+.monitorCanvas .ownTeam, .monitorCanvas .opponentTeam { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; padding: 12px 0; text-align: left; }
+.monitorCanvas .opponentTeam { border-top: 1px solid #233047; }
+.monitorTeamIdentity { min-width: 0; }
+.monitorTeamIdentity .teamRole { display: block; font: 600 8px var(--font-mono); letter-spacing: .12em; margin-bottom: 3px; }
+.monitorCanvas .rowTeamName { display: block; font: 700 19px/1.15 var(--font-display); letter-spacing: .025em; text-transform: uppercase; overflow-wrap: anywhere; }
+.digitalScore { align-self: center; font: 700 28px/1 var(--font-display); letter-spacing: .03em; font-variant-numeric: tabular-nums; text-shadow: 0 1px 0 #020617; }
+.ownTeam .digitalScore { color: var(--lime); }
+.monitorCanvas .rowMeta { grid-column: 1 / -1; display: inline; font-size: 9px; line-height: 1.5; }
+.monitorActions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 10px; background: #131b2e; border-top: 1px solid #233047; }
+.monitorActions .providerLink { margin: 0; padding: 5px 0; font: 600 9px var(--font-display); letter-spacing: .06em; }
+.dashboardHeader { flex-wrap: wrap; align-items: center; gap: 12px; }
+.dashboardHeading h1 { font-family: var(--font-display); }
+.dashboardHeading { margin-right: auto; }
+.dashboardTools { gap: 12px; }
+.dashboardTools p { font-size: 9px; }
+.dashboardHeading p { margin-top: 6px; font-size: 10px; }
+.hazardStrip { position: relative; padding: 16px 12px 10px; border: 1px solid #ef444466; background: #14121c; }
+.hazardStrip::before { content: ''; position: absolute; inset: 0 0 auto; height: 6px; background: repeating-linear-gradient(45deg, #ef4444, #ef4444 10px, #0b0f17 10px, #0b0f17 20px); }
+.warningList { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px; max-height: 230px; overflow-y: auto; }
+.hazardStrip .warningList { max-height: 230px; }
+.hazardStrip .warningList .triageTicket { display: flex; flex-direction: column; align-items: stretch; gap: 8px; background: #0b0f17; border: 1px solid #3c2633; border-left: 2px solid var(--blood); border-radius: 2px; padding: 10px; }
+.triagePlayer { display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 6px; }
+.triagePlayer strong { color: var(--bone); font: 700 16px var(--font-display); text-transform: uppercase; letter-spacing: .02em; }
+.triageStatus { padding: 3px 5px; background: #ef444426; border: 1px solid #ef444466; color: #f87171; font: 700 9px var(--font-mono); animation: cautionPulse 2s ease-in-out infinite; }
+@keyframes cautionPulse { 50% { border-color: #ef4444; color: #fca5a5; } }
+.triageMeta { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; color: var(--bone-dim); font: 8px var(--font-mono); }
+.triageLeague { border: 1px solid #334155; padding: 2px 4px; color: #cbd5e1; }
+.triageAction { align-self: start; color: var(--blood); font: 700 10px var(--font-display); letter-spacing: .08em; padding: 5px 0; }
+.wireControls { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
+.wireControls button { padding: 6px 8px; font-size: 10px; }
+.wireTimestamp { padding: 4px 6px; background: var(--ink); border: 1px solid var(--rule); color: var(--bone-dim); font: 8px var(--font-mono); white-space: nowrap; }
+.wireEmpty { padding: 24px 16px; background: #0b111d; background-image: radial-gradient(#1e293b 1px, transparent 1px); background-size: 12px 12px; border: 1px dashed #334155; color: var(--bone-dim); font: 600 15px/1.6 var(--font-display); }
+@media(min-width:1280px) { .homeGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media(max-width:1100px) { .homeLayout { display: block; } }
+@media(max-width:600px) { .dashboardTools { width: 100%; justify-content: space-between; } .warningList { grid-template-columns: 1fr; } .hazardStrip .warningList { max-height: 185px; } .digitalScore { font-size: 28px; } }
+@media(prefers-reduced-motion:reduce) { .triageStatus { animation: none; } }
+.warningList { grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); }
+.standbyMonitor { display: none; }
+@media(min-width:1280px) { .standbyMonitor { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; min-height: 285px; height: 100%; background: #0b111d; background-image: radial-gradient(#1e293b 1px, transparent 1px); background-size: 12px 12px; border: 1px solid #334155; border-radius: 4px; box-shadow: inset 0 0 0 3px #020617; padding: 20px; text-align: center; } }
+.standbyMonitor > span { color: var(--bone-dim); font: 9px var(--font-mono); letter-spacing: .08em; }
+.standbyMonitor > strong { color: #475569; font: 700 24px var(--font-display); letter-spacing: .1em; }
+.standbyMonitor p { color: var(--bone-dim); font-size: 11px; }
+.standbyMonitor a { font: 700 10px var(--font-display); color: var(--lime); letter-spacing: .06em; }
+.scoreboard strong, .rowScores, .recapScoreboard strong { font-family: var(--font-display); }
+/* Arcade monitor bank: royal-blue casing, CRT texture and a centered LED score. */
+.monitorBay { background: #0d1836; border: 2px solid #2a3f7a; border-radius: 0; box-shadow: 2px 2px 0 #000; }
+.monitorBay.sweat { border: 2px solid #ffb800; box-shadow: 4px 4px 0 #000; }
+.channelBezel { background: #1e293b; border-bottom: 2px solid #2a3f7a; padding: 7px 8px; }
+.sweat .channelBezel, .monitorBay:has(.rowLive) .channelBezel { background: linear-gradient(to right, #e11d48, #9f1239); }
+.channelBezel h3 a { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; font: 700 12px var(--font-display); }
+.channelBadge { display: inline-block; font: 8px var(--font-arcade); background: #ffb800; color: #0b132b; padding: 4px; white-space: nowrap; }
+.studioLine { font-size: 8px; border-radius: 0; border-color: #3b5284; }
+.monitorCanvas { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 7px; padding: 10px 9px; background-color: #0d1836; background-image: repeating-linear-gradient(0deg, #0000001a 0, #0000001a 1px, transparent 1px, transparent 4px); box-shadow: inset 2px 2px 0 #050a19; min-height: 106px; }
+.monitorCanvas .ownTeam, .monitorCanvas .opponentTeam { display: flex; flex-direction: column; gap: 5px; padding: 0; border: 0; min-width: 0; }
+.monitorCanvas .opponentTeam { text-align: right; }
+.monitorCanvas .rowTeamName { font: 700 14px/1.2 var(--font-display); overflow-wrap: anywhere; }
+.monitorTeamIdentity .teamRole { font-size: 7px; }
+.monitorCanvas .rowMeta { font-size: 8px; line-height: 1.3; }
+.arcadeCenter { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.vsBadge { font: 12px var(--font-arcade); padding: 4px 5px; color: #0b132b; background: #ffb800; box-shadow: 2px 2px 0 #000; }
+.arcadeScoreboard { display: flex; align-items: center; gap: 3px; padding: 8px 6px; background: #020617; border: 2px solid #23315c; box-shadow: inset 2px 2px 0 #000; font: 700 24px/1 var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -.07em; }
+.arcadeScoreboard strong:first-child { color: #10b981; text-shadow: 0 0 5px #10b98166; }
+.arcadeScoreboard strong:last-child { color: #ffb800; text-shadow: 0 0 5px #ffb80055; }
+.arcadeScoreboard > span { color: #64748b; font-size: 16px; }
+.monitorActions { background: #0b132b; border-color: #2a3f7a; }
+.hazardTags span { font-family: var(--font-arcade); font-weight: 400; font-size: 7px; border-radius: 0; }
+.standbyMonitor { background-color: #0d1836; border: 2px solid #2a3f7a; border-radius: 0; min-height: 230px; }
+@media(min-width:1280px) and (max-width:1490px) { .monitorCanvas { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 4px; padding-inline: 6px; } .arcadeScoreboard { font-size: 20px; padding-inline: 4px; } .monitorCanvas .rowTeamName { font-size: 12px; } }
+@media(max-width:400px) { .arcadeScoreboard { font-size: 20px; } .monitorCanvas .rowTeamName { font-size: 12px; } }
+.arcadeScoreboard { font-size: 24px; }
+.scoreboard strong, .rowScores, .recapScoreboard strong { font-family: var(--font-mono); }
+@media(max-width:350px) { .arcadeScoreboard { font-size: 20px; } }
+.homeLayout { grid-template-columns: minmax(0, 1fr) 320px; }
+.liveBadge { font-family: var(--font-arcade); font-size: 8px; }
+@media(max-width:1100px) { .homeLayout { display: block; } }
+/* Monitor polish: metadata, scoreboard and footer are independent bands. */
+.monitorBay { container-type: inline-size; }
+.monitorStatus { align-items: center; gap: 6px; padding: 7px 9px; min-height: 30px; border-bottom: 1px solid #1e3264; }
+.monitorMetaLeft { display: flex; flex: 1; min-width: 0; flex-wrap: wrap; align-items: center; gap: 5px; }
+.monitorStatus > b { flex: none; font-size: 7px; white-space: nowrap; }
+.metaHazard { font: 7px var(--font-arcade); color: #ff8590; border: 1px solid #7a2741; background: #4c132b; padding: 2px 4px; }
+.monitorCanvas { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); column-gap: 0; padding: 16px 10px 12px; min-height: 106px; }
+.monitorCanvas .ownTeam { padding-right: 12px; }
+.monitorCanvas .opponentTeam { padding-left: 12px; }
+.monitorCanvas .rowTeamName { font: 700 18px/1.2 var(--font-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; width: 100%; }
+.monitorTeamIdentity { width: 100%; }
+.monitorCanvas .rowMeta { font-size: 9px; line-height: 1.5; overflow-wrap: anywhere; }
+.arcadeCenter { position: relative; flex-shrink: 0; padding: 0; }
+.vsBadge { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); z-index: 1; padding: 2px 5px; font-size: 9px; border: 1px solid #eab308; box-shadow: 1px 1px 0 #000; }
+.arcadeScoreboard { padding: 12px 7px 8px; font-size: 24px; gap: 4px; }
+.monitorActions { min-height: 42px; }
+.homeGrid { margin-top: 0; }
+@container (max-width: 460px) {
+ .monitorCanvas { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 0; }
+ .monitorCanvas .opponentTeam { grid-column: 2; grid-row: 1; }
+ .arcadeCenter { grid-column: 1 / -1; grid-row: 2; justify-self: center; }
+}
+/* A single reusable chrome for the right-hand studio monitors. */
+.studioPanel { background: #0d1836; border: 2px solid #2a3f7a; box-shadow: 4px 4px 0 #000; border-radius: 0; padding: 0; overflow: hidden; }
+.studioPanel > .panelHeader { display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; background: #162752; border-bottom: 2px solid #2a3f7a; margin: 0; padding: 8px 12px; }
+.studioPanel > .panelHeader::before { content: ''; width: 6px; height: 6px; flex: none; background: #ffb800; box-shadow: 1px 1px 0 #000; }
+.studioPanel .panelHeader .sectionTitle { min-width: 0; flex: 1; font: 700 13px/1.4 var(--font-display); letter-spacing: .04em; }
+.studioPanel .panelToggle { flex: none; padding: 2px 5px; min-width: 30px; min-height: 24px; background: #081024; border: 1px solid #3b5284; box-shadow: 1px 1px 0 #000; color: #ffb800; font: 10px var(--font-mono); }
+.studioPanel > div:last-child { padding: 10px; }
+.sharedSidebar > section:first-child { max-height: 410px; }

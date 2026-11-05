@@ -44,3 +44,8 @@
   font-weight: 700;
   src: url(/fonts/jetbrains-mono-latin-700-normal.woff2) format('woff2');
 }
+/* Chakra Petch, Google Fonts / Cadson Demak, OFL-1.1 (license in public/fonts). */
+@font-face { font-family: 'Chakra Petch'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/chakra-petch-600.ttf') format('truetype'); }
+@font-face { font-family: 'Chakra Petch'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/chakra-petch-700.ttf') format('truetype'); }
+/* Silkscreen by Jason Kottke, Google Fonts, OFL-1.1. Arcade badges only. */
+@font-face { font-family: 'Silkscreen'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/silkscreen-400.ttf') format('truetype'); }

@@ -40,3 +40,12 @@
 .opponent { border-color: #ef44444d; color: var(--blood); background: #ef444426; }
 .paradox { border-color: #f59e0b4d; color: var(--gold); background: #f59e0b26; }
 .panel { border-radius: 6px; }
+.paradox { font-family: var(--font-arcade); font-size: 7px; font-weight: 400; border-radius: 0; }
+.playerTitle { font-family: var(--font-display); text-transform: uppercase; }
+.panel { background: #0d1836; border: 2px solid #2a3f7a; box-shadow: 4px 4px 0 #000; border-radius: 0; padding: 0; }
+.panel > :first-child { position: sticky; top: 0; margin: 0; padding: 8px 12px; background: #162752; border-bottom: 2px solid #2a3f7a; }
+.panel > div:last-child { padding: 10px; }
+.player { background: #081024; border: 1px solid #1e3264; border-radius: 0; padding: 10px; margin-bottom: 8px; }
+.playerSummary { padding: 0; }
+.playerTitle { font-size: 15px; }
+.playerExpanded { padding-bottom: 0; }
