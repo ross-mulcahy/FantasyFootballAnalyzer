@@ -15,10 +15,11 @@
 .platformButton {
   flex: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: center;
   align-items: center;
   gap: 0.6rem;
-  padding: 1rem 0.75rem;
+  padding: 0.65rem 0.75rem;
   background: var(--ink-2);
   border: 1px solid var(--rule);
   color: var(--bone);
@@ -50,21 +51,6 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
-
-.platformIcon {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-headline);
-  font-weight: 400;
-  font-size: 1.2rem;
-  border: 1px solid var(--ink);
-}
-.platformButton:nth-child(1) .platformIcon { background: var(--sleeper-color); color: var(--ink); }
-.platformButton:nth-child(2) .platformIcon { background: var(--espn-color);    color: #fff; }
-.platformButton:nth-child(3) .platformIcon { background: var(--yahoo-color);   color: #fff; }
 
 /* ── Fields ── */
 .fields {
@@ -122,9 +108,10 @@
 
 /* ── ESPN Auth ── */
 .espnAuth {
-  background: var(--ink-2);
-  border: 1px solid var(--rule);
-  padding: 1.1rem 1.2rem;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid #1e293b;
+  padding: 1.1rem 0 0;
 }
 
 .espnAuthHeader {
@@ -148,9 +135,10 @@
 .helpButton:hover { color: var(--bone); border-bottom-color: var(--bone); }
 
 .helpBox {
-  background: var(--ink-2);
-  border: 1px solid var(--rule);
-  padding: 1.25rem;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid #1e293b;
+  padding: 1rem 0;
   margin-bottom: 1rem;
   font-family: var(--font-display);
   font-size: 0.9rem;
@@ -224,9 +212,11 @@
 
 .helpNote {
   margin: 1rem 0 0 0;
-  padding: 0.85rem 1rem;
-  background: var(--ink-2);
-  border: 1px solid var(--lime);
+  padding: 0.85rem 0;
+  background: transparent;
+  border: 0;
+  border-left: 3px solid var(--lime);
+  padding-left: 1rem;
   color: var(--lime);
   font-family: var(--font-mono);
   font-size: 0.72rem;
@@ -258,9 +248,10 @@
 
 /* ── Yahoo Auth ── */
 .yahooAuth {
-  background: var(--ink-2);
-  border: 1px solid var(--rule);
-  padding: 1.5rem;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid #1e293b;
+  padding: 1.25rem 0 0;
 }
 
 .yahooLogin {
@@ -287,21 +278,6 @@
   text-align: right;
 }
 
-.yahooLogo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  background: var(--yahoo-color);
-  color: #fff;
-  /* Bold mono, not Bowlby: headline face is illegible below ~1.1rem. */
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.85rem;
-  margin-right: 0.5rem;
-  border: 1px solid var(--ink);
-}
 
 .yahooLeagueSelect {
   display: flex;
@@ -416,9 +392,10 @@
 
 /* ── Companion extension panel ── */
 .extensionPanel {
-  background: var(--ink-2);
-  border: 1px solid var(--lime);
-  padding: 1rem 1.1rem;
+  background: transparent;
+  border: 0;
+  border-left: 3px solid var(--lime);
+  padding: .5rem 0 .5rem 1rem;
   margin-bottom: 1rem;
   display: flex;
   flex-direction: column;

@@ -13,7 +13,7 @@ export function GameDayRecapPage() {
     const myTeamId = saved.teamId ?? metadata?.teams.find(team => team.isMyTeam)?.id ?? snapshot?.teams.find(team => saved.teamName && team.name === saved.teamName)?.id;
     return { saved, snapshot, myTeamId };
   });
-  return <div className={`${styles.page} ${styles.dashboardPage}`}><div className="container">
+  return <div className={`${styles.page} ${styles.dashboardPage} ${styles.recapPage}`}><div className="container">
     <div className={styles.dashboardHeader}>
       <div className={styles.dashboardHeading}><h1>Game Day Recap</h1><p>Your saved weekly results</p></div>
       <Link to="/" className="btn">Back to Game Day</Link>

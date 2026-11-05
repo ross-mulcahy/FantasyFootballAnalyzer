@@ -450,7 +450,7 @@ export function Header({
                 aria-label={yahooConnected ? 'Disconnect Yahoo' : 'Connect Yahoo'}
                 aria-pressed={!!yahooConnected}
               >
-                Y!
+                Yahoo
               </button>
             )}
             <Link to="/settings" className={`${styles.navLink} ${location.pathname === '/settings' ? styles.active : ''}`} onClick={handleNavClick} aria-current={location.pathname === '/settings' ? 'page' : undefined}>Settings</Link>

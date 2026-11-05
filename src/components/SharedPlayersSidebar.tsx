@@ -10,6 +10,8 @@ import { canonicalTeam, normalizeName } from '@/utils/playerNames';
 import { playerIdentityIndex, sharedPlayers, type SharedLeagueContext, type SharedPlayer } from '@/utils/sharedPlayers';
 import { MatchupPanel } from './MatchupPanel';
 import { LeagueLink } from './LeagueLink';
+import { NflTeamChip } from './NflTeamChip';
+import { PosBadge } from './PosBadge';
 import styles from './SharedPlayersSidebar.module.css';
 import pageStyles from '@/pages/GameDayPage.module.css';
 
@@ -98,7 +100,7 @@ function SharedWeek({ players, contexts, season, week, refreshSignal, onTimeline
         <summary className={styles.playerSummary} aria-label={`${player.name}: ${pointsFor(player)}; ${player.owned} leagues on your team, ${player.opposing} against you. Show details.`}>
           <span className={styles.playerHeading}><span role="heading" aria-level={3} className={styles.playerTitle}>{player.name}</span><span className={styles.playerTotals}><span className={styles.points} aria-label={`${player.name} current fantasy points`}>{pointsFor(player)}</span><span className={styles.projection} aria-label={`${player.name} highest league projection`} title="Highest available league projection">Proj. {projectionFor(player)?.toFixed(2) ?? '—'}</span></span><span className={styles.expandMark} aria-hidden="true" /></span>
           <span className={styles.exposure}>
-            <span className={styles.meta}>{player.position} · {player.nflTeam || 'NFL team unavailable'}</span>
+            <span className={styles.meta}><PosBadge pos={player.position} /> <NflTeamChip team={player.nflTeam} /></span>
             {!!player.owned && <span className={styles.owned} aria-label={`On your team in ${player.owned} ${player.owned === 1 ? 'league' : 'leagues'}`}>Yours ×{player.owned}</span>}
             {!!player.opposing && <span className={styles.opponent} aria-label={`Facing you in ${player.opposing} ${player.opposing === 1 ? 'league' : 'leagues'}`}>Against ×{player.opposing}</span>}
             {changed.has(player.key) && <span className={styles.updated}>Updated</span>}

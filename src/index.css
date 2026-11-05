@@ -4,7 +4,7 @@
   /* Core palette */
   --ink:        #0b0f17;
   --ink-2:      #161f30;
-  --ink-3:      #232f46;
+  --ink-3:      #1e293b;
   --rule:       #232f46;
   --bone:       #f8fafc;
   --bone-dim:   #94a3b8;
@@ -61,7 +61,7 @@
   --pos-wr:  #38bdf8;
   --pos-te:  #f59e0b;
   --pos-flex: #a855f7;
-  --pos-k:   #a855f7;
+  --pos-k:   #94a3b8;
   --pos-dst: #94a3b8;
 
   /* Draft tier heat: tier 1 burns gold, cooling toward mute by tier 5+

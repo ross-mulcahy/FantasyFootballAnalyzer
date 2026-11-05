@@ -527,7 +527,6 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
           aria-pressed={platform === 'sleeper'}
           onClick={() => setPlatform('sleeper')}
         >
-          <span className={styles.platformIcon} aria-hidden="true">S</span>
           Sleeper
         </button>
         <button
@@ -536,7 +535,6 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
           aria-pressed={platform === 'espn'}
           onClick={() => setPlatform('espn')}
         >
-          <span className={styles.platformIcon} aria-hidden="true">E</span>
           ESPN
         </button>
         <button
@@ -545,7 +543,6 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
           aria-pressed={platform === 'yahoo'}
           onClick={() => setPlatform('yahoo')}
         >
-          <span className={styles.platformIcon} aria-hidden="true">Y</span>
           Yahoo
         </button>
       </div>
@@ -564,7 +561,6 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
                 onClick={() => handleYahooLogin()}
                 disabled={yahooLoginBusy}
               >
-                <span className={styles.yahooLogo}>Y!</span>
                 {yahooLoginBusy ? 'Opening Yahoo…' : 'Log in with Yahoo'}
               </button>
               <button

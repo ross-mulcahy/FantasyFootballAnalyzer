@@ -7,6 +7,8 @@ import type { GameDaySnapshot, RosterTeam, ScoreMatchup } from '@/types/gameDay'
 import type { NFLTimeline } from '@/api/nflTimeline';
 import { useMatchupTimeline } from '@/hooks/useMatchupTimeline';
 import { MatchupPanel } from '@/components/MatchupPanel';
+import { NflTeamChip } from '@/components/NflTeamChip';
+import { PosBadge } from '@/components/PosBadge';
 import { useEventNotifications } from '@/hooks/useEventNotifications';
 import { timelineCacheKey } from '@/api/nflTimeline';
 import { BrowserAlertsButton } from '@/components/BrowserAlertsButton';
@@ -29,19 +31,19 @@ function RosterTable({ team, week, timeline, statusStale, startersOnly = false }
   if (!players.length) return <p className={styles.empty}>{startersOnly ? 'No starting lineup was returned.' : 'This roster is empty.'}</p>;
   return <div className={styles.tableWrapper}><table className={styles.table}>
     <caption className="visually-hidden">{team.name} {startersOnly ? 'starting lineup' : 'roster'}</caption>
-    <thead><tr><th scope="col">Slot</th><th scope="col">Player / Stats</th><th scope="col">W{week} pts</th><th scope="col">Proj.</th></tr></thead>
+    <thead><tr><th scope="col">Player / Stats</th><th scope="col">Slot</th><th scope="col">W{week} pts</th><th scope="col">Proj.</th></tr></thead>
     <tbody>{players.map((p, i) => {
       const game = playerGameStatus(p.nflTeam, timeline);
       const empty = p.id === '0';
       const noGame = !empty && !!p.nflTeam && !!timeline?.games && !game;
-      return <tr key={`${p.id}-${i}`} className={game?.state === 'in' && !statusStale ? styles.livePlayer : undefined}><td>{p.slot}</td><td><span>{p.name}</span>{!empty && <span className={styles.playerMeta}>{p.position || '—'} · {p.nflTeam || '—'}</span>}
+      return <tr key={`${p.id}-${i}`} className={game?.state === 'in' && !statusStale ? styles.livePlayer : undefined}><td><span className={styles.playerIdentity}><strong>{p.name}</strong>{!empty && <span className={styles.playerIdentityMeta}>{p.position && <PosBadge pos={p.position} />}{p.nflTeam && <NflTeamChip team={p.nflTeam} />}</span>}</span>
       {game?.state === 'in' && <span className={statusStale ? styles.cachedBadge : styles.liveBadge} title="This player's NFL game is in progress. This does not indicate the player is on the field.">{statusStale ? 'Last seen live' : 'Game live'}{game.detail ? ` · ${game.detail}` : ''}</span>}
       {game?.state === 'post' && <span className={styles.playerMeta}>Final · {game.name}</span>}
       {game?.state === 'pre' && <span className={styles.playerMeta}>{game.detail || 'Scheduled'} · {game.name}</span>}
       {noGame && <span className={styles.byeBadge}>Bye / no game scheduled</span>}
       {!empty && !game && !noGame && <span className={styles.playerMeta}>Game status unavailable</span>}
       {empty ? <span className={styles.playerMeta}>No player selected</span> : p.stats?.length ? <details className={styles.playerStats}><summary>Week {week} stats</summary><dl>{p.stats.map((stat, statIndex) => <div key={`${stat.label}-${statIndex}`}><dt>{stat.label}</dt><dd>{stat.value}</dd></div>)}</dl></details> : noGame ? null : <span className={styles.playerMeta}>Stats not returned</span>}
-    </td><td className={styles.numeric}>{typeof p.points === 'number' ? p.points.toFixed(2) : '—'}</td><td className={styles.numeric}>{typeof p.projection === 'number' ? p.projection.toFixed(2) : '—'}</td></tr>;
+    </td><td className={styles.slotCell}>{p.slot}</td><td className={styles.numeric}>{typeof p.points === 'number' ? p.points.toFixed(2) : '—'}</td><td className={styles.numeric}>{typeof p.projection === 'number' ? p.projection.toFixed(2) : '—'}</td></tr>;
     })}</tbody>
   </table></div>;
 }
@@ -90,7 +92,7 @@ function GameDayView({ league, credentials }: Props) {
       {error && <p className={styles.error} role="alert">{error} {snapshot ? 'Showing the last saved snapshot.' : 'Check your connection or reconnect your league, then try again.'}</p>}
       {cacheWarning && <p role="alert" className={styles.error}>Updated on screen, but browser storage is full or unavailable. This snapshot could not be saved for your next visit.</p>}
       {league.platform === 'yahoo' && <p className={styles.hint}>Fantasy data provided by Yahoo Fantasy.</p>}
-      {snapshot && !selectedMatchup && <MatchupPanel title="Matchups" panelKey="matchups" headingId="matchups-heading" className={`${styles.card} ${styles.section}`}>
+      {snapshot && !selectedMatchup && <div className={styles.leagueCommandLayout}><MatchupPanel title="Matchups" panelKey="matchups" headingId="matchups-heading" className={`${styles.card} ${styles.section}`}>
         <div className={styles.grid}>
           {snapshot.matchups.map((m, index) => <Link className={`${styles.card} ${styles.matchupLink}`} to={matchupHref(m)} key={`${m.id}-${index}`} aria-label={`View matchup: ${teamName(m.team1Id)} vs ${teamName(m.team2Id)}`}>
             <p className={styles.period}>{m.period}</p>
@@ -100,7 +102,7 @@ function GameDayView({ league, credentials }: Props) {
           </Link>)}
         </div>
         {!snapshot.matchups.length && <p className={styles.empty}>No matchups were returned for this period. <Link to="/rosters">View rosters</Link>.</p>}
-      </MatchupPanel>}
+      </MatchupPanel><aside className={`${styles.card} ${styles.section} ${styles.leagueContext}`} aria-label="League board"><h2 className={styles.sectionTitle}>League board</h2><dl><div><dt>Week</dt><dd>{snapshot.week}</dd></div><div><dt>Matchups</dt><dd>{snapshot.matchups.length}</dd></div><div><dt>Teams</dt><dd>{snapshot.teams.length}</dd></div></dl><Link className={styles.rosterLink} to="/rosters">View rosters →</Link></aside></div>}
       {snapshot?.detailWarnings?.map(warning => <p key={warning} role="status" className={styles.hint}>{warning}</p>)}
       {snapshot && selectedMatchup && (matchup ? <MatchupDetail snapshot={snapshot} matchup={matchup} league={league} now={now} events={events} /> : <p className={styles.empty}>This matchup is not in the current snapshot. <Link to="/game-day">Back to all matchups</Link>.</p>)}
     </div></div>

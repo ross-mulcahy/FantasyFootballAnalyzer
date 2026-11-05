@@ -13,7 +13,7 @@ export function SettingsPage({ onLoadLeague, isLoading, error, progress }: {
   const saved = useSavedLeagues();
   const [params] = useSearchParams();
   const initialLeague = saved.find(league => savedLeagueKey(league) === params.get('reconnect'));
-  return <div className={styles.page}><div className="container">
+  return <div className={`${styles.page} ${styles.settingsPage}`}><div className="container">
     <div className={styles.header}><h1 className={styles.title}>Settings</h1><p className={styles.subtitle}>Leagues, alerts & backups · Saved on this device</p></div>
     <nav className={styles.settingsSections} aria-label="Settings sections"><a href="#connections-heading">League connections ↓</a><a href="#experience-heading">Alerts & backup ↓</a></nav>
     <section className={styles.card} aria-labelledby="connections-heading">

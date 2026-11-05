@@ -16,5 +16,6 @@ export { TradeTable } from './TradeTable';
 export { RivalryCard } from './RivalryCard';
 export { NflTeamLabel } from './NflTeamLabel';
 export { PosBadge } from './PosBadge';
+export { NflTeamChip } from './NflTeamChip';
 export { TeamLink } from './TeamLink';
 export { LuckIcon } from './LuckIcon';

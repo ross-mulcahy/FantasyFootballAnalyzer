@@ -5,11 +5,9 @@
 .header {
   background: var(--ink);
   border-bottom: 1px solid var(--rule);
-  padding: 1.1rem 0 0.9rem;
-  /* Scrolls away with the page: pinned, the masthead froze ~190px of chrome
-     on phones with a league loaded. relative keeps the z-index working for
-     the year-selector dropdown. */
-  position: relative;
+  padding: 0.7rem 0 0.45rem;
+  position: sticky;
+  top: 0;
   z-index: 100;
 }
 

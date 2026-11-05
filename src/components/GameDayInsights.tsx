@@ -57,7 +57,7 @@ export function GameDayRecap({ contexts, feeds, now, readOnly = false }: { conte
   const lost = completed.filter(row => row.ownPoints! < row.opponentPoints!).length;
   const tied = completed.length - won - lost;
   const closest = [...completed].sort((a, b) => Math.abs(a.ownPoints! - a.opponentPoints!) - Math.abs(b.ownPoints! - b.opponentPoints!))[0];
-  return <MatchupPanel title={readOnly ? "Weekly summary" : "Game Day Recap"} panelKey="home-recap" className={`${styles.card} ${styles.insightPanel}`}>
+  return <MatchupPanel title={readOnly ? "Weekly summary" : "Game Day Recap"} panelKey="home-recap" className={readOnly ? styles.recapFeed : `${styles.card} ${styles.insightPanel}`}>
     {weeks.length > 0 && <label className={styles.recapSelector}>Recap week<select value={selected} onChange={event => setSelection(event.target.value)}>{weeks.map(week => <option key={week} value={week}>{week.split(':')[0]} · Week {week.split(':')[1]}</option>)}</select></label>}
     {!rows.length ? <p className={styles.hint}>{readOnly ? 'Open Game Day to start saving your weekly recaps.' : 'Your recap will appear once your matchups load.'}</p> : <>
       <dl className={styles.recapStats} aria-label="Weekly results">
@@ -68,7 +68,7 @@ export function GameDayRecap({ contexts, feeds, now, readOnly = false }: { conte
         const settled = row.finished && finiteScore(row.ownPoints) && finiteScore(row.opponentPoints);
         const outcome = settled ? row.ownPoints! > row.opponentPoints! ? 'Won' : row.ownPoints! < row.opponentPoints! ? 'Lost' : 'Tied' : 'Pending';
         const points = (value: number | null) => finiteScore(value) ? value.toFixed(2) : '—';
-        return <li key={row.key} className={styles.recapCard} aria-label={`${row.league.name} recap`}>
+        return <li key={row.key} className={`${styles.recapCard} ${outcome === 'Won' ? styles.recapWinCard : outcome === 'Lost' ? styles.recapLossCard : styles.recapPendingCard}`} aria-label={`${row.league.name} recap`}>
           <div className={styles.recapCardHeader}><h3><LeagueLink league={{ platform: row.league.platform, id: row.league.leagueId, season: row.season }}>{row.league.name}</LeagueLink></h3><span className={outcome === 'Won' ? styles.recapWon : outcome === 'Lost' ? styles.recapLost : styles.recapPending}>{outcome}</span></div>
           <div className={styles.recapScoreboard}>
             <div><span className={styles.recapTeamLabel}>Your team</span><p className={styles.recapTeamName}>{row.ownName}</p><strong className={styles.recapOwnScore}>{points(row.ownPoints)}</strong></div>

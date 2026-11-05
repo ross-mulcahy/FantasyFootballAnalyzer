@@ -1,0 +1,14 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 18px;
+  padding: 2px 6px;
+  border-left: 3px solid var(--team-color);
+  border-radius: 2px;
+  background: #1e293b;
+  color: var(--bone-dim);
+  font: 700 11px/1.2 var(--font-mono);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  vertical-align: middle;
+}

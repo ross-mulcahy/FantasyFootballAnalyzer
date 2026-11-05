@@ -10,7 +10,7 @@ Shared tokens live in `src/index.css`. Existing component styles use the older v
 | --- | --- | --- |
 | `--ink` | `#0B0F17` | App canvas |
 | `--ink-2` | `#161F30` | Cards, tables, panels, modals |
-| `--ink-3` | `#232F46` | Inputs, secondary controls, hover |
+| `--ink-3` | `#1E293B` | Inputs, secondary controls, hover, table headers |
 | `--rule` | `#232F46` | One-pixel dividers and borders |
 | `--bone` | `#F8FAFC` | Primary text |
 | `--bone-dim` | `#94A3B8` | Secondary text and headings |
@@ -41,5 +41,14 @@ Labels should be short and specific: “Smash Spot”, “Floor Play”, “TD D
 - Global tokens, buttons, controls, tables and focus: `src/index.css`
 - Self-hosted Inter and JetBrains Mono: `src/fonts.css`, `public/fonts/`
 - Position pills: `src/components/PosBadge.tsx` and its CSS module
+- NFL identity without logo art: `src/components/NflTeamChip.tsx` and its CSS module
 - Loading ticker: `src/components/TacticalLoading.tsx`
 - Page and component details: their colocated `*.module.css` files
+
+## Page layouts
+
+- **Game Day:** 12-column command board, matchups on the left 7 columns and shared players, alerts, warnings, and events on the right 5. Keep player name, position, and NFL team together.
+- **Recap:** feed cards with a single outer border, internal hairlines, and a 2×2 result summary. No card inside a card.
+- **Settings:** a narrow utility column with grouped configuration panels. Use internal dividers rather than nested boxes; show enabled switches in green.
+
+Use compact two-tier navigation, Inter for names and prose, and JetBrains Mono for numbers and dates. Keep emoji and clip-art NFL logos out of these views.
