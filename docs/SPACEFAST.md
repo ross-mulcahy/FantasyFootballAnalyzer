@@ -14,7 +14,7 @@ The local and hosted addresses have separate browser storage. In local **Setting
 
 ## Publish an update
 
-Use Node.js 24 and the authenticated Spacefast CLI. From the repository root, after the desired source changes are committed:
+The connected GitHub `master` branch deploys automatically. Spacefast's repository build settings must use `npm run build:spacefast` as the build command and `dist` as the output directory. This overrides the repo's `vercel.json`, which is for the separate Vercel API-only deployment. From the repository root, use Node.js 24 and push the tested commit:
 
 ```sh
 npm ci
@@ -22,16 +22,7 @@ npm run test:run
 npm run lint
 npm run typecheck
 npm run build:spacefast
-mkdir -p dist/source
-git archive --format=zip --output=dist/source/fantasy-game-day-source.zip HEAD
-npx -y spacefast@latest publish dist --prebuilt \
-  --space spc_d26a7ccfeb8840ffb0c01f3c61b89408 \
-  --team 43PDUi8b5DlKP6nYJiLZwLPFn5W7K1S0 \
-  --spa true --api-url https://api.spacefast.com --wait
+git push origin master
 ```
 
-Review tracked files before making the source archive, especially if new configuration files have been added. `git archive HEAD` contains committed files only. The app build also excludes local dotenv files, `.spacefast/` state, dependencies and caches from `dist`. The source archive is a downloadable snapshot of editable code inside the private Space; it is not a live source editor. Rebuild and recreate the archive on every update, because `npm run build:spacefast` replaces `dist`.
-
-The Spacefast build removes the inherited Pages `CNAME`, `404.html` and sitemap, and packages a Functions route for ESPN. It keeps the existing GitHub Pages and Vercel deployment paths separate. Publishing does not push a commit to GitHub: commit and push source changes there as a separate step. Do not publish this project as a new Space; use the Space ID above.
-
-The first Spacefast source-editor import reported `repository_not_ready`, so the initial deployment retained a source archive instead. GitHub is the primary source repository. Automatic builds are not configured for this Space; use the explicit publish command above.
+Check the Spacefast build result and live version after pushing. The build removes inherited Pages `CNAME`, `404.html` and sitemap files and packages the same-origin ESPN Function. Yahoo still needs its separate hosted setup. Keep the existing Space and GitHub connection; do not create a new Space.
