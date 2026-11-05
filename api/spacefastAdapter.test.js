@@ -4,15 +4,15 @@ import handler from './espn-proxy.js';
 afterEach(() => vi.unstubAllGlobals());
 describe('Spacefast ESPN adapter', () => {
   it('preserves repeated views and private credential headers, with no caching', async () => {
-    const fetch = vi.fn().mockResolvedValue(Response.json({ id: 761499 }));
+    const fetch = vi.fn().mockResolvedValue(Response.json({ id: 123456 }));
     vi.stubGlobal('fetch', fetch);
-    const request = new Request('https://game-day.space.fast/api/espn-proxy?season=2026&leagueId=761499&view=mRoster&view=mMatchup', {
+    const request = new Request('https://game-day.space.fast/api/espn-proxy?season=2026&leagueId=123456&view=mRoster&view=mMatchup', {
       headers: { origin: 'https://game-day.space.fast', 'x-espn-s2': 'test%2Bcookie', 'x-espn-swid': '{test}' },
     });
     const response = await serveEspn(request, handler);
     expect(response.status).toBe(200);
     expect(response.headers.get('Cache-Control')).toBe('private, no-store');
-    expect(await response.json()).toEqual({ id: 761499 });
+    expect(await response.json()).toEqual({ id: 123456 });
     expect(fetch).toHaveBeenCalledWith(expect.stringContaining('view=mRoster&view=mMatchup'), expect.objectContaining({ headers: expect.objectContaining({ Cookie: 'espn_s2=test+cookie; SWID={test}' }) }));
   });
   it('keeps the original SSRF allowlist', async () => {

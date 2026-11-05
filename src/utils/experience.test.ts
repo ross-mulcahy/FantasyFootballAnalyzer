@@ -18,8 +18,8 @@ it('filters to lineup impact without reversing the supplied newest-first order',
   expect(prioritizeEvents([{ ...events[2], occurredAt: new Date(now - 11 * 60000).toISOString() }], 'close', contexts, data, now)).toEqual([]);
 });
 it('builds provider URLs using public identifiers without accepting injected URL text', () => {
-  expect(providerTeamUrl({ platform: 'espn', leagueId: '761499', season: 2026 }, '12')).toBe('https://fantasy.espn.com/football/team?leagueId=761499&seasonId=2026&teamId=12');
-  expect(providerTeamUrl({ platform: 'sleeper', leagueId: '1382333626993111040', season: 2026 }, '1')).toBe('https://sleeper.com/leagues/1382333626993111040/team');
+  expect(providerTeamUrl({ platform: 'espn', leagueId: '123456', season: 2026 }, '12')).toBe('https://fantasy.espn.com/football/team?leagueId=123456&seasonId=2026&teamId=12');
+  expect(providerTeamUrl({ platform: 'sleeper', leagueId: '1234567890123456789', season: 2026 }, '1')).toBe('https://sleeper.com/leagues/1234567890123456789/team');
   expect(providerTeamUrl({ platform: 'yahoo', leagueId: 'nfl.l.123', season: 2026 }, 'nfl.l.123.t.7')).toBe('https://football.fantasysports.yahoo.com/f1/123/7');
   expect(providerTeamUrl({ platform: 'espn', leagueId: 'javascript:alert(1)', season: 2026 })).toBeNull();
 });
