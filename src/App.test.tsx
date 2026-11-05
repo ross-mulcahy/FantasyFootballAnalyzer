@@ -115,9 +115,7 @@ vi.mock('@/utils/logger', () => ({
 
 // Chrome stubs: these tests pin routing, not chrome or page content.
 vi.mock('@/components/Header', () => ({
-  Header: ({ yahooConnected }: { yahooConnected?: boolean }) => (
-    <div data-testid="header" data-yahoo={String(!!yahooConnected)} />
-  ),
+  Header: () => <div data-testid="header" />,
 }));
 vi.mock('@/components/YearSelector', () => ({ YearSelector: () => null }));
 vi.mock('@/components/SeasonLoadingOverlay', () => ({ SeasonLoadingOverlay: () => null }));
@@ -298,7 +296,7 @@ describe('Yahoo reload persistence (?league=yahoo:<league_key>)', () => {
     );
   });
 
-  it('sends a logged-out visitor to the connect form on the Yahoo tab without loading', async () => {
+  it('sends a logged-out visitor to Settings without loading a Yahoo league', async () => {
     renderApp(`/awards?league=yahoo:${KEY}`);
     expect(await screen.findByTestId('settings-page')).toBeTruthy();
     expect(h.loadMock).not.toHaveBeenCalled();
@@ -313,21 +311,6 @@ describe('Yahoo reload persistence (?league=yahoo:<league_key>)', () => {
     renderApp('/awards?league=yahoo:notakey');
     expect(await screen.findByTestId('settings-page')).toBeTruthy();
     expect(h.loadMock).not.toHaveBeenCalled();
-  });
-});
-
-describe('header Yahoo login state', () => {
-  it('drops to logged-out when a failed refresh clears the tokens mid-session', async () => {
-    h.yahooAuthed = true;
-    h.store.league = sleeperLeague('55');
-    renderApp('/awards');
-    expect((await screen.findByTestId('header')).getAttribute('data-yahoo')).toBe('true');
-    // The adapter's refresh failure calls clearTokens(); the next load state
-    // change must re-read it instead of showing a stale "connected".
-    h.yahooAuthed = false;
-    await act(async () => { h.store.set({ isLoading: true }); });
-    await act(async () => { h.store.set({ isLoading: false }); });
-    expect(screen.getByTestId('header').getAttribute('data-yahoo')).toBe('false');
   });
 });
 

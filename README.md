@@ -11,9 +11,9 @@ npm install
 npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
 ```
 
-Open `http://127.0.0.1:5173/`, connect leagues in **Settings**, and select **My team** for each league. Use the same browser profile and address on later visits: `localhost` and `127.0.0.1` have separate storage.
+Open `http://127.0.0.1:5173/`, connect a Sleeper league in **Settings**, and select **My team**. Use the same browser profile and address on later visits: `localhost` and `127.0.0.1` have separate storage.
 
-Private ESPN leagues need a valid ESPN login. **Remember ESPN login on this device** is optional and off by default. Yahoo login requires your own developer app; follow the [Yahoo setup guide](docs/YAHOO_SETUP.md).
+ESPN and Yahoo connection controls are paused while their setup is completed. Previously saved leagues remain on this device. Private ESPN leagues need a valid ESPN login; Yahoo requires your own developer app, described in the [Yahoo setup guide](docs/YAHOO_SETUP.md).
 
 ## What you get
 

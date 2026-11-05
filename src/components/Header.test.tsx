@@ -102,6 +102,7 @@ it.each([{}, { league: LEAGUE, leagueName: 'Test League' }])('shows Game Day and
   const nav = within(screen.getByRole('navigation', { name: 'Main navigation' }));
   expect(nav.getAllByRole('link').map(link => link.textContent)).toEqual(['Game Day', 'Recap', 'Settings']);
   expect(nav.queryByRole('button', { name: /Export PDF/ })).not.toBeInTheDocument();
+  expect(nav.queryByRole('button', { name: /Yahoo/ })).not.toBeInTheDocument();
 });
 it('links the header league name to its Game Day overview', () => {
   renderAt('/rosters', { league: LEAGUE, leagueName: 'Test League' });

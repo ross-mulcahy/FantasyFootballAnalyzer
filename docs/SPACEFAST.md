@@ -5,8 +5,8 @@ The private **Fantasy Game Day** Space for this fork is at [fantasy-game-day.spa
 ## What works
 
 - Sleeper connects directly from the browser. The hosted Game Day matchup, scores, projections, lineups and event timeline have been checked with a real Sleeper league.
-- Private ESPN leagues use a same-origin `/api/espn-proxy` Function. It forwards the browser's ESPN session cookies for each request without storing them on Spacefast. A private ESPN league still needs a current login; the hosted proxy has been checked up to ESPN's expected missing-cookie response.
-- Yahoo login is not configured on Spacefast. Its hosted API routes return a setup error until a Yahoo developer app and hosted login service are configured. Local Yahoo setup is covered in [Yahoo setup](YAHOO_SETUP.md).
+- ESPN and Yahoo connection controls are paused. Previously saved leagues remain in browser storage, but cannot be reconnected from Settings while the connectors are paused.
+- The same-origin `/api/espn-proxy` Function is packaged for future ESPN use. Yahoo's hosted API routes return a setup error until a developer app and hosted login service are configured. See [Yahoo setup](YAHOO_SETUP.md).
 
 ## Bring your leagues across
 

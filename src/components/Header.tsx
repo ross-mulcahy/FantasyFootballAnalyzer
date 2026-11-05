@@ -17,7 +17,7 @@ interface HeaderProps {
   league?: League | null;
   // Guest mode: no real connection. The header swaps the league name + refresh
   // for a "Connect your league" CTA (which clears the guest and lands on the
-  // home form). The Yahoo button stays so a guest can log in on demand.
+  // home form).
   isGuest?: boolean;
   onChangeLeague?: () => void;
   onRefresh?: () => void;
@@ -25,11 +25,6 @@ interface HeaderProps {
   // Header doesn't construct YearSelector itself so it stays decoupled from
   // credentials and the seasons cache. App.tsx renders it and hands it in.
   yearSelector?: ReactNode;
-  // Yahoo login control: connect from anywhere in the app to load a Yahoo
-  // league. (Yahoo market prices are bundled with the pool; no login needed.)
-  yahooConnected?: boolean;
-  onYahooConnect?: () => void;
-  onYahooDisconnect?: () => void;
 }
 
 function formatLoadedAt(ts: number): string {
@@ -52,9 +47,6 @@ export function Header({
   onRefresh,
   isRefreshing,
   yearSelector,
-  yahooConnected,
-  onYahooConnect,
-  onYahooDisconnect,
 }: HeaderProps) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -434,25 +426,6 @@ export function Header({
               </>
             )}
             </>}
-            {onYahooConnect && onYahooDisconnect && (
-              <button
-                onClick={() => {
-                  playClick();
-                  if (yahooConnected) onYahooDisconnect();
-                  else onYahooConnect();
-                }}
-                className={yahooConnected ? styles.yahooButtonOn : styles.yahooButton}
-                title={
-                  yahooConnected
-                    ? 'Yahoo connected: your Yahoo leagues can load. Click to disconnect.'
-                    : 'Connect Yahoo to load your Yahoo leagues'
-                }
-                aria-label={yahooConnected ? 'Disconnect Yahoo' : 'Connect Yahoo'}
-                aria-pressed={!!yahooConnected}
-              >
-                Yahoo
-              </button>
-            )}
             <Link to="/settings" className={`${styles.navLink} ${location.pathname === '/settings' ? styles.active : ''}`} onClick={handleNavClick} aria-current={location.pathname === '/settings' ? 'page' : undefined}>Settings</Link>
           </nav>
         )}

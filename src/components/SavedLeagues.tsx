@@ -2,6 +2,7 @@ import { LeagueConnectionHealth, ProviderLink } from './ConnectionHealth';
 import { useEffect, useState } from 'react';
 import { loadSavedLeagues, removeSavedLeague, savedLeagueTeams, savedLeagueTeamId, selectSavedLeagueTeam, savedLeagueKey, SAVED_LEAGUES_CHANGED, type SavedLeague } from '@/utils/savedLeagues';
 import { LeagueLink } from './LeagueLink';
+import { leagueConnectorEnabled } from '@/utils/leagueConnectors';
 import styles from './SavedLeagues.module.css';
 
 interface Props {
@@ -46,7 +47,7 @@ export function SavedLeagues({ onConnect, isLoading }: Props) {
                 {!savedLeagueTeams(league).length && <span className={styles.meta}>Connect to load team choices.</span>}
               </div>
               <div className={styles.actions}>
-                <button type="button" className="btn" disabled={isLoading} aria-label={`Connect ${league.name} ${league.season} on ${league.platform}`} onClick={() => onConnect(league)}>Connect</button>
+                <button type="button" className="btn" disabled={isLoading || !leagueConnectorEnabled(league.platform)} aria-label={leagueConnectorEnabled(league.platform) ? `Connect ${league.name} ${league.season} on ${league.platform}` : `${league.platform} connector unavailable for ${league.name}`} onClick={() => onConnect(league)}>{leagueConnectorEnabled(league.platform) ? 'Connect' : 'Unavailable'}</button>
                 <button type="button" className={styles.remove} disabled={isLoading} aria-label={`Remove ${league.name} ${league.season} on ${league.platform}`} onClick={() => {
                   setNotice(removeSavedLeague(league) ? `${league.name} removed from this browser. You can connect it again below.` : 'Could not remove this league. Check browser storage permissions.');
                 }}>Remove</button>

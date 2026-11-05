@@ -48,10 +48,7 @@ import { useLeague } from '@/hooks/useLeague';
 import { GameDayContext, useGameDayState } from '@/hooks/useGameDay';
 import { useSounds } from '@/hooks/useSounds';
 import {
-  clearTokens,
-  getAuthUrl,
   isAuthenticated,
-  saveOAuthReturn,
   saveTokens,
   takeOAuthReturn,
   validateOAuthState,
@@ -190,15 +187,6 @@ function App() {
   // double-invoke the effect and the second pass would see no stored state
   // (validateOAuthState consumes it) and report a bogus CSRF failure.
   const oauthHandledRef = useRef(false);
-  // Yahoo login status for the header control. The OAuth redirect is a full
-  // page load, so a fresh mount always reads the latest token state.
-  const [yahooConnected, setYahooConnected] = useState(isAuthenticated);
-  // A rejected refresh token clears the tokens deep inside yahooFetch, which
-  // this state cannot see. Re-read it whenever a load starts, ends, or fails
-  // so the header stops claiming a login that is gone.
-  useEffect(() => {
-    setYahooConnected(isAuthenticated());
-  }, [league, error, isLoading]);
   // The partial-load notice is derived from the loaded league; remember which
   // message the user dismissed so a refresh that still has gaps can re-show it.
   const [dismissedIncomplete, setDismissedIncomplete] = useState<string | null>(null);
@@ -297,7 +285,6 @@ function App() {
         try {
           const tokens = JSON.parse(decodeURIComponent(tokensParam));
           saveTokens(tokens);
-          setYahooConnected(true);
         } catch (e) {
           // The redirect looked successful but the payload was unreadable, so
           // the login did not actually complete. Say so instead of dropping
@@ -311,8 +298,7 @@ function App() {
       // league (instant on a cache hit) and put them back on the same page.
       const ret = takeOAuthReturn();
       if (ret?.credentials) {
-        // The stash deliberately carries no ESPN cookies (see
-        // handleYahooConnect); a private ESPN league re-hydrates them from
+        // The stash deliberately carries no ESPN cookies; a private ESPN league re-hydrates them from
         // the same-tab sessionStorage copy persisted at connect time.
         if (ret.credentials.platform === 'espn' && !ret.credentials.espnS2) {
           const stored = loadESPNCredentials(ret.credentials.leagueId);
@@ -382,38 +368,6 @@ function App() {
     rememberConnection(loaded.platform, loaded.id, loaded.season);
     navigate('/');
   };
-
-  // Header Yahoo control: connect from anywhere in the app (the login powers
-  // the draft board's live Yahoo prices even for Sleeper/ESPN leagues).
-  const handleYahooConnect = useCallback(async () => {
-    try {
-      Analytics.connectAttempt('yahoo');
-      const authUrl = await getAuthUrl();
-      // Strip the ESPN session cookies before stashing: the stash lives in
-      // localStorage across the redirect, and an abandoned login would leave
-      // espn_s2/SWID on disk — breaking the session-only promise. The return
-      // handler re-hydrates them from the per-league sessionStorage copy,
-      // which survives a same-tab redirect (security review, 2026-08-31).
-      const stashableCredentials = credentials
-        ? { ...credentials, espnS2: undefined, swid: undefined }
-        : undefined;
-      saveOAuthReturn({
-        path: location.pathname + location.search,
-        credentials: stashableCredentials,
-      });
-      window.location.href = authUrl;
-    } catch (err) {
-      logger.error('Failed to start Yahoo login:', err);
-      playError();
-      window.alert(err instanceof Error ? err.message : 'Could not start Yahoo login. Please try again.');
-    }
-  }, [credentials, location.pathname, location.search, playError]);
-
-  const handleYahooDisconnect = useCallback(() => {
-    if (!window.confirm('Disconnect Yahoo? You will need to log in again to load your Yahoo leagues.')) return;
-    clearTokens();
-    setYahooConnected(false);
-  }, []);
 
   // Dropdown click → load the picked season and reflect it in the URL so back
   // / forward and shareable links work. The URL update fires the watch effect
@@ -683,9 +637,6 @@ function App() {
         isGuest={!!league?.isGuest}
         onRefresh={league && !league.isGuest && !globalPage ? refresh : undefined}
         isRefreshing={isLoading && !!league && !league.isGuest}
-        yahooConnected={yahooConnected}
-        onYahooConnect={location.pathname === '/settings' ? handleYahooConnect : undefined}
-        onYahooDisconnect={location.pathname === '/settings' ? handleYahooDisconnect : undefined}
         yearSelector={league && credentials && !globalPage ? (
           <YearSelector
             league={league}

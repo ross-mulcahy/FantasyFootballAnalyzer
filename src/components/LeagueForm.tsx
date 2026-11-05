@@ -10,6 +10,7 @@ import type { SavedLeague } from '@/utils/savedLeagues';
 import { normalizeEspnS2, normalizeSwid, isEspnS2Valid, isSwidValid } from '@/utils/espnCookies';
 import { logger } from '@/utils/logger';
 import { Analytics } from '@/utils/analytics';
+import { leagueConnectorEnabled } from '@/utils/leagueConnectors';
 import styles from './LeagueForm.module.css';
 
 // Yahoo seasons we can query: the current year resolves through the 'nfl'
@@ -111,13 +112,14 @@ interface LeagueFormProps {
 }
 
 export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeague }: LeagueFormProps) {
+  const availableInitialLeague = initialLeague && leagueConnectorEnabled(initialLeague.platform) ? initialLeague : undefined;
   // Last successful connection (public identifiers only): prefills the form
   // so a repeat visitor reconnects in one click. Read once per mount.
   const [saved] = useState(loadLastConnection);
   const savedIdFor = (p: Platform): string =>
     (p === 'sleeper' ? saved?.sleeper?.leagueId : p === 'espn' ? saved?.espn?.leagueId : undefined) ?? '';
 
-  const [platform, setPlatformState] = useState<Platform>(initialLeague?.platform ?? saved?.platform ?? 'sleeper');
+  const [platform, setPlatformState] = useState<Platform>('sleeper');
 
   // The saved ESPN season prefills only a deliberate history visit (two or
   // more years back). A last-year save is usually the 404 fallback's artifact
@@ -130,6 +132,7 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
   };
 
   const setPlatform = (p: Platform) => {
+    if (!leagueConnectorEnabled(p)) return;
     // The League ID field is shared between Sleeper and ESPN. Swap the
     // prefill along with the tab, but only while the field still holds the
     // outgoing platform's prefill (or nothing); hand-typed ids stay put.
@@ -143,16 +146,16 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
     setPlatformState(p);
     onPlatformChange?.(p);
   };
-  const [leagueId, setLeagueId] = useState(() => initialLeague?.leagueId ?? savedIdFor(saved?.platform ?? 'sleeper'));
+  const [leagueId, setLeagueId] = useState(() => availableInitialLeague?.leagueId ?? savedIdFor('sleeper'));
   const [leagueIdError, setLeagueIdError] = useState<string | null>(null);
   // Cookie problems render next to the cookie fields, not in the League ID
   // slot, so the alert and focus land where the fix is.
   const [cookieError, setCookieError] = useState<string | null>(null);
-  const [season, setSeason] = useState(() => initialLeague?.season ?? defaultSeasonFor(saved?.platform ?? 'sleeper'));
+  const [season, setSeason] = useState(() => availableInitialLeague?.season ?? defaultSeasonFor('sleeper'));
   const [espnS2, setEspnS2] = useState('');
   const [swid, setSwid] = useState('');
   const [rememberEspn, setRememberEspn] = useState(false);
-  const [savedNotice, setSavedNotice] = useState(initialLeague ? `Reconnect ${initialLeague.name} below. Your saved team selection will be kept.` : '');
+  const [savedNotice, setSavedNotice] = useState(initialLeague ? availableInitialLeague ? `Reconnect ${initialLeague.name} below. Your saved team selection will be kept.` : `${initialLeague.platform.toUpperCase()} connections are paused. Your saved league remains on this device.` : '');
   const [showEspnHelp, setShowEspnHelp] = useState(false);
 
   // Yahoo OAuth state
@@ -204,6 +207,10 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
   }, [platform, leagueId]);
 
   const connectSavedLeague = (entry: SavedLeague) => {
+    if (!leagueConnectorEnabled(entry.platform)) {
+      setSavedNotice(`${entry.platform.toUpperCase()} connections are paused. Your saved league remains on this device.`);
+      return;
+    }
     setPlatform(entry.platform);
     setLeagueId(entry.leagueId);
     setSeason(entry.season);
@@ -418,6 +425,7 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!leagueConnectorEnabled(platform)) return;
 
     if (platform === 'yahoo') {
       if (!selectedYahooLeague) return;
@@ -531,19 +539,17 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
         </button>
         <button
           type="button"
-          className={`${styles.platformButton} ${platform === 'espn' ? styles.active : ''}`}
-          aria-pressed={platform === 'espn'}
-          onClick={() => setPlatform('espn')}
+          className={`${styles.platformButton} ${styles.platformUnavailable}`}
+          disabled
         >
-          ESPN
+          ESPN <span className={styles.platformStatus}>Coming soon</span>
         </button>
         <button
           type="button"
-          className={`${styles.platformButton} ${platform === 'yahoo' ? styles.active : ''}`}
-          aria-pressed={platform === 'yahoo'}
-          onClick={() => setPlatform('yahoo')}
+          className={`${styles.platformButton} ${styles.platformUnavailable}`}
+          disabled
         >
-          Yahoo
+          Yahoo <span className={styles.platformStatus}>Coming soon</span>
         </button>
       </div>
 

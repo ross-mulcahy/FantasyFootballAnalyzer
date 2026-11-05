@@ -237,50 +237,6 @@
 
 .exportIcon, .soundIcon { width: 16px; height: 16px; }
 
-.yahooButton,
-.yahooButtonOn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 38px;
-  padding: 0 0.7rem;
-  margin-left: 0.5rem;
-  background: transparent;
-  border: 1px solid var(--rule);
-  color: var(--bone-dim);
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  cursor: pointer;
-  transition: all 0.1s ease;
-  box-shadow: none;
-}
-
-.yahooButton:hover {
-  background: var(--lime);
-  color: var(--ink);
-  border-color: var(--lime);
-  transform: translate(-1px,-1px);
-  box-shadow: none;
-}
-
-.yahooButtonOn {
-  background: var(--lime);
-  color: var(--ink);
-  border-color: var(--lime);
-  box-shadow: none;
-}
-
-.yahooButtonOn:hover {
-  background: var(--blood);
-  color: var(--bone);
-  border-color: var(--blood);
-  transform: translate(-1px,-1px);
-  box-shadow: none;
-}
-
 /* Guest mode header controls. */
 .guestTag {
   font-family: var(--font-mono);
@@ -341,11 +297,6 @@
   }
   .nav::-webkit-scrollbar { display: none; }
   .nav > * { flex-shrink: 0; scroll-snap-align: start; }
-  /* Page tabs cluster on the left; the Yahoo connect chip sits off at the
-     right edge. Once the full league nav overflows there is no free space, so
-     the auto margin collapses and it falls back inline at the row's end. */
-  .yahooButton,
-  .yahooButtonOn { margin-left: auto; }
 }
 
 /* 640px, not 600: the rankings/draft boards size their viewport reservation
@@ -420,9 +371,7 @@
      otherwise (refresh is 28px). */
   .backButton,
   .refreshButton,
-  .soundButton,
-  .yahooButton,
-  .yahooButtonOn {
+  .soundButton {
     min-width: 44px;
     min-height: 44px;
   }
