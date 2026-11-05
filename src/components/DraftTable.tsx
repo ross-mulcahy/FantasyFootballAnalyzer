@@ -1,3 +1,4 @@
+import { outlierHeatmap } from '@/utils/outlierHeatmap';
 import { useState, useMemo, type CSSProperties } from 'react';
 import type { League, RosterSlots, ScoringType, Team } from '@/types';
 import { gradeAllPicks, isGraded, getGradeDisplayText, formatValueOverExpected, auctionBadgeWord, explainGrade, describeGradeBasis } from '@/utils/grading';
@@ -519,6 +520,7 @@ export function DraftTable({
         { label: 'Hits', title: 'Share of live picks graded Great or Good' },
       ];
 
+  const valueHeat = outlierHeatmap(gradedPicks.filter(isGraded).map(pick => pick.valueOverExpected));
   return (
     <div className={styles.container}>
 
@@ -810,7 +812,7 @@ export function DraftTable({
                   </th>
                 </>
               )}
-              <th onClick={() => handleSort('player')} onKeyDown={handleSortKeyDown('player')} tabIndex={0} aria-sort={ariaSortFor('player')} className={styles.sortable} role="button" aria-label="Sort by Player">
+              <th onClick={() => handleSort('player')} onKeyDown={handleSortKeyDown('player')} tabIndex={0} aria-sort={ariaSortFor('player')} className={`${styles.sortable} ${styles.playerSticky}`} role="button" aria-label="Sort by Player">
                 Player{getSortIndicator('player')}
               </th>
               <th onClick={() => handleSort('position')} onKeyDown={handleSortKeyDown('position')} tabIndex={0} aria-sort={ariaSortFor('position')} className={`${styles.sortable} ${styles.colPos}`} role="button" aria-label="Sort by Position">
@@ -855,7 +857,7 @@ export function DraftTable({
                     <td className={`font-mono ${styles.colRd}`}>{pick.round}</td>
                   </>
                 )}
-                <td>
+                <td className={styles.playerSticky}>
                   <div className={styles.playerCell}>
                     <span className={styles.playerName}>
                       <span className={styles.wideOnly}>{pick.player.name}</span>
@@ -907,7 +909,7 @@ export function DraftTable({
                     className={
                       !isGraded(pick)
                         ? 'font-mono text-center'
-                        : `font-mono text-center ${pick.valueOverExpected >= 0 ? 'grade-great' : 'grade-terrible'}`
+                        : `font-mono text-center ${pick.valueOverExpected >= 0 ? 'grade-great' : 'grade-terrible'} ${valueHeat(pick.valueOverExpected)}`
                     }
                   >
                     {!isGraded(pick) ? '—' : formatValueOverExpected(pick.valueOverExpected, valuesInDollars)}

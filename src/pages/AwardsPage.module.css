@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────
-   GRIDIRON · Hardware
+   WITCHING HOUR · Hardware
    ───────────────────────────────────────────── */
 
 .awardsPage {
@@ -46,10 +46,10 @@
 
 .title {
   font-family: var(--font-headline);
-  font-size: var(--page-title);
+  font-size: 22px;
   font-weight: 400;
   line-height: 0.82;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: -0.025em;
   color: var(--bone);
   margin-bottom: 0.5rem;
@@ -63,7 +63,7 @@
   color: var(--lime);
 }
 .subtitle::before {
-  content: '★ ';
+  content: ' ';
   color: var(--lime);
 }
 
@@ -73,8 +73,8 @@
   font-size: 1.05rem;
   color: var(--bone-dim);
   padding: 2rem 0;
-  border-top: 1px dashed var(--rule);
-  border-bottom: 1px dashed var(--rule);
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
   margin-bottom: 2rem;
 }
 
@@ -92,7 +92,7 @@
   color: var(--bone);
   margin-bottom: 1rem;
   padding-bottom: 0.6rem;
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px solid var(--rule);
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -151,7 +151,7 @@
   to   { opacity: 1; transform: scale(1); }
 }
 .awardCard:hover {
-  transform: translate(-3px,-3px);
+  transform: none;
   box-shadow: none;
   border-color: var(--lime);
   background: var(--ink-2);
@@ -218,7 +218,7 @@
 
 .awardValue {
   grid-row: 4;
-  font-family: var(--font-headline);
+  font-family: var(--font-mono);
   font-size: 1.75rem;
   font-weight: 400;
   line-height: 0.9;
@@ -250,7 +250,7 @@
 
 @media (max-width: 640px) {
   .awardsGrid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.5rem; }
-  .title { font-size: 56px; }
+  .title { font-size: 22px; }
   .categoryTitle { font-size: 1.6rem; }
   .awardCard { padding: 0.6rem 0.6rem 0.65rem; }
   .awardValue { font-size: 1.5rem; }
@@ -333,3 +333,10 @@
   color: var(--bone-dim);
 }
 
+.awardCard { border-radius: 4px; border-left: 3px solid var(--gold); padding: 16px; transform: none; }
+.awardIcon { color: var(--gold); width: auto; height: auto; margin: 0 0 10px; background: transparent; border: 0; }
+.awardName { font: 700 15px var(--font-body); text-transform: none; }
+.awardValue { font-family: var(--font-mono); font-size: 18px; }
+
+.page { padding: 0; }
+.header { margin-bottom: 20px; padding-bottom: 0; border: 0; }

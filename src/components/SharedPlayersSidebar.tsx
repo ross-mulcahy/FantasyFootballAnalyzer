@@ -101,9 +101,9 @@ function SharedWeek({ players, contexts, season, week, refreshSignal, onTimeline
           <span className={styles.playerHeading}><span role="heading" aria-level={3} className={styles.playerTitle}>{player.name}</span><span className={styles.playerTotals}><span className={styles.points} aria-label={`${player.name} current fantasy points`}>{pointsFor(player)}</span><span className={styles.projection} aria-label={`${player.name} highest league projection`} title="Highest available league projection">Proj. {projectionFor(player)?.toFixed(2) ?? '—'}</span></span><span className={styles.expandMark} aria-hidden="true" /></span>
           <span className={styles.exposure}>
             <span className={styles.meta}><PosBadge pos={player.position} /> <NflTeamChip team={player.nflTeam} /></span>
-            {!!player.owned && <span className={styles.owned} aria-label={`On your team in ${player.owned} ${player.owned === 1 ? 'league' : 'leagues'}`}>Yours ×{player.owned}</span>}
-            {!!player.opposing && <span className={styles.opponent} aria-label={`Facing you in ${player.opposing} ${player.opposing === 1 ? 'league' : 'leagues'}`}>Against ×{player.opposing}</span>}
-            {changed.has(player.key) && <span className={styles.updated}>Updated</span>}
+            {!!player.owned && <span className={styles.owned} aria-label={`On your team in ${player.owned} ${player.owned === 1 ? 'league' : 'leagues'}`}>YOURS ×{player.owned}</span>}
+            {!!player.opposing && <span className={styles.opponent} aria-label={`Facing you in ${player.opposing} ${player.opposing === 1 ? 'league' : 'leagues'}`}>VS ×{player.opposing}</span>}
+            {!!player.owned && !!player.opposing && <span className={styles.paradox}>ROOTING PARADOX</span>}{changed.has(player.key) && <span className={styles.updated}>Updated</span>}
           </span>
           <span className={styles.pointsNote}>{[new Set(player.occurrences.filter(o => typeof o.player.points === 'number').map(o => o.player.points)).size > 1 && 'Varies by league', player.occurrences.some(o => typeof o.player.points !== 'number') && 'Some points unavailable', player.occurrences.some(o => o.stale) && 'Saved scores'].filter(Boolean).join(' · ')}</span>
           {game?.state === 'in' ? <span className={stale ? pageStyles.cachedBadge : pageStyles.liveBadge}>{stale ? 'Last seen live' : 'LIVE'} · {game.name} · {game.detail || game.clock}</span>
@@ -142,7 +142,7 @@ export function SharedPlayersSidebar({ contexts, refreshSignal = 0, onCountChang
   const weeks = [...new Set(contexts.flatMap(context => context.snapshot ? [`${context.snapshot.season}:${context.snapshot.week}`] : []))];
   useEffect(() => { onCountChange?.(groups.length); }, [groups.length, onCountChange]);
   const missing = contexts.filter(context => !context.snapshot || !context.myTeamId).length;
-  return <MatchupPanel title="Shared Players" panelKey="shared-players" headingId="shared-players-heading" className={styles.panel}>
+  return <MatchupPanel title="ROOTING CONFLICTS // SHARED STARTERS" panelKey="shared-players" headingId="shared-players-heading" className={styles.panel}>
     <p className={pageStyles.hint}>Starters shared across 2+ matchups. Highest league projection first.</p>
     {mappingFailed && <p className={pageStyles.hint}>Player IDs unavailable. Using unambiguous name, position and team matches.</p>}
     {!!missing && <p className={pageStyles.hint}>{missing} {missing === 1 ? 'league needs' : 'leagues need'} data or a My team selection in Settings.</p>}

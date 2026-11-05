@@ -171,7 +171,7 @@
   align-items: baseline;
   gap: 0.55rem;
   padding: 0.3rem 0;
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
 
 .listName {
@@ -227,3 +227,24 @@
     grid-template-columns: 1fr;
   }
 }
+
+.rosterDashboard { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px 24px; align-items: start; }
+.rosterDashboard > .backBtn { grid-column: 1 / -1; justify-self: start; }
+.rosterDashboard > .header { grid-column: 2; grid-row: 2; }
+.rosterDashboard .currentRoster { grid-column: 1; grid-row: 2 / span 4; background: var(--ink-2); border: 1px solid var(--rule); border-radius: 6px; padding: 14px; }
+.rosterDashboard .weeklyPanel { grid-column: 2; grid-row: 3; background: var(--ink-2); padding: 14px; border: 1px solid var(--rule); border-radius: 6px; }
+.rosterDashboard > .columns { grid-column: 2; grid-row: 4; grid-template-columns: 1fr; gap: 16px; min-width: 0; }
+.rosterDashboard .columns > .section { background: var(--ink-2); padding: 14px; border: 1px solid var(--rule); border-radius: 6px; }
+.rosterDashboard .sideColumn { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.rosterDashboard .sideColumn > section { background: var(--ink-2); padding: 12px; border: 1px solid var(--rule); border-radius: 6px; min-width: 0; }
+.rosterDashboard .sideColumn .listRow { flex-wrap: wrap; }
+.rosterDashboard .sparkline { width: 100%; height: 130px; border: 0; padding: 12px 0; }
+.sparkline polyline { vector-effect: non-scaling-stroke; }
+.listRow { align-items: center; padding: 9px 0; }
+.listName { font-size: 12px; }
+.listMeta { font-size: 10px; }
+.currentRoster .listMeta { min-width: 32px; }
+.benchDivider { font: 600 10px var(--font-mono); padding: 14px 0 8px; color: var(--bone-dim); border-bottom: 1px solid var(--rule); }
+.rosterNumbers { display: flex; flex-direction: column; text-align: right; flex: none; gap: 3px; font: 600 12px var(--font-mono); min-width: 60px; }
+.rosterNumbers small { color: var(--bone-dim); font: 9px var(--font-mono); }
+@media(max-width:1100px) { .rosterDashboard { display: flex; flex-direction: column; } .rosterDashboard > * { width: 100%; } .rosterDashboard .currentRoster { order: 1; } .rosterDashboard .weeklyPanel { order: 2; } .rosterDashboard > .columns { order: 3; display: grid; grid-template-columns: 1fr; } }

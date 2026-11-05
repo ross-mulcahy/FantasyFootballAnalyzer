@@ -1,4 +1,4 @@
-/* GRIDIRON · History / Archive */
+/* WITCHING HOUR · History / Archive */
 
 .page { padding: 3rem 0 5rem; }
 
@@ -10,10 +10,10 @@
 
 .title {
   font-family: var(--font-headline);
-  font-size: var(--page-title);
+  font-size: 22px;
   font-weight: 400;
   line-height: 0.82;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: -0.025em;
   color: var(--bone);
   margin-bottom: 0.5rem;
@@ -74,9 +74,9 @@
   color: var(--bone);
   margin-bottom: 1.25rem;
   padding-bottom: 0.6rem;
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
-.sectionTitle::before { content: '★ '; color: var(--lime); }
+.sectionTitle::before { content: ' '; color: var(--lime); }
 
 .tableWrapper {
   overflow-x: auto;
@@ -126,7 +126,7 @@
   transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
 }
 .seasonCard:hover {
-  transform: translate(-3px,-3px);
+  transform: none;
   box-shadow: none;
   border-color: var(--lime);
 }
@@ -179,7 +179,7 @@
   align-items: center;
   font-family: var(--font-mono);
   font-size: 0.78rem;
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px solid var(--rule);
   transition: background 0.1s ease;
 }
 .standingRow:last-child { border-bottom: none; }
@@ -229,7 +229,7 @@
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--bone-dim);
-  border-top: 1px dashed var(--rule);
+  border-top: 1px solid var(--rule);
 }
 
 /* ── Rivalries section ── */
@@ -294,7 +294,7 @@
 }
 
 @media (max-width: 640px) {
-  .title { font-size: 56px; }
+  .title { font-size: 22px; }
   .seasons { grid-template-columns: 1fr; }
   .standingRow {
     grid-template-columns: 1.6rem 1fr 3rem 3.8rem;
@@ -366,3 +366,10 @@
   gap: 0.9rem;
   overflow: hidden;
 }
+
+.page { padding: 0; }
+.header { margin-bottom: 20px; padding-bottom: 0; border: 0; }
+
+.historyTable th:first-child, .historyTable td:first-child { position: static; }
+.historyTable .nameSticky { position: sticky; left: 0; z-index: 3; background: var(--ink-2); min-width: 150px; }
+.historyTable thead .nameSticky { z-index: 15; background: var(--ink-3); }

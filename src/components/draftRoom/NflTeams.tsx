@@ -2,9 +2,10 @@ import { useMemo, useState } from 'react';
 import type { PoolPlayer } from '@/types/draft';
 import type { UseDraftRoomReturn } from '@/hooks/useDraftRoom';
 import { useSounds } from '@/hooks/useSounds';
-import { nflLogoUrl, nflTeamInfo } from '@/data/nflTeams';
+import { nflTeamInfo } from '@/data/nflTeams';
 import { normalizeName } from '@/utils/playerNames';
 import { isHandcuff } from '@/utils/stacks';
+import { NflTeamChip } from '../NflTeamChip';
 import styles from './NflTeams.module.css';
 
 interface NflTeamsProps {
@@ -72,7 +73,6 @@ export function NflTeams({ room, selectedId, onSelect }: NflTeamsProps) {
             p => !derived.draftedPlayerIds.has(p.id) && !derived.reservedPlayerIds.has(p.id),
           ).length;
           const info = nflTeamInfo(team);
-          const logo = nflLogoUrl(team);
           return (
             <div
               key={team}
@@ -81,7 +81,7 @@ export function NflTeams({ room, selectedId, onSelect }: NflTeamsProps) {
             >
               <div className={styles.cardHeader}>
                 <span className={styles.cardTeam}>
-                  {logo && <img src={logo} alt="" loading="lazy" className={styles.cardLogo} />}
+                  <NflTeamChip team={team} />
                   {info?.name ?? (team || 'FA')}
                 </span>
                 <span className={styles.cardMeta}>

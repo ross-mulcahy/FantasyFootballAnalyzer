@@ -191,7 +191,7 @@
 }
 
 .table td {
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px solid var(--rule);
   padding: 0.45rem 0.65rem;
 }
 
@@ -270,7 +270,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.55rem;
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px solid var(--rule);
   cursor: pointer;
   min-width: 0;
 }
@@ -371,8 +371,8 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--gold);
-  border-top: 1px dashed var(--gold);
-  border-bottom: 1px dashed var(--rule);
+  border-top: 1px solid var(--gold);
+  border-bottom: 1px solid var(--rule);
   /* One line, always: this row sits between players, so a wrap changes the
      list's height as the cutoff moves with each pick. */
   white-space: nowrap;
@@ -490,7 +490,7 @@
    comes back around; the user gets one of the players below. */
 .cutoffRow td {
   border-top: 1px solid var(--lime);
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px solid var(--rule);
   padding: 0.25rem 0.65rem;
   color: var(--lime);
   font-size: 0.64rem;

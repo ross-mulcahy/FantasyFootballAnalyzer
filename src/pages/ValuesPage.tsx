@@ -1,3 +1,4 @@
+import { BroadcastIcon } from '@/components/BroadcastIcon';
 import { useDeferredValue, useMemo, useState } from 'react';
 import { POOL } from '@/data/draftPool';
 import { formatBuildDate } from '@/utils/formatBuildDate';
@@ -405,7 +406,7 @@ export function ValuesPage({ league, onUpdateGuest }: ValuesPageProps) {
                             : 'Click to target.'
                       }
                     >
-                      {starred.has(r.player.id) ? '★' : avoided.has(r.player.id) ? '✕' : '☆'}
+                      <BroadcastIcon kind={starred.has(r.player.id) ? 'target' : avoided.has(r.player.id) ? 'close' : 'star'} />
                     </button>
                   </td>
                   <td className={styles.player}>

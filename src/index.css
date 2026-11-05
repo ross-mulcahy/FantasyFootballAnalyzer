@@ -1,11 +1,11 @@
 :root {
-  /* Tactical Slate: restrained surfaces and functional signals. */
+  /* RedZone Control Room: restrained surfaces and functional signals. */
 
   /* Core palette */
   --ink:        #0b0f17;
-  --ink-2:      #161f30;
+  --ink-2:      #131b2e;
   --ink-3:      #1e293b;
-  --rule:       #232f46;
+  --rule:       #233047;
   --bone:       #f8fafc;
   --bone-dim:   #94a3b8;
   --lime:       #10b981;
@@ -13,6 +13,7 @@
   --blood-text: #ef4444;
   --turf:       #123b35;
   --gold:       #f59e0b;
+  --broadcast:  #e11d48;
 
   /* ── Legacy aliases (existing modules read these) ── */
   --bg-primary:    var(--ink);
@@ -77,7 +78,7 @@
   --font-body:     "Inter Variable", Inter, "Segoe UI", sans-serif;
   --font-mono:     "JetBrains Mono", "SF Mono", "Cascadia Code", Consolas, monospace;
 
-  /* Hard-edged offset shadow */
+  /* Compatibility aliases: offset shadows are disabled. */
   --shadow-offset: none;
   --shadow-offset-bone: none;
 
@@ -85,7 +86,7 @@
   --ticker-h: 38px;
 
   /* Compact page headings keep the board visible above the fold. */
-  --page-title: clamp(32px, 4vw, 56px);
+  --page-title: 22px;
 
   /* Board pages (Rankings, Site Values) run a scrolling table as their whole
      reason to exist, and the full-size headline plus its rule pushed the
@@ -93,16 +94,14 @@
      the board, then scrolled the board. Same formula, roughly half the cap,
      so the masthead still lands as a masthead and the data starts near the
      fold. */
-  --page-title-board: clamp(30px, 3.5vw, 48px);
+  --page-title-board: 22px;
 }
 
-/* 640px matches the compact-masthead breakpoint. 10vw keeps the ramp
-   continuous: it hits the 56px ceiling right at 560px, so there is no jump
-   where this query ends and the desktop clamp takes over. */
+/* Compact page titles remain consistent across breakpoints. */
 @media (max-width: 640px) {
   :root {
-    --page-title: clamp(28px, 8vw, 38px);
-    --page-title-board: clamp(28px, 7vw, 36px);
+    --page-title: 22px;
+    --page-title-board: 22px;
   }
 }
 
@@ -289,7 +288,7 @@ html {
   box-shadow: none;
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
-.grade-badge:hover { transform: translate(-1px,-1px); box-shadow: none; }
+.grade-badge:hover { transform: none; box-shadow: none; }
 
 .grade-badge.great    { background: var(--lime);   color: var(--ink); }
 .grade-badge.good     { background: #a6e22e;       color: var(--ink); }
@@ -346,8 +345,8 @@ html {
   transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
   box-shadow: none;
 }
-.btn:hover { transform: translate(-2px,-2px); box-shadow: none; }
-.btn:active { transform: translate(0,0); box-shadow: none; }
+.btn:hover { transform: none; box-shadow: none; }
+.btn:active { transform: none; box-shadow: none; }
 
 /* A disabled button must read as disabled at rest, not only via the cursor:
    otherwise it's a dead click waiting to happen (the League ID silent no-op
@@ -406,7 +405,7 @@ html {
 .table th, .table td {
   padding: 0.85rem 1rem;
   text-align: left;
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
 .table th {
   background: var(--ink);
@@ -608,7 +607,7 @@ html {
   border: 0;
 }
 
-/* Tactical Slate primitives shared by every route. */
+/* RedZone Control Room primitives shared by every route. */
 .tactical-loading {
   display: inline-flex;
   align-items: center;
@@ -653,7 +652,7 @@ table tbody tr:hover td:first-child { background-color: var(--ink-3); }
 }
 
 /* ── Print ──
-   The dark GRIDIRON palette dies on paper: browsers strip backgrounds by
+   The dark WITCHING HOUR palette dies on paper: browsers strip backgrounds by
    default, leaving bone-pale text invisible on white (owner-reported: print /
    save-as-PDF "doesn't work"). Rather than restyle every module, flip the
    TOKENS to ink-on-white here - every component already reads them - and
@@ -697,3 +696,30 @@ table tbody tr:hover td:first-child { background-color: var(--ink-3); }
     display: none !important;
   }
 }
+
+/* WITCHING HOUR command workspace */
+.command-shell { padding-left: 220px; }
+#main-content { min-width: 0; padding: 24px; width: 100%; max-width: 1600px; margin-inline: auto; }
+#main-content .container { width: 100%; max-width: 1600px; padding: 0; }
+#main-content h1 { font: 750 22px/1.25 var(--font-body); letter-spacing: -.03em; text-transform: none; }
+#main-content h2 { font-size: 14px; line-height: 1.4; }
+#main-content h3 { line-height: 1.4; }
+#main-content table { font-variant-numeric: tabular-nums; }
+#main-content table td { font-family: var(--font-mono); }
+#main-content table td:has(a), #main-content table td:has(strong) { font-family: var(--font-body); }
+#main-content table thead th { background-color: var(--ink-3); }
+.projection-bar { height: 4px; background: #64748b; overflow: hidden; }
+.projection-bar span { display: block; height: 100%; background: var(--lime); }
+.projection-bar.unavailable { background: var(--rule); }
+.outlier-high { background: #10b9811f !important; }
+.outlier-low { background: #ef44441f !important; }
+.grade-badge { font-size: 9px; white-space: nowrap; }
+.grade-badge.great { color: var(--lime); background: #10b98126; border-color: #10b9814d; }
+.grade-badge.good { color: #6cba9b; background: #6cba9b26; border-color: #6cba9b4d; }
+.grade-badge.bad, .grade-badge.fair { color: var(--gold); background: #f59e0b26; border-color: #f59e0b4d; }
+.grade-badge.terrible { color: var(--blood); background: #ef444426; border-color: #ef44444d; }
+.site-footer { border-top: 0; letter-spacing: .02em; font-size: 10px; }
+@media(max-width:760px) { .command-shell { padding-left: 0; } #main-content { padding: 16px; } }
+@media print { .command-shell { padding-left: 0; } }
+
+.platform-badge.sleeper, .platform-badge.espn, .platform-badge.yahoo { background: var(--ink-3); color: var(--bone-dim); border: 1px solid var(--rule); }

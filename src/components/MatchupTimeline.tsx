@@ -8,7 +8,7 @@ export function MatchupTimeline({ week, data, error, loading, refresh, canRefres
   week: number; data: NFLTimeline | null; error: string | null; loading: boolean; refresh: () => void; canRefresh: boolean; renderImpact?: (event: MajorEvent) => ReactNode; idPrefix?: string;
 }) {
   const events = sortMajorEvents(data?.events ?? []);
-  return <MatchupPanel title={`Major Events · Week ${week}`} panelKey={`${idPrefix}timeline`} headingId={`${idPrefix}timeline-heading`} className={`${styles.card} ${styles.section}`}>
+  return <MatchupPanel title={`REDZONE WIRE // MAJOR EVENTS · Week ${week}`} panelKey={`${idPrefix}timeline`} headingId={`${idPrefix}timeline-heading`} className={`${styles.card} ${styles.section}`}>
     <div className={styles.toolbar}>
       <button className="btn" onClick={refresh} disabled={loading || !canRefresh}>{loading ? 'Loading events…' : 'Refresh events'}</button></div>
     <p className={styles.hint}>Latest event first. ESPN NFL scoring plays and turnovers in games involving either starting lineup. Events describe the NFL game, not fantasy-point changes.</p>
@@ -19,6 +19,6 @@ export function MatchupTimeline({ week, data, error, loading, refresh, canRefres
       <div className={styles.period}>{event.game} · {event.quarter ? `Q${event.quarter}` : 'Period unavailable'} {event.clock} · {event.kind}</div>
       {event.occurredAt && <time className={styles.eventTime} dateTime={event.occurredAt}>{new Date(event.occurredAt).toLocaleString()}</time>}
       <p>{event.description}</p>{renderImpact?.(event)}
-    </li>)}</ol> : !loading && !error && <p className={styles.empty}>No major events have been returned for these games yet.</p>}
+    </li>)}</ol> : !loading && !error && <p className={styles.empty}>Seven hours of commercial-free football haven't started yet. No goal-line heartbreaks to report.</p>}
   </MatchupPanel>;
 }

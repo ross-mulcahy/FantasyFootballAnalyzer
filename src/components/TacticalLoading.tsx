@@ -3,8 +3,7 @@ import { useEffect, useState } from 'react';
 const MESSAGES = [
   'Checking hamstring reports…',
   'Calculating garbage time upside…',
-  'Evaluating questionable life choices…',
-  'Scanning the waiver wire scraps…',
+  'Scanning the Octobox…',
 ];
 
 export function TacticalLoading({ label }: { label?: string }) {

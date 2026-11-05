@@ -24,7 +24,7 @@
 .event { background: var(--ink-2); border-left:  1px solid var(--lime); padding: .6rem .75rem; margin-top: .75rem; font-size: .85rem; line-height: 1.5; }
 .breakdownTitle { color: var(--lime); font: .7rem/1.6 var(--font-mono); margin-top: .9rem; }
 .leagues { list-style: none; padding: 0; }
-.leagues li { border-bottom: 1px dashed var(--rule); padding: .6rem 0; font-size: .85rem; }
+.leagues li { border-bottom: 1px solid var(--rule); padding: .6rem 0; font-size: .85rem; }
 .leaguePoints { font: .7rem/1.6 var(--font-mono); margin-top: .4rem; }
 .changed { border-left:  1px solid var(--lime); padding-left: .6rem; background: var(--ink-2); }
 .updated { color: var(--lime); font: .65rem/1.5 var(--font-mono); text-transform: uppercase; }
@@ -36,3 +36,7 @@
 .playerTotals { display: flex; flex-direction: column; align-items: flex-end; gap: .15rem; margin-left: auto; flex-shrink: 0; }
 .projection { color: var(--bone-dim); font: .7rem/1.5 var(--font-mono); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .playerTitle { min-width: 0; }
+.owned, .opponent, .paradox { font: 700 9px var(--font-mono); border: 1px solid #10b9814d; border-radius: 3px; padding: 3px 5px; color: var(--lime); background: #10b98126; }
+.opponent { border-color: #ef44444d; color: var(--blood); background: #ef444426; }
+.paradox { border-color: #f59e0b4d; color: var(--gold); background: #f59e0b26; }
+.panel { border-radius: 6px; }

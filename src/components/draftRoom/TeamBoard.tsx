@@ -96,7 +96,7 @@ export function TeamBoard({ room }: TeamBoardProps) {
                 <div className={styles.stackLine} title="QB + pass catcher from the same NFL team on this roster">
                   {stacks.map(s => (
                     <span key={s.nflTeam} className={styles.stackBadge}>
-                      ⚡ {s.nflTeam} stack
+                       {s.nflTeam} stack
                     </span>
                   ))}
                 </div>

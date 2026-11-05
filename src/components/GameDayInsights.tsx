@@ -22,8 +22,8 @@ export function EventImpactDetails({ event, contexts, data }: { event: MajorEven
 export function LineupWarnings({ contexts, feeds, now }: { contexts: SharedLeagueContext[]; feeds: TimelineFeeds; now: number }) {
   const warnings = lineupWarnings(contexts, feeds, now);
   const missing = contexts.filter(c => !c.snapshot?.teams.find(t => t.id === c.myTeamId)?.roster).length;
-  return <MatchupPanel title={`Lineup Warnings${warnings.length ? ` · ${warnings.length}` : ''}`} panelKey="home-lineup-warnings" className={`${styles.card} ${styles.insightPanel}`}>
-    {!warnings.length && <p className={styles.hint}>{missing ? 'Waiting for roster data to check your starting lineups.' : 'No issues found in the available starting lineups.'}</p>}
+  return <MatchupPanel title={warnings.length ? `${warnings.length} LINEUP HAZARDS // CHECK LOCK STATUS` : 'Lineup Hazards'} panelKey="home-lineup-warnings" className={`${styles.card} ${styles.insightPanel} ${warnings.length ? styles.hazardStrip : ''}`}>
+    {!warnings.length && <p className={styles.hint}>{missing ? 'Waiting for roster data to check your starting lineups.' : 'All rosters legal. Your fate is in the hands of the fantasy gods now.'}</p>}
     {!!missing && !!warnings.length && <p className={styles.hint}>{missing} leagues still need roster data or a team selection.</p>}
     <ul className={styles.warningList}>{warnings.map(warning => <li key={warning.key}><span className={styles.warningText}>{warning.message}</span><span className={styles.rowMeta}>{warning.league.name}{warning.locked ? ' · Game started; check league lock rules' : ''}{warning.saved ? ' · Saved roster; refresh before making changes' : ''}</span><Link className={styles.rosterLink} to={`/teams?${new URLSearchParams({ league: `${warning.league.platform}:${warning.league.leagueId}`, year: String(warning.league.season), team: warning.teamId })}`}>View roster →</Link><ProviderLink league={warning.league} teamId={warning.teamId} /></li>)}</ul>
     <p className={styles.insightNote}>Your starters only. Injury flags depend on the provider; an empty warning list does not confirm everyone is healthy.</p>

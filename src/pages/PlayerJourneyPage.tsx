@@ -4,7 +4,8 @@ import { useSearchParams } from 'react-router-dom';
 import type { League, Player, DraftPick } from '@/types';
 import { NflTeamLabel, PosBadge } from '@/components';
 import { nflTeamInfo } from '@/data/nflTeams';
-import { AWARD_ICONS } from '@/utils/awardIcons';
+import { BroadcastIcon } from '@/components/BroadcastIcon';
+import { outlierHeatmap } from '@/utils/outlierHeatmap';
 import styles from './PlayerJourneyPage.module.css';
 
 interface PlayerJourneyPageProps {
@@ -294,11 +295,11 @@ export function PlayerJourneyPage({ league }: PlayerJourneyPageProps) {
   // marks for the rest.
   const getEventIcon = (type: PlayerJourneyEvent['type']) => {
     switch (type) {
-      case 'drafted': return <img src={AWARD_ICONS.best_draft} alt="" />;
-      case 'traded_to': return <img src={AWARD_ICONS.best_trade} alt="" />;
-      case 'traded_from': return <img src={AWARD_ICONS.best_trade} alt="" />;
-      case 'waiver_add': return <img src={AWARD_ICONS.best_waiver} alt="" />;
-      case 'waiver_drop': return <img src={AWARD_ICONS.worst_waiver} alt="" />;
+      case 'drafted': return <BroadcastIcon kind="swap" />;
+      case 'traded_to': return <BroadcastIcon kind="swap" />;
+      case 'traded_from': return <BroadcastIcon kind="swap" />;
+      case 'waiver_add': return <BroadcastIcon kind="swap" />;
+      case 'waiver_drop': return <BroadcastIcon kind="swap" />;
       case 'fa_add': return '+';
       case 'fa_drop': return '-';
     }
@@ -328,6 +329,7 @@ export function PlayerJourneyPage({ league }: PlayerJourneyPageProps) {
     }
   };
 
+  const parHeat = outlierHeatmap(playersWithJourneys.map(p => p.player.pointsAboveReplacement));
   return (
     <div className={styles.page}>
       <div className="container">
@@ -371,28 +373,7 @@ export function PlayerJourneyPage({ league }: PlayerJourneyPageProps) {
               </span>
             </div>
             <div className={styles.listItems}>
-              {filteredPlayers.slice(0, visibleCount).map(p => (
-                <button
-                  key={p.player.id}
-                  className={`${styles.playerItem} ${selectedPlayerId === p.player.id ? styles.selected : ''}`}
-                  onClick={() => setSelectedPlayerId(p.player.id)}
-                >
-                  <div className={styles.playerInfo}>
-                    <span className={styles.playerName}>{p.player.name}</span>
-                    <span className={styles.playerMeta}>
-                      <PosBadge pos={p.player.position} /> <NflTeamLabel team={p.player.team} />
-                    </span>
-                  </div>
-                  <div className={styles.playerStats}>
-                    {p.totalSeasonPoints !== undefined && (
-                      <span className={styles.points}>{p.totalSeasonPoints.toFixed(1)} pts</span>
-                    )}
-                    {p.events.length > 0 && (
-                      <span className={styles.eventCount}>{p.events.length} event{p.events.length === 1 ? '' : 's'}</span>
-                    )}
-                  </div>
-                </button>
-              ))}
+              <div className={styles.tableScroll}><table className="table"><thead><tr><th>Player</th><th>Pos / NFL</th><th>Points</th><th>PAR</th><th>Moves</th></tr></thead><tbody>{filteredPlayers.slice(0, visibleCount).map(p => <tr key={p.player.id} aria-selected={selectedPlayerId === p.player.id}><td><button className={styles.playerSelect} onClick={() => setSelectedPlayerId(p.player.id)}>{p.player.name}</button></td><td><PosBadge pos={p.player.position} /> <NflTeamLabel team={p.player.team} /></td><td>{p.totalSeasonPoints?.toFixed(1) ?? '—'}</td><td className={parHeat(p.player.pointsAboveReplacement)}>{p.player.pointsAboveReplacement?.toFixed(1) ?? '—'}</td><td>{p.events.length}</td></tr>)}</tbody></table></div>
               {filteredPlayers.length > visibleCount && (
                 <button
                   type="button"

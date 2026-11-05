@@ -1,3 +1,4 @@
+import { BroadcastIcon } from '@/components/BroadcastIcon';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { League, RosterSlots, ScoringType } from '@/types';
@@ -844,7 +845,7 @@ export function DraftSetup({ room, league }: DraftSetupProps) {
                       disabled={config.teams.length <= 2}
                       aria-label={`Remove ${team.name}`}
                     >
-                      ✕
+                  <BroadcastIcon kind="close" />
                     </button>
                   </div>
                 </div>
@@ -892,7 +893,7 @@ export function DraftSetup({ room, league }: DraftSetupProps) {
                     onClick={() => removePreset(preset.name)}
                     aria-label={`Delete preset ${preset.name}`}
                   >
-                    ✕
+                  <BroadcastIcon kind="close" />
                   </button>
                 </div>
               </div>
@@ -950,7 +951,7 @@ export function DraftSetup({ room, league }: DraftSetupProps) {
                     }}
                     aria-label="Delete this archived draft"
                   >
-                    ✕
+                  <BroadcastIcon kind="close" />
                   </button>
                 </div>
               </div>

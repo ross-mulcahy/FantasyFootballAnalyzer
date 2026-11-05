@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────
-   GRIDIRON · Home / Issue cover
+   WITCHING HOUR · Home / Issue cover
    ───────────────────────────────────────────── */
 
 .page {
@@ -39,10 +39,10 @@
 
 .title {
   font-family: var(--font-headline);
-  font-size: clamp(34px, 4.5vw, 58px);
+  font-size: 22px;
   font-weight: 400;
   line-height: 0.95;
-  text-transform: uppercase;
+  text-transform: none;
   color: var(--bone);
   letter-spacing: -0.02em;
   margin-bottom: 1rem;
@@ -82,11 +82,11 @@
   transition: transform .12s ease, box-shadow .12s ease;
 }
 .heroLinks a:hover {
-  transform: translate(-1px, -1px);
+  transform: none;
   box-shadow: none;
 }
 .heroLinks a:active {
-  transform: translate(2px, 2px);
+  transform: none;
   box-shadow: none;
 }
 .heroLinks a + a {
@@ -134,7 +134,7 @@
   padding: 0.42rem 0;
 }
 .boardRow + .boardRow {
-  border-top: 1px dashed var(--rule);
+  border-top: 1px solid var(--rule);
 }
 .boardRank {
   font-family: var(--font-mono);
@@ -269,7 +269,7 @@
   letter-spacing: -0.01em;
   margin-bottom: 1.5rem;
   color: var(--bone);
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px solid var(--rule);
   padding-bottom: 0.75rem;
 }
 

@@ -55,6 +55,6 @@
 /* Red is reserved for negative states; connecting is the banner's positive
    action, so hover keeps the lime fill and just lifts. */
 .connect:hover {
-  transform: translate(-1px, -1px);
+  transform: none;
   box-shadow: none;
 }

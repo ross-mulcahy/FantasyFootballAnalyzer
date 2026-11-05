@@ -1,3 +1,4 @@
+import { BroadcastIcon } from '@/components/BroadcastIcon';
 import { Fragment, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import type { PoolPlayer } from '@/types/draft';
 import type { UseDraftRoomReturn } from '@/hooks/useDraftRoom';
@@ -430,7 +431,7 @@ export function AvailablePlayers({
                       {p.posRank} · {p.team} · Bye {p.bye ?? '-'}
                       {p.bye !== null && crowdedByes.has(p.bye) && (
                         <span className={styles.byeWarn} title="You already have two or more skill starters on this bye">
-                          ⚠
+                          <BroadcastIcon kind="alert" />
                         </span>
                       )}
                       {tierBreaks(p) && <span className={styles.tierBreak}>LAST IN TIER</span>}
@@ -499,7 +500,7 @@ export function AvailablePlayers({
                 Pos
               </th>
               <th>Team</th>
-              <th title="Week the player's team sits out. ⚠ marks byes where you already have two or more skill starters.">
+              <th title="Week the player's team sits out. Hazard icons mark byes where you already have two or more skill starters.">
                 Bye
               </th>
               <th
@@ -663,7 +664,7 @@ export function AvailablePlayers({
                     }
                     aria-label={`Toggle target status for ${p.name}`}
                   >
-                    {avoided.has(p.id) ? '✕' : '★'}
+                    <BroadcastIcon kind={avoided.has(p.id) ? 'close' : 'star'} />
                   </button>
                 </td>
                 {queue && (
@@ -683,7 +684,7 @@ export function AvailablePlayers({
                       aria-label={`Toggle queue for ${p.name}`}
                       aria-pressed={queue.queued.has(p.id)}
                     >
-                      {queue.queued.has(p.id) ? '✓' : '+'}
+                      {queue.queued.has(p.id) ? <BroadcastIcon kind="check" /> : '+'}
                     </button>
                   </td>
                 )}
@@ -728,7 +729,7 @@ export function AvailablePlayers({
                       className={styles.byeWarn}
                       title={`You already have two skill starters on the week ${p.bye} bye`}
                     >
-                      ⚠
+                      <BroadcastIcon kind="alert" />
                     </span>
                   )}
                 </td>

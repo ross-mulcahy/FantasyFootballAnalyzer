@@ -27,7 +27,7 @@ afterEach(cleanup);
 const mount = () => render(<MemoryRouter><MyGameDayPage /></MemoryRouter>);
 it('shows a Settings entry without a connect form when no leagues are saved', () => {
   mount();
-  expect(screen.getByRole('heading', { name: 'Game Day', level: 1 })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'The Quad-Box', level: 1 })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'Connect leagues in Settings' })).toHaveAttribute('href', '/settings');
   expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
 });
@@ -122,13 +122,13 @@ it('reuses one weekly feed for live alerts and newest-first combined events, the
   vi.mocked(useMatchupTimeline).mockReturnValue({ data, loading: false, error: null, refresh: vi.fn() });
   const { rerender } = mount();
   await screen.findByRole('heading', { name: 'Latest Alerts' });
-  const timeline = screen.getByRole('heading', { name: 'Major Events · Week 8' }).closest('section')!;
+  const timeline = screen.getByRole('heading', { name: 'REDZONE WIRE // MAJOR EVENTS · Week 8' }).closest('section')!;
   expect(within(timeline).getAllByRole('listitem')[0]).toHaveTextContent('Score in quarter 2');
   expect(screen.getByRole('link', { name: /Full timeline/ })).toHaveAttribute('href', '#home-2026:8-timeline-heading');
   vi.mocked(useMatchupTimeline).mockReturnValue({ data: { ...data, games: data.games.map(game => ({ ...game, state: 'post' as const })) }, loading: false, error: null, refresh: vi.fn() });
   rerender(<MemoryRouter><MyGameDayPage /></MemoryRouter>);
   await waitFor(() => expect(screen.queryByRole('heading', { name: 'Latest Alerts' })).not.toBeInTheDocument());
-  expect(screen.getByRole('heading', { name: 'Major Events · Week 8' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'REDZONE WIRE // MAJOR EVENTS · Week 8' })).toBeInTheDocument();
 });
 
 it('sorts and filters close projected matchups while retaining all league feeds and recap entries', async () => {
@@ -137,9 +137,9 @@ it('sorts and filters close projected matchups while retaining all league feeds 
   mount();
   fireEvent.change(screen.getByLabelText('Sort matchups'), { target: { value: 'projected' } });
   expect(screen.getAllByRole('link', { name: /View matchup:/ })[0]).toHaveAccessibleName('View matchup: My Sleeper team vs Opponent B');
-  fireEvent.click(screen.getByLabelText('Only close (≤10 pts)'));
+  fireEvent.click(screen.getByLabelText('Witching Hour margins only (≤10 pts)'));
   expect(screen.getAllByRole('link', { name: /View matchup:/ })).toHaveLength(1);
-  expect(screen.getByText(/Close matchup · 2.00 pts projected/)).toBeInTheDocument();
+  expect(screen.getByText('WITCHING HOUR SWEAT')).toBeInTheDocument();
   expect(screen.queryByRole('heading', { name: 'Game Day Recap' })).not.toBeInTheDocument();
   await waitFor(() => expect(loadRecaps().map(row => row.league.name)).toEqual(expect.arrayContaining(['ESPN League', 'Sleeper League'])));
 });

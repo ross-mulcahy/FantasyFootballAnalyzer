@@ -1,4 +1,4 @@
-/* GRIDIRON · Trades */
+/* WITCHING HOUR · Trades */
 
 .page { padding: 3rem 0 5rem; }
 
@@ -10,10 +10,10 @@
 
 .title {
   font-family: var(--font-headline);
-  font-size: var(--page-title);
+  font-size: 22px;
   font-weight: 400;
   line-height: 0.82;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: -0.025em;
   color: var(--bone);
   margin-bottom: 0.5rem;
@@ -49,5 +49,8 @@
 }
 
 @media (max-width: 640px) {
-  .title { font-size: 56px; }
+  .title { font-size: 22px; }
 }
+
+.page { padding: 0; }
+.header { margin-bottom: 20px; padding-bottom: 0; border: 0; }

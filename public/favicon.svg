@@ -1,7 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- GRIDIRON mark: ink field, hard-edged lime FA monogram with a goal-line rule -->
-  <rect width="64" height="64" fill="#0a0a0a"/>
-  <rect x="4" y="4" width="56" height="56" fill="none" stroke="#a6e22e" stroke-width="4"/>
-  <text x="32" y="42" text-anchor="middle" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="30" fill="#a6e22e">FA</text>
-  <rect x="12" y="48" width="40" height="4" fill="#e8e2d4"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="6" fill="#0B0F17"/><path d="M32 5 7 14v20c0 12 25 25 25 25s25-13 25-25V14z" fill="#131B2E" stroke="#233047" stroke-width="2"/><path d="m13 23 4 18 5-12 5 12 4-18" fill="none" stroke="#F8FAFC" stroke-width="3"/><path d="M37 23v18m13-18v18M37 32h13" stroke="#10B981" stroke-width="3"/></svg>

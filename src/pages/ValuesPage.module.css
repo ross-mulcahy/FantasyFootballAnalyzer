@@ -12,10 +12,10 @@
 
 .title {
   font-family: var(--font-headline);
-  font-size: var(--page-title-board);
+  font-size: 22px;
   font-weight: 400;
   line-height: 0.82;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: -0.025em;
   color: var(--bone);
   margin: 0 0 0.5rem;
@@ -417,7 +417,7 @@
 }
 
 .table td {
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px solid var(--rule);
   padding: 0.45rem 0.65rem;
   color: var(--bone);
 }
@@ -602,7 +602,7 @@
     padding: 0.45rem 0.4rem;
   }
   .page { padding: 1.25rem 0 3rem; }
-  .title { font-size: 40px; }
+  .title { font-size: 22px; }
   .header {
     margin-bottom: 1.25rem;
     padding-bottom: 0.75rem;

@@ -7,7 +7,7 @@ import styles from './HomePage.module.css';
 export function HomeManifesto() {
   return (
     <aside className={styles.manifesto} aria-label="About this project">
-      <span className={styles.manifestoKicker}>★ Completely Free & Open Source</span>
+      <span className={styles.manifestoKicker}> Completely Free & Open Source</span>
       <p className={styles.manifestoBody}>
         No accounts. No ads. No server keeps your league data, only anonymized
         error logs I use to fix bugs.

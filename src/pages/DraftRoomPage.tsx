@@ -1,3 +1,4 @@
+import { BroadcastIcon } from '@/components/BroadcastIcon';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { League } from '@/types';
@@ -91,7 +92,7 @@ function sheetTabsFor(isAuction: boolean): SheetTab[] {
     { key: 'queue', label: 'Queue' },
     { key: 'team', label: 'Team' },
     { key: 'log', label: isAuction ? 'Bid' : 'Log' },
-    { key: 'settings', label: '⚙', ariaLabel: 'Draft settings', narrow: true },
+    { key: 'settings', label: 'Settings', ariaLabel: 'Draft settings', narrow: true },
   ];
 }
 
@@ -563,7 +564,7 @@ export function DraftRoomPage({ league, justConnected }: DraftRoomPageProps) {
         aria-pressed={isMuted}
         title={isMuted ? 'Sounds are off. Click to unmute.' : 'Mute all app sounds'}
       >
-        {isMuted ? '🔇' : '🔊'}
+        <BroadcastIcon kind="audio" />
       </button>
       <button
         type="button"
@@ -704,7 +705,7 @@ export function DraftRoomPage({ league, justConnected }: DraftRoomPageProps) {
                   aria-label="Leave the draft room"
                   title="Leave the draft room. Your draft is saved."
                 >
-                  ✕
+                  <BroadcastIcon kind="close" />
                 </Link>
               )}
               {/* Rendered on your own turn too (it reads as "where you pick

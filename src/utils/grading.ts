@@ -741,17 +741,17 @@ export function calculateDraftSummary(picks: GradedPick[]): DraftGradeSummary {
 // column has no horizontal room for "Slight Overpay".
 export function auctionBadgeWord(auctionValueGrade: string | undefined, grade: DraftGrade): { word: string; cls: string } {
   switch (auctionValueGrade) {
-    case 'Steal': return { word: 'Great', cls: 'great' };
-    case 'Fair Price': return { word: 'Good', cls: 'good' };
-    case 'Slight Overpay': return { word: 'Fair', cls: 'fair' };
-    case 'Overpay': return { word: 'Bad', cls: 'bad' };
-    case 'Big Overpay': return { word: 'Terrible', cls: 'terrible' };
+    case 'Steal': return { word: 'LEAGUE WINNER', cls: 'great' };
+    case 'Fair Price': return { word: 'SOLID VALUE', cls: 'good' };
+    case 'Slight Overpay': return { word: 'FAIR VALUE', cls: 'fair' };
+    case 'Overpay': return { word: 'REACH', cls: 'bad' };
+    case 'Big Overpay': return { word: 'ROSTER CLOGGER', cls: 'terrible' };
     default: return { word: getGradeDisplayText(grade), cls: grade };
   }
 }
 
 export function getGradeDisplayText(grade: DraftGrade): string {
-  return grade.charAt(0).toUpperCase() + grade.slice(1);
+  return { great: 'LEAGUE WINNER', good: 'SOLID VALUE', bad: 'REACH', terrible: 'ROSTER CLOGGER' }[grade];
 }
 
 // Format value over expected with sign

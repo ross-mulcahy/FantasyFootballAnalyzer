@@ -1,4 +1,4 @@
-/* GRIDIRON · RivalryCard */
+/* WITCHING HOUR · RivalryCard */
 
 .card {
   background: var(--ink-2);
@@ -10,7 +10,7 @@
 }
 
 .card:hover {
-  transform: translate(-2px,-2px);
+  transform: none;
   box-shadow: none;
   border-color: var(--lime);
   background: var(--ink-2);
@@ -26,7 +26,7 @@
   gap: 0.5rem;
   margin-bottom: 0.85rem;
   padding-bottom: 0.65rem;
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
 
 .vsLabel {
@@ -115,7 +115,7 @@
 
 /* ── Recent matchups ── */
 .recentMatchups {
-  border-top: 1px dashed var(--rule);
+  border-top: 1px solid var(--rule);
   padding-top: 0.85rem;
 }
 

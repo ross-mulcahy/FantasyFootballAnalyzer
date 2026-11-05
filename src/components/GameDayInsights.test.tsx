@@ -13,7 +13,7 @@ it('links a warning to the full roster with its league and team context and supp
   render(<MemoryRouter><LineupWarnings contexts={[context]} feeds={{ '2026:8': { data: { ...data, games: data.games!.map(game => ({ ...game, state: 'in' })) }, error: null } }} now={now} /></MemoryRouter>);
   expect(screen.getByText('Player One: Out')).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'View roster →' })).toHaveAttribute('href', '/teams?league=sleeper%3AL&year=2026&team=1');
-  fireEvent.click(screen.getByRole('button', { name: 'Minimise Lineup Warnings · 1' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Minimise 1 LINEUP HAZARDS // CHECK LOCK STATUS' }));
   expect(screen.getByText('Player One: Out')).not.toBeVisible();
 });
 it('keeps earlier recaps available after moving to a new week and excludes another selected team', async () => {

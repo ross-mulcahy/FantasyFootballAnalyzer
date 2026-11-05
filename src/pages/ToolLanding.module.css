@@ -73,12 +73,12 @@
 }
 .ctaPrimary:hover,
 .ctaSecondary:hover {
-  transform: translate(-1px, -1px);
+  transform: none;
   box-shadow: none;
 }
 .ctaPrimary:active,
 .ctaSecondary:active {
-  transform: translate(2px, 2px);
+  transform: none;
   box-shadow: none;
 }
 

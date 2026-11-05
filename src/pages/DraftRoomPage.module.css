@@ -17,10 +17,10 @@
 
 .title {
   font-family: var(--font-headline);
-  font-size: var(--page-title);
+  font-size: 22px;
   font-weight: 400;
   line-height: 0.82;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: -0.025em;
   color: var(--bone);
   margin: 0 0 0.5rem;
@@ -269,7 +269,7 @@
 }
 
 .statusUndoBtn:hover:not(:disabled) {
-  transform: translate(-2px, -2px);
+  transform: none;
   box-shadow: none;
 }
 
@@ -298,7 +298,7 @@
 }
 
 .statusBtn:hover {
-  transform: translate(-2px, -2px);
+  transform: none;
   box-shadow: none;
 }
 
@@ -343,7 +343,7 @@
 }
 
 .teamsSection {
-  border-top: 1px dashed var(--rule);
+  border-top: 1px solid var(--rule);
   padding-top: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -389,7 +389,7 @@
      4rem of margin/border above the board. Shrink the masthead and drop the
      secondary status chips so the player list starts higher up. */
   .page { padding: 1.25rem 0 3rem; }
-  .title { font-size: 40px; }
+  .title { font-size: 22px; }
   .header {
     margin-bottom: 1.25rem;
     padding-bottom: 0.75rem;

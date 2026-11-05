@@ -1,3 +1,4 @@
+import { outlierHeatmap } from '@/utils/outlierHeatmap';
 import { useState, useMemo } from 'react';
 import type { Team, Transaction } from '@/types';
 import { NflTeamLabel } from './NflTeamLabel';
@@ -272,6 +273,7 @@ export function WaiverTable({ teams, pointsBasis }: WaiverTableProps) {
     };
   }, [displayPickups, selectedTeam, teamTotals]);
 
+  const parHeat = outlierHeatmap(allPickups.map(p => p.par));
   return (
     <div className={styles.container}>
       <div className={styles.filters}>
@@ -330,6 +332,7 @@ export function WaiverTable({ teams, pointsBasis }: WaiverTableProps) {
         </div>
       </div>
 
+      <aside className={styles.telemetry}><h2>WAIVER DESK // LEAGUE RETURNS</h2><p>Season PAR from all rostered pickups</p><ul>{[...teamTotals.entries()].sort((a, b) => b[1].par - a[1].par).map(([id, total]) => <li key={id}><span>{teams.find(t => t.id === id)?.name ?? id}</span><strong className={total.par >= 0 ? 'grade-great' : 'grade-terrible'}>{total.par >= 0 ? '+' : ''}{total.par.toFixed(1)} PAR</strong></li>)}</ul></aside>
       <div className={`${styles.tableWrapper} scroll-x-hint`}>
         <table className={`table ${styles.table}`}>
           <thead>
@@ -394,7 +397,7 @@ export function WaiverTable({ teams, pointsBasis }: WaiverTableProps) {
                     )}
                   </span>
                 </td>
-                <td className={`font-mono text-right ${pickup.par > 20 ? 'grade-great' : pickup.par > 5 ? 'grade-good' : ''}`}>
+                <td className={`font-mono text-right ${pickup.par > 20 ? 'grade-great' : pickup.par > 5 ? 'grade-good' : ''} ${parHeat(pickup.par)}`}>
                   {pickup.par >= 0 ? '+' : ''}{pickup.par.toFixed(1)}
                 </td>
                 <td className="font-mono text-right">

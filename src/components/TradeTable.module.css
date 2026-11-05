@@ -1,4 +1,4 @@
-/* GRIDIRON · TradeTable */
+/* WITCHING HOUR · TradeTable */
 
 .container {
   display: flex;
@@ -56,7 +56,7 @@
 }
 
 .statValue {
-  font-family: var(--font-headline);
+  font-family: var(--font-mono);
   font-size: 1.7rem;
   font-weight: 400;
   line-height: 0.9;
@@ -79,7 +79,7 @@
   animation: tradeCardIn 0.1s cubic-bezier(.2, .8, .2, 1) backwards;
 }
 .tradeCard:hover {
-  transform: translate(-2px,-2px);
+  transform: none;
   box-shadow: none;
   border-color: var(--lime);
 }
@@ -153,7 +153,7 @@
 @media (max-width: 768px) {
   .tradeSide:first-child {
     border-right: none;
-    border-bottom: 1px dashed var(--rule);
+    border-bottom: 1px solid var(--rule);
   }
 }
 
@@ -168,7 +168,7 @@
   to { opacity: 1; }
 }
 .tradeSide.winner::before {
-  content: '★ WINNER';
+  content: ' WINNER';
   position: absolute;
   top: 0.65rem;
   right: 0.85rem;
@@ -278,7 +278,7 @@
   flex-direction: column;
   gap: 0.35rem;
   padding-top: 0.85rem;
-  border-top: 1px dashed var(--rule);
+  border-top: 1px solid var(--rule);
   font-family: var(--font-mono);
   font-size: 0.78rem;
 }
@@ -293,7 +293,7 @@
   font-weight: 700;
   margin-top: 0.35rem;
   padding-top: 0.45rem;
-  border-top: 1px dashed var(--rule);
+  border-top: 1px solid var(--rule);
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -368,9 +368,9 @@
   color: var(--bone);
   margin-bottom: 1.1rem;
   padding-bottom: 0.6rem;
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
-.leaderboardTitle::before { content: '★ '; color: var(--lime); }
+.leaderboardTitle::before { content: ' '; color: var(--lime); }
 
 .leaderboardList {
   display: flex;
@@ -410,7 +410,7 @@
 }
 
 .rank {
-  font-family: var(--font-headline);
+  font-family: var(--font-mono);
   font-size: 1.5rem;
   font-weight: 400;
   color: var(--lime);
@@ -464,3 +464,6 @@
   text-transform: uppercase;
   color: var(--bone-dim);
 }
+.tradeCard { border-radius: 6px; animation: none; }
+.gradeTag { border-radius: 3px; font-family: var(--font-mono); }
+.tradeSide:first-child { border-right: 1px solid var(--rule); }

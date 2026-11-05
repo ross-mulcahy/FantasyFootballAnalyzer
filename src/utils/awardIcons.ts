@@ -1,7 +1,7 @@
 // Maps award ids (see src/utils/awards.ts) to their sticker icons, sliced
 // from the sprite sheets in data/award-sheets/ by scripts/sliceAwardIcons.ts.
 // Unluckiest Team and the Heartbreak Award share the broken heart on purpose
-// (they shared the 💔 emoji before). Awards without an entry fall back to
+// (they shared the  emoji before). Awards without an entry fall back to
 // their emoji.
 
 import bestRecord from '@/images/awards/best_record.png';

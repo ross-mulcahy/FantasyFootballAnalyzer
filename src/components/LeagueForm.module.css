@@ -1,4 +1,4 @@
-/* GRIDIRON · LeagueForm */
+/* WITCHING HOUR · LeagueForm */
 
 .form {
   display: flex;
@@ -35,7 +35,7 @@
 
 .platformButton:hover:not(:disabled) {
   border-color: var(--bone);
-  transform: translate(-1px,-1px);
+  transform: none;
   box-shadow: none;
 }
 
@@ -44,7 +44,7 @@
   background: var(--ink-2);
   color: var(--lime);
   box-shadow: none;
-  transform: translate(-1px,-1px);
+  transform: none;
 }
 
 .platformButton:disabled {
@@ -98,7 +98,7 @@
   flex-direction: column;
   gap: 0.5rem;
   padding-top: 1.1rem;
-  border-top: 1px dashed var(--rule);
+  border-top: 1px solid var(--rule);
 }
 
 .finderRow {
@@ -382,7 +382,7 @@
   text-transform: uppercase;
   color: var(--lime);
 }
-.fieldOk::before { content: '✓ '; }
+.fieldOk::before { content: ' '; }
 
 .fieldError {
   font-family: var(--font-mono);
@@ -445,7 +445,7 @@
   transition: transform .12s ease, box-shadow .12s ease;
 }
 .extensionButton:hover:not(:disabled) {
-  transform: translate(-1px, -1px);
+  transform: none;
   box-shadow: none;
 }
 .extensionButton:disabled { opacity: 0.5; cursor: not-allowed; }

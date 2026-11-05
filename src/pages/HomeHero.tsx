@@ -1,5 +1,5 @@
 import { POOL_BASELINE, POOL_GENERATED_AT, POOL_SEASON, TOP_OF_BOARD } from '@/data/draftPoolMeta';
-import { nflLogoUrl } from '@/data/nflTeams';
+import { NflTeamChip } from '@/components/NflTeamChip';
 import { formatBuildDate } from '@/utils/formatBuildDate';
 import styles from './HomePage.module.css';
 
@@ -28,7 +28,7 @@ export function HomeHero() {
     <header className={styles.hero}>
       <div className={styles.heroGrid}>
         <div>
-          <h1 className={styles.title}>Fantasy Football Analyzer</h1>
+          <h1 className={styles.title}>Witching Hour</h1>
           <p className={styles.subtitle}>
             I built this to prep for my own drafts and review them after.
             Daily consensus rankings, mock drafts, a live draft room, trade
@@ -53,24 +53,13 @@ export function HomeHero() {
             {TOP_OF_BOARD.map(p => {
               // Team logo with a text fallback (unknown team, or the img
               // fails to load and the browser shows the alt text).
-              const logo = nflLogoUrl(p.team);
               return (
                 <li key={p.id} className={styles.boardRow}>
                   <span className={styles.boardRank}>{p.overallRank}</span>
                   <span className={styles.boardName}>{p.name}</span>
                   <span className={styles.boardMeta}>
                     {p.pos}
-                    {logo ? (
-                      <img
-                        className={styles.boardLogo}
-                        src={logo}
-                        alt={p.team}
-                        width={20}
-                        height={20}
-                      />
-                    ) : (
-                      <> · {p.team}</>
-                    )}
+                    <NflTeamChip team={p.team} />
                   </span>
                   <span className={styles.boardValue}>${p.baseValue}</span>
                 </li>

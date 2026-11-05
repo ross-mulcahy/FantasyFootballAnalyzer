@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────
-   GRIDIRON · Home / Guest entry
+   WITCHING HOUR · Home / Guest entry
    ───────────────────────────────────────────── */
 
 .guest {
@@ -25,9 +25,9 @@
 
 .title {
   font-family: var(--font-headline);
-  font-size: 1.85rem;
+  font-size: 22px;
   font-weight: 400;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: -0.01em;
   color: var(--bone);
   margin-bottom: 0.6rem;
@@ -155,8 +155,8 @@
   color: var(--ink);
   box-shadow: none;
 }
-.primary:hover { transform: translate(-1px, -1px); box-shadow: none; }
-.primary:active { transform: translate(2px, 2px); box-shadow: none; }
+.primary:hover { transform: none; box-shadow: none; }
+.primary:active { transform: none; box-shadow: none; }
 
 .secondary {
   background: var(--ink-2);

@@ -1,12 +1,14 @@
+import { WorkspaceControls } from '@/components/WorkspaceControls';
+import { ProjectionBar } from '@/components/ProjectionBar';
 import { ConnectionHealthBar, ProviderLink } from '@/components/ConnectionHealth';
 import { TacticalLoading } from '@/components/TacticalLoading';
 import { useExperiencePreferences, prioritizeEvents, reconnectHref } from '@/utils/experience';
 import { useKickoffReminders } from '@/hooks/useKickoffReminders';
 import { EventImpactDetails, GameDayRecapRecorder, LineupWarnings } from '@/components/GameDayInsights';
-import { matchupMargin, myMatchups } from '@/utils/gameDayInsights';
+import { lineupWarnings, matchupSides, matchupMargin, myMatchups } from '@/utils/gameDayInsights';
 import type { SharedLeagueContext } from '@/utils/sharedPlayers';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import type { NFLTimeline } from '@/api/nflTimeline';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { lineupProjection } from '@/utils/playerWeek';
@@ -72,12 +74,17 @@ function LeagueMatchups({ saved, currentLeague, onUpdate, timelines, focus, clos
           {side.id !== null && <span className={styles.rowMeta}>{progress && !progress.unknown ? <>{progress.toPlay} to play{!stale && progress.inPlay > 0 && <span className={styles.rowLive}> · {progress.inPlay} live</span>}{progress.unscheduled > 0 && ` · ${progress.unscheduled} bye`}</> : 'Game status pending'}</span>}
         </div>;
       };
-      const difference = margin(match);
-      return <div key={matchupKey(match)}><Link to={leagueGameDayHref({ platform: saved.platform, id: saved.leagueId, season: saved.season })} className={styles.compactMatchup} aria-label={`View matchup: ${name(own.id)} vs ${name(opponent.id)}`}>
+      const difference = matchupMargin(context, match, 'projected', data);
+      const sweat = difference !== null && Math.abs(difference) <= 10;
+      const sides = matchupSides(context, match);
+      const hazards = lineupWarnings([context], { [`${snapshot?.season}:${snapshot?.week}`]: timeline ?? { data: null, error: null } }, Date.now());
+      const byes = hazards.filter(w => /Bye/i.test(w.message)).length;
+      const outs = hazards.filter(w => /Out|IR|Injured reserve|Inactive/i.test(w.message)).length;
+      return <div className={`${styles.scorebug} ${sweat ? styles.sweat : ''}`} key={matchupKey(match)}>{sweat && <div className={styles.sweatLabel}>WITCHING HOUR SWEAT</div>}{!!hazards.length && <div className={styles.hazardTags}>{byes > 0 && <span>{byes} ON BYE</span>}{outs > 0 && <span>{outs} OUT / IR</span>}{hazards.length > byes + outs && <span>{hazards.length - byes - outs} LINEUP HAZARDS</span>}</div>}<Link to={leagueGameDayHref({ platform: saved.platform, id: saved.leagueId, season: saved.season })} className={styles.compactMatchup} aria-label={`View matchup: ${name(own.id)} vs ${name(opponent.id)}`}>
         {teamInfo(own, true)}
         <div className={styles.rowScores}><strong>{score(own.points)}</strong><span aria-hidden="true">:</span><strong>{score(opponent.points)}</strong></div>
         {teamInfo(opponent, false)}
-      </Link>{difference !== null && Math.abs(difference) <= 10 && <p className={styles.closeBadge}>Close matchup · {Math.abs(difference).toFixed(2)} pts {focus === 'current' ? 'current' : 'projected'} margin{focus !== 'current' ? ' · Weekly estimate' : ''}</p>}<ProviderLink league={saved} teamId={myTeam} /></div>;
+      </Link><ProviderLink league={saved} teamId={myTeam} /><ProjectionBar own={sides.ownProjection} opponent={sides.opponentProjection} /></div>;
     })}
     {snapshot && myTeam && !matches.length && <p className={styles.hint}>No matchup scheduled for your team this week.</p>}
     {saved.platform === 'yahoo' && <p className={styles.hint}>Fantasy data provided by Yahoo Fantasy.</p>}
@@ -86,6 +93,8 @@ function LeagueMatchups({ saved, currentLeague, onUpdate, timelines, focus, clos
 
 export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League | null }) {
   const saved = useSavedLeagues();
+  const [shellParams, setShellParams] = useSearchParams();
+  const syncRequested = useRef(false);
   const mobile = useMediaQuery('(max-width: 1100px)');
   const [view, setView] = useState<'matchups' | 'players'>('matchups');
   const [focus, setFocus] = useState<'league' | 'projected' | 'current'>('league');
@@ -123,12 +132,22 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
   // A failed league therefore cannot make the combined timestamp look newer.
   const updatedAt = ready && visible.every(update => update.updatedAt !== null)
     ? Math.min(...visible.map(update => update.updatedAt!)) : null;
-  const refreshAll = async () => {
+  const refreshAll = useCallback(async () => {
     if (busy.current || !ready || refreshing) return;
     busy.current = true; setRefreshingAll(true); setEventRefreshSignal(value => value + 1);
     try { await Promise.allSettled(visible.map(update => Promise.resolve().then(() => update.refresh()))); }
     finally { busy.current = false; setRefreshingAll(false); }
-  };
+  }, [ready, refreshing, visible]);
+  useEffect(() => {
+    const sync = () => { void refreshAll(); };
+    window.addEventListener('witching-hour:sync-all', sync);
+    if (ready && shellParams.get('sync') === 'all' && !syncRequested.current) {
+      syncRequested.current = true; void refreshAll();
+      setShellParams(previous => { const next = new URLSearchParams(previous); next.delete('sync'); return next; }, { replace: true });
+    }
+    return () => window.removeEventListener('witching-hour:sync-all', sync);
+  }, [refreshAll, ready, shellParams, setShellParams]);
+  useEffect(() => { window.dispatchEvent(new CustomEvent('witching-hour:sync-status', { detail: { at: updatedAt, busy: !ready || refreshing } })); }, [updatedAt, ready, refreshing]);
 
   const weeks = [...new Set(visible.flatMap(update => update?.snapshot ? [update.snapshot.week] : []))];
   const contexts: SharedLeagueContext[] = leagues.map(saved => ({ saved, snapshot: updates[savedLeagueKey(saved)]?.snapshot ?? null, myTeamId: updates[savedLeagueKey(saved)]?.myTeamId, error: updates[savedLeagueKey(saved)]?.error }));
@@ -147,12 +166,13 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
   const kickoff = useKickoffReminders(contexts, timelines, now, refreshLeague);
   return <div className={`${styles.page} ${styles.dashboardPage}`}><div className="container">
     <div className={styles.dashboardHeader}>
-      <div className={styles.dashboardHeading}><h1>Game Day</h1><p>{weeks.length ? `${weeks.length === 1 ? 'Week' : 'Weeks'} ${weeks.join(' / ')} · ` : ''}{leagues.length} {leagues.length === 1 ? 'league' : 'leagues'}</p></div>
+      <div className={styles.dashboardHeading}><h1>The Quad-Box</h1><p>{weeks.length ? `${weeks.length === 1 ? 'Week' : 'Weeks'} ${weeks.join(' / ')} · ` : ''}{leagues.length} {leagues.length === 1 ? 'league' : 'leagues'}</p></div>
       <div className={styles.dashboardTools}>
         {!!leagues.length && <p role="status">{updatedAt !== null ? <>Last updated <time title={`Oldest league update: ${new Date(updatedAt).toLocaleString()}`} dateTime={new Date(updatedAt).toISOString()}>{new Date(updatedAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</time></> : 'Waiting for league updates'}</p>}
         {!!leagues.length && <button className="btn btn-primary" onClick={() => void refreshAll()} disabled={!ready || refreshing} aria-busy={refreshing}>{refreshing ? 'Refreshing…' : 'Refresh all'}</button>}
       </div>
     </div>
+    {!!leagues.length && <LineupWarnings contexts={contexts} feeds={timelines} now={now} />}
     {!!leagues.length && <ConnectionHealthBar contexts={contexts} />}
     {!!kickoff.checks.length && <p className={styles.period}>Kickoff within 15 minutes · Review your lineup warnings before games start.</p>}
     {kickoff.problem && <p role="status" className={styles.warningText}>{kickoff.problem}</p>}
@@ -169,12 +189,11 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
       : <div className={styles.homeLayout}>
         <aside id="players-panel" role={mobile ? 'tabpanel' : undefined} hidden={mobile && view !== 'players'} className={styles.sharedSidebar} aria-labelledby={mobile ? 'players-tab' : 'shared-players-heading'}><SharedPlayersSidebar onCountChange={setSharedCount} onTimeline={onTimeline} refreshSignal={eventRefreshSignal} contexts={contexts} />
           {Object.entries(timelines).filter(([key]) => key.startsWith(`${season}:`) && weeks.includes(Number(key.split(':')[1]))).map(([key, feed]) => <div key={key} className={styles.combinedEvents}><MatchupAlerts data={feed.data} error={feed.error} loading={feed.loading} now={now} rankEvents={events => prioritizeEvents(events, experience.alertPriority, contexts.filter(context => `${context.snapshot?.season}:${context.snapshot?.week}` === key), feed.data, now)} renderImpact={event => <EventImpactDetails event={event} contexts={contexts.filter(context => `${context.snapshot?.season}:${context.snapshot?.week}` === key)} data={feed.data} />} idPrefix={`home-${key}-`} /></div>)}
-          <LineupWarnings contexts={contexts} feeds={timelines} now={now} />
           {Object.entries(timelines).filter(([key]) => key.startsWith(`${season}:`) && weeks.includes(Number(key.split(':')[1]))).map(([key, feed]) => <div key={key} className={styles.combinedEvents}>
             <MatchupTimeline week={Number(key.split(':')[1])} data={feed.data} error={feed.error} loading={feed.loading} refresh={() => setEventRefreshSignal(value => value + 1)} canRefresh={true} renderImpact={event => <EventImpactDetails event={event} contexts={contexts.filter(context => `${context.snapshot?.season}:${context.snapshot?.week}` === key)} data={feed.data} />} idPrefix={`home-${key}-`} />
           </div>)}
         </aside>
-        <div id="matchups-panel" role={mobile ? 'tabpanel' : undefined} hidden={mobile && view !== 'matchups'} aria-labelledby={mobile ? 'matchups-tab' : 'your-matchups-heading'} className={styles.matchupsColumn}><section className={styles.matchupsPanel}><h2 id="your-matchups-heading">Your Matchups</h2><div className={styles.focusToolbar}><label>Sort matchups<select value={focus} onChange={event => setFocus(event.target.value as typeof focus)}><option value="league">League order</option><option value="projected">Closest projected margin</option><option value="current">Closest current margin</option></select></label><label className={styles.closeFilter}><input type="checkbox" checked={closeOnly} onChange={event => setCloseOnly(event.target.checked)} />Only close (≤10 pts)</label></div>{closeOnly && !qualifying && <p className={styles.empty}>No close matchups with available {focus === 'current' ? 'current' : 'weekly projected'} margins.</p>}<div className={styles.homeGrid}>{sortedLeagues.map(league => <LeagueMatchups focus={focus} closeOnly={closeOnly} key={savedLeagueKey(league)} saved={league} currentLeague={currentLeague} onUpdate={onUpdate} timelines={timelines} />)}</div></section>
+        <div id="matchups-panel" role={mobile ? 'tabpanel' : undefined} hidden={mobile && view !== 'matchups'} aria-labelledby={mobile ? 'matchups-tab' : 'your-matchups-heading'} className={styles.matchupsColumn}><section className={styles.matchupsPanel}><h2 id="your-matchups-heading">THE QUAD-BOX // YOUR MATCHUPS</h2><WorkspaceControls><div className={styles.focusToolbar}><label>Sort matchups<select value={focus} onChange={event => setFocus(event.target.value as typeof focus)}><option value="league">League order</option><option value="projected">Closest projected margin</option><option value="current">Closest current margin</option></select></label><label className={styles.closeFilter}><input type="checkbox" checked={closeOnly} onChange={event => setCloseOnly(event.target.checked)} />Witching Hour margins only (≤10 pts)</label></div></WorkspaceControls>{closeOnly && !qualifying && <p className={styles.empty}>No close matchups with available {focus === 'current' ? 'current' : 'weekly projected'} margins.</p>}<div className={styles.homeGrid}>{sortedLeagues.map(league => <LeagueMatchups focus={focus} closeOnly={closeOnly} key={savedLeagueKey(league)} saved={league} currentLeague={currentLeague} onUpdate={onUpdate} timelines={timelines} />)}</div></section>
           <GameDayRecapRecorder contexts={contexts} feeds={timelines} now={now} />
         </div></div>}
   </div></div>;

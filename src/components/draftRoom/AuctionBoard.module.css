@@ -17,10 +17,10 @@
 
 .title {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 22px;
   font-weight: 700;
   letter-spacing: 0.22em;
-  text-transform: uppercase;
+  text-transform: none;
   color: var(--lime);
   margin: 0;
 }

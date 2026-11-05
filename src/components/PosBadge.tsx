@@ -17,7 +17,7 @@ export function PosBadge({ pos, posRank, className }: PosBadgeProps) {
     <span
       className={`${styles.badge} ${known ? styles[base.toLowerCase()] : ''} ${className ?? ''}`}
     >
-      {base}
+      {base === 'DST' || base === 'DEF' ? 'D/ST' : base}
       {posRank ? <span className={styles.rank}>{posRank}</span> : null}
     </span>
   );

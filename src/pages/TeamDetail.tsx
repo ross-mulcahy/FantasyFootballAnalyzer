@@ -1,3 +1,6 @@
+import { Fragment } from 'react';
+import { isStartingSlot } from '@/utils/playerWeek';
+import { BroadcastIcon } from '@/components/BroadcastIcon';
 import { useMemo } from 'react';
 import type { League, Team } from '@/types';
 import type { RosterTeam } from '@/types/gameDay';
@@ -141,7 +144,7 @@ export function TeamDetail({ league, team, onBack, currentRoster }: TeamDetailPr
   }, [weekly]);
 
   return (
-    <div className={styles.detail}>
+    <div className={`${styles.detail} ${currentRoster !== undefined ? styles.rosterDashboard : ''}`}>
       <button type="button" className={styles.backBtn} onClick={onBack}>
         ← All Teams
       </button>
@@ -163,7 +166,7 @@ export function TeamDetail({ league, team, onBack, currentRoster }: TeamDetailPr
             <div className={styles.awardStrip}>
               {awards.map(a => (
                 <span key={a.id} className={styles.awardChip} title={`${a.name}: ${a.description}`}>
-                  {a.icon} {a.name}
+                  <BroadcastIcon kind="award" /> {a.name}
                 </span>
               ))}
             </div>
@@ -171,21 +174,22 @@ export function TeamDetail({ league, team, onBack, currentRoster }: TeamDetailPr
         </div>
       </div>
 
-      {currentRoster !== undefined && <section className={styles.section} aria-labelledby="current-roster-heading">
+      {currentRoster !== undefined && <section className={`${styles.section} ${styles.currentRoster}`} aria-labelledby="current-roster-heading">
         <h3 id="current-roster-heading" className={styles.sectionTitle}>Current Roster</h3>
         {currentRoster?.roster == null ? <p>This team's current roster was not returned by the platform.</p> : currentRoster.roster.length === 0 ? <p>This roster is empty.</p> : <ul className={styles.list}>
-          {currentRoster.roster.map((player, index) => <li key={`${player.id}-${index}`} className={styles.listRow}>
+          {currentRoster.roster.map((player, index) => <Fragment key={`${player.id}-${index}`}>{!isStartingSlot(player.slot) && (index === 0 || isStartingSlot(currentRoster.roster![index - 1].slot)) && <li className={styles.benchDivider}>BENCH</li>}<li key={`${player.id}-${index}`} className={styles.listRow}>
             <span className={styles.listMeta}>{player.slot}</span>
             {player.position && <PosBadge pos={player.position} />}
             <span className={styles.listName}>{player.name}</span>
             {player.nflTeam && <NflTeamLabel team={player.nflTeam} />}
-          </li>)}
+            <span className={styles.rosterNumbers}><strong>{typeof player.points === 'number' ? player.points.toFixed(2) : '—'}</strong><small>PROJ {typeof player.projection === 'number' ? player.projection.toFixed(2) : '—'}</small></span>
+          </li></Fragment>)}
         </ul>}
       </section>}
 
       {sparkline && (
-        <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>Last 5 Weeks · Points</h3>
+        <section className={`${styles.section} ${styles.weeklyPanel}`}>
+          <h3 className={styles.sectionTitle}>WEEKLY SCORES // Last 5 Weeks · Points</h3>
           <svg
             viewBox={`0 0 ${sparkline.w} ${sparkline.h}`}
             className={styles.sparkline}

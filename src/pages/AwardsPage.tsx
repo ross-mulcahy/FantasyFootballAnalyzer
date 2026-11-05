@@ -1,3 +1,4 @@
+import { BroadcastIcon } from '@/components/BroadcastIcon';
 import { LeagueLink } from '@/components/LeagueLink';
 import { useMemo, useState } from 'react';
 import type { League } from '@/types';
@@ -6,7 +7,6 @@ import { calculateLuckMetrics, type LuckMetrics, type MatchupData } from '@/util
 import { completedMatchups } from '@/utils/completedMatchups';
 import { seasonRecords, seasonTimeline } from '@/utils/seasonStory';
 import { exportAwardsBoard } from '@/utils/exportAwardsBoard';
-import { awardIconSrc } from '@/utils/awardIcons';
 import { Link } from 'react-router-dom';
 import { TeamLink } from '@/components';
 import { logger } from '@/utils/logger';
@@ -218,13 +218,10 @@ export function AwardsPage({ league }: AwardsPageProps) {
 }
 
 function AwardCard({ award }: { award: Award }) {
-  const iconSrc = awardIconSrc(award.id);
   return (
-    <div className={styles.awardCard}>
+    <div className={styles.awardCard} style={{ borderLeftColor: /worst|bust|loser|low|infirmary|ghost|clogger/i.test(award.id) ? 'var(--blood)' : 'var(--gold)' }}>
       <div className={styles.awardIcon}>
-        {iconSrc
-          ? <img src={iconSrc} alt="" className={styles.awardIconImg} loading="lazy" />
-          : (award.icon || '🏆')}
+        <BroadcastIcon kind="award" />
       </div>
       <h3 className={styles.awardName}>{award.name}</h3>
       <div className={styles.awardWinner}>

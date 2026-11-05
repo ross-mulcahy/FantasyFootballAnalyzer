@@ -1,4 +1,4 @@
-/* GRIDIRON · Draft */
+/* WITCHING HOUR · Draft */
 
 .page { padding: 3rem 0 5rem; }
 
@@ -10,10 +10,10 @@
 
 .title {
   font-family: var(--font-headline);
-  font-size: var(--page-title);
+  font-size: 22px;
   font-weight: 400;
   line-height: 0.82;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: -0.025em;
   color: var(--bone);
   margin-bottom: 0.5rem;
@@ -108,7 +108,7 @@
 .ctaBlock {
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px dashed var(--rule);
+  border-top: 1px solid var(--rule);
 }
 
 .ctaButton {
@@ -129,8 +129,11 @@
 }
 
 .ctaButton:hover {
-  transform: translate(-2px, -2px);
+  transform: none;
   box-shadow: none;
 }
 
-@media (max-width: 640px) { .title { font-size: 56px; } }
+@media (max-width: 640px) { .title { font-size: 22px; } }
+
+.page { padding: 0; }
+.header { margin-bottom: 20px; padding-bottom: 0; border: 0; }

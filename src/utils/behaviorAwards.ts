@@ -149,7 +149,7 @@ function lineupAwards(
       value: `${fmt1(bench.value)} pts`,
       detail: `${fmt1(bench.value / s.scoredWeeks)} per week left on the bench`,
       description: 'Most points left on the bench vs the best possible lineup',
-      icon: '🪑',
+      icon: '',
     });
   }
 
@@ -162,8 +162,8 @@ function lineupAwards(
   const savant = soleLeader(accuracy, 'max');
   const forget = soleLeader(accuracy, 'min');
   for (const [row, id, name, description, icon] of [
-    [savant, 'lineup_savant', 'Lineup Savant', 'Best start/sit record: starters who outscored every bench option for their slot', '📋'],
-    [forget, 'set_and_forget', 'Set It and Forget It', 'Worst start/sit record: starters outscored by someone on their own bench', '😴'],
+    [savant, 'lineup_savant', 'Lineup Savant', 'Best start/sit record: starters who outscored every bench option for their slot', ''],
+    [forget, 'set_and_forget', 'Set It and Forget It', 'Worst start/sit record: starters outscored by someone on their own bench', ''],
   ] as const) {
     if (!row || (savant && forget && savant.teamId === forget.teamId)) continue;
     const s = stats.get(row.teamId)!;
@@ -208,7 +208,7 @@ function lineupAwards(
       value: `${self.value} ${self.value === 1 ? 'loss' : 'losses'}`,
       detail: `Week${w.length === 1 ? '' : 's'} ${w.join(', ')}`,
       description: 'Losses the best possible lineup from the same roster would have won',
-      icon: '🤦',
+      icon: '',
     });
   }
 
@@ -222,7 +222,7 @@ function lineupAwards(
       value: `−${fmt1(worst.cost)}`,
       detail: `Week ${worst.week}: sat ${worst.benched.name} (${fmt1(worst.benched.points)}), started ${worst.started.name} (${fmt1(worst.started.points)})`,
       description: 'The single costliest start/sit decision of the season',
-      icon: '❌',
+      icon: '',
     });
   }
 
@@ -236,7 +236,7 @@ function lineupAwards(
       value: plural(ghost.value, 'start'),
       detail: 'Empty slots and starters who sat out',
       description: 'Most starts that produced nothing: byes, inactives, and empty slots',
-      icon: '👻',
+      icon: '',
     });
   }
 
@@ -247,8 +247,8 @@ function lineupAwards(
   const tinkerer = soleLeader(churn, 'max');
   const loyalist = soleLeader(churn, 'min');
   for (const [row, id, name, description, icon] of [
-    [tinkerer, 'tinkerer', 'Tinkerer', 'Most lineup changes from one week to the next', '🔧'],
-    [loyalist, 'loyalist', 'Loyalist', 'Fewest lineup changes from one week to the next', '🔒'],
+    [tinkerer, 'tinkerer', 'Tinkerer', 'Most lineup changes from one week to the next', ''],
+    [loyalist, 'loyalist', 'Loyalist', 'Fewest lineup changes from one week to the next', ''],
   ] as const) {
     if (!row || (tinkerer && loyalist && tinkerer.teamId === loyalist.teamId)) continue;
     const s = stats.get(row.teamId)!;
@@ -319,7 +319,7 @@ function dropRegret(league: League, weeks: number[], winner: WinnerFn): Award[] 
     value: `${fmt1(best.points)} pts`,
     detail: `${best.player.name}, dropped week ${best.week}, ${plural(best.games, 'game')} since`,
     description: 'The dropped player who scored the most after being let go',
-    icon: '🗑️',
+    icon: '',
   }];
 }
 
@@ -357,7 +357,7 @@ function lateSwing(done: ReturnType<typeof completedMatchups>, winner: WinnerFn)
       value: `${rec(surge.first)} → ${rec(surge.last)}`,
       detail: `First ${SWING_WINDOW} games vs last ${SWING_WINDOW}`,
       description: 'Biggest jump from the first four games to the latest four',
-      icon: '🚀',
+      icon: '',
     });
   }
   const collapse = soleLeader(rows, 'min') as (typeof rows)[number] | undefined;
@@ -370,7 +370,7 @@ function lateSwing(done: ReturnType<typeof completedMatchups>, winner: WinnerFn)
       value: `${rec(collapse.first)} → ${rec(collapse.last)}`,
       detail: `First ${SWING_WINDOW} games vs last ${SWING_WINDOW}`,
       description: 'Biggest drop from the first four games to the latest four',
-      icon: '📉',
+      icon: '',
     });
   }
   return awards;
@@ -428,7 +428,7 @@ function byeAwards(league: League, winner: WinnerFn): Award[] {
       value: `${pile.value} starters`,
       detail: `All on bye in week ${pile.week}`,
       description: 'Drafted the most starters sharing one bye week',
-      icon: '📅',
+      icon: '',
     });
   }
   const planner = soleLeader(rows, 'min') as (typeof rows)[number] | undefined;
@@ -441,7 +441,7 @@ function byeAwards(league: League, winner: WinnerFn): Award[] {
       value: planner.value <= 1 ? 'No overlaps' : `Max ${planner.value} per week`,
       detail: planner.total > 0 ? `${planner.total} starters share a bye` : 'Every starter on a different bye',
       description: 'Drafted a starting lineup with its byes spread out the most',
-      icon: '🗓️',
+      icon: '',
     });
   }
   return awards;
@@ -466,7 +466,7 @@ function injuryAwards(league: League, weeks: number[], winner: WinnerFn): Award[
       value: plural(r.gamesMissed, 'game') + ' missed',
       detail: `${fmt1(r.valueLost)} pts over replacement lost${top ? `, most to ${top.name}` : ''}`,
       description: 'Drafted players who missed the most valuable time',
-      icon: '🩹',
+      icon: '',
     });
   }
   const best = soleLeader(rows.map(r => ({ teamId: r.teamId, value: r.valueLost, tiebreak: r.gamesMissed })), 'min');
@@ -480,7 +480,7 @@ function injuryAwards(league: League, weeks: number[], winner: WinnerFn): Award[
       value: plural(r.gamesMissed, 'game') + ' missed',
       detail: r.valueLost > 0 ? `${fmt1(r.valueLost)} pts over replacement lost` : 'Every drafted starter stayed on the field',
       description: 'Drafted players who missed the least valuable time',
-      icon: '🦾',
+      icon: '',
     });
   }
   return awards;

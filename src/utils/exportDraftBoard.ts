@@ -1,4 +1,4 @@
-// Renders the draft as shareable PNGs, canvas-drawn in the Tactical Slate palette.
+// Renders the draft as shareable PNGs, canvas-drawn in the RedZone Control Room palette.
 // Built for the group chat, same as the awards board - one pasteable image
 // beats a four-page PDF and beats screenshotting a scrolling table.
 //
@@ -11,7 +11,7 @@ import type { GradedPick } from './grading';
 import { logger } from './logger';
 
 const INK = '#0b0f17';
-const INK2 = '#161f30';
+const INK2 = '#131b2e';
 const BONE = '#f8fafc';
 const BONE_DIM = '#94a3b8';
 const LIME = '#10b981';
@@ -232,7 +232,7 @@ function drawBlocks(data: DraftBoardData, blocks: Block[], blockW: number, cols:
   });
   ctx.fillStyle = BONE_DIM;
   ctx.textAlign = 'right';
-  ctx.fillText('Fantasy Football Analyzer', w - MARGIN, footY);
+  ctx.fillText('WITCHING HOUR', w - MARGIN, footY);
   ctx.textAlign = 'left';
 
   return canvas;

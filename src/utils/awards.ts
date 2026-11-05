@@ -70,7 +70,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
       winner: { teamId: bestRecord.id, teamName: bestRecord.name, ownerName: bestRecord.ownerName },
       value: `${bestRecord.wins}-${bestRecord.losses}${bestRecord.ties ? `-${bestRecord.ties}` : ''}`,
       description: 'Best record',
-      icon: '🏆',
+      icon: '',
     });
   }
 
@@ -84,7 +84,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
       winner: { teamId: mostPointsFor.id, teamName: mostPointsFor.name, ownerName: mostPointsFor.ownerName },
       value: pts(mostPointsFor.pointsFor),
       description: 'Most total points scored',
-      icon: '💯',
+      icon: '',
     });
   }
 
@@ -98,7 +98,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
       winner: { teamId: worstRecord.id, teamName: worstRecord.name, ownerName: worstRecord.ownerName },
       value: `${worstRecord.wins}-${worstRecord.losses}${worstRecord.ties ? `-${worstRecord.ties}` : ''}`,
       description: 'Worst record',
-      icon: '🪣',
+      icon: '',
     });
   }
 
@@ -112,7 +112,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
       winner: { teamId: mostPointsAgainst.id, teamName: mostPointsAgainst.name, ownerName: mostPointsAgainst.ownerName },
       value: pts(mostPointsAgainst.pointsAgainst),
       description: 'Most points scored against',
-      icon: '🥊',
+      icon: '',
     });
   }
 
@@ -126,7 +126,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
       winner: { teamId: leastPointsAgainst.id, teamName: leastPointsAgainst.name, ownerName: leastPointsAgainst.ownerName },
       value: pts(leastPointsAgainst.pointsAgainst),
       description: 'Fewest points scored against',
-      icon: '🛋️',
+      icon: '',
     });
   }
 
@@ -140,7 +140,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
       winner: { teamId: lowestScorer.id, teamName: lowestScorer.name, ownerName: lowestScorer.ownerName },
       value: pts(lowestScorer.pointsFor),
       description: 'Fewest total points scored',
-      icon: '📉',
+      icon: '',
     });
   }
 
@@ -166,7 +166,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
         detail: luckiest.medianAdjusted
           ? `${luckiest.h2hWins} h2h W vs ${luckiest.expectedWins.toFixed(1)} expected`
           : `${luckiest.actualWins}W vs ${luckiest.expectedWins.toFixed(1)} expected`,
-        icon: '🍀',
+        icon: '',
       });
     }
 
@@ -185,7 +185,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
         detail: unluckiest.medianAdjusted
           ? `${unluckiest.h2hWins} h2h W vs ${unluckiest.expectedWins.toFixed(1)} expected`
           : `${unluckiest.actualWins}W vs ${unluckiest.expectedWins.toFixed(1)} expected`,
-        icon: '💔',
+        icon: '',
       });
     }
 
@@ -201,7 +201,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
         winner: { teamId: biggestBlowout.teamId, teamName: biggestBlowout.teamName },
         value: `${signed(biggestBlowout.biggestWin)} pts`,
         description: 'Largest margin of victory',
-        icon: '💪',
+        icon: '',
       });
     }
 
@@ -237,7 +237,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
         value: `${signed(narrowestVictory.margin)} pts`,
         description: 'Smallest winning margin',
         detail: `Week ${narrowestVictory.week}${narrowestLoser ? ` over ${narrowestLoser.name}` : ''}`,
-        icon: '😅',
+        icon: '',
       });
     }
 
@@ -263,7 +263,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
         value: `-${heartbreakLoss.margin.toFixed(1)} pts`,
         description: 'Smallest losing margin',
         detail: `Week ${heartbreakLoss.week}`,
-        icon: '💔',
+        icon: '',
       });
     }
 
@@ -282,7 +282,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
           value: `${clutchTeam.closeWins}-${clutchTeam.closeLosses}`,
           description: 'Best record in close games',
           detail: `${(clutchTeam.closeGamePct * 100).toFixed(0)}% win rate`,
-          icon: '🎯',
+          icon: '',
         });
       }
     }
@@ -309,7 +309,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
           detail: champGames > 0
             ? `${((allPlayChamp.allPlayWins / champGames) * 100).toFixed(0)}% win rate`
             : undefined,
-          icon: '👊',
+          icon: '',
         });
       }
 
@@ -327,7 +327,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
           winner: { teamId: allPlayLoser.teamId, teamName: allPlayLoser.teamName },
           value: `${allPlayLoser.allPlayWins}-${allPlayLoser.allPlayLosses}`,
           description: 'Worst record vs entire league each week',
-          icon: '😵',
+          icon: '',
         });
       }
     }
@@ -350,7 +350,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
         value: pts(bestWeek.score),
         description: 'Highest single-week score',
         detail: `Week ${bestWeek.week}`,
-        icon: '🔥',
+        icon: '',
       });
     }
 
@@ -372,7 +372,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
         value: pts(worstWeek.score),
         description: 'Lowest single-week score',
         detail: `Week ${worstWeek.week}`,
-        icon: '🚽',
+        icon: '',
       });
     }
 
@@ -396,7 +396,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
         winner: { teamId: mostConsistent.team.teamId, teamName: mostConsistent.team.teamName },
         value: `±${mostConsistent.variance.toFixed(1)} pts`,
         description: 'Most consistent weekly scoring',
-        icon: '📊',
+        icon: '',
       });
 
       // Boom or Bust (highest variance)
@@ -410,7 +410,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
         winner: { teamId: boomBust.team.teamId, teamName: boomBust.team.teamName },
         value: `±${boomBust.variance.toFixed(1)} pts`,
         description: 'Most volatile weekly scoring',
-        icon: '🎢',
+        icon: '',
       });
     }
 
@@ -450,7 +450,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
           winner: { teamId: team.teamId, teamName: team.teamName },
           value: `${mostHighs.count} weeks`,
           description: 'Most weeks as highest scorer',
-          icon: '🐕',
+          icon: '',
         });
       }
     }
@@ -472,7 +472,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
           winner: { teamId: team.teamId, teamName: team.teamName },
           value: `${mostLows.count} weeks`,
           description: 'Most weeks as lowest scorer',
-          icon: '📦',
+          icon: '',
         });
       }
     }
@@ -512,7 +512,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
       value: signedValue(bestDraft.avgValue),
       description: 'Highest average draft value',
       detail: `${bestDraft.greatPicks} great picks`,
-      icon: '🎯',
+      icon: '',
     });
   }
 
@@ -527,7 +527,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
       value: signedValue(worstDraft.avgValue),
       description: 'Lowest average draft value',
       detail: `${worstDraft.terriblePicks} terrible picks`,
-      icon: '📉',
+      icon: '',
     });
   }
 
@@ -542,7 +542,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
       value: signedValue(draftSteal.value),
       description: 'Best single draft pick',
       detail: `${draftSteal.playerName} (${draftSteal.cost != null ? `$${draftSteal.cost}` : `Rd ${draftSteal.round}`})`,
-      icon: '💎',
+      icon: '',
     });
   }
 
@@ -557,7 +557,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
       value: signedValue(draftBust.value),
       description: 'Worst single draft pick',
       detail: `${draftBust.playerName} (${draftBust.cost != null ? `$${draftBust.cost}` : `Rd ${draftBust.round}`})`,
-      icon: '💣',
+      icon: '',
     });
   }
 
@@ -575,7 +575,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
       value: signedValue(lateRoundHero.value),
       description: 'Best pick from round 8+',
       detail: `${lateRoundHero.playerName} (${lateRoundHero.cost != null ? `$${lateRoundHero.cost}` : `Rd ${lateRoundHero.round}`})`,
-      icon: '🦸',
+      icon: '',
     });
   }
 
@@ -596,7 +596,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
       value: `${bestWaiver.par.toFixed(1)} PAR`,
       description: 'Highest PAR from single pickup',
       detail: bestWaiver.playerName,
-      icon: '💎',
+      icon: '',
     });
   }
 
@@ -613,7 +613,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
       value: `${worstWaiver.par.toFixed(1)} PAR`,
       description: 'Lowest PAR from single pickup',
       detail: worstWaiver.playerName,
-      icon: '🗑️',
+      icon: '',
     });
   }
 
@@ -640,7 +640,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
       value: `${waiverKing.totalPAR.toFixed(1)} PAR`,
       description: 'Most PAR from waiver pickups',
       detail: `${waiverKing.pickupCount} pickups`,
-      icon: '👑',
+      icon: '',
     });
   }
 
@@ -657,7 +657,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
       value: `${waiverSlacker.totalPAR.toFixed(1)} PAR`,
       description: 'Least PAR from waiver pickups',
       detail: `${waiverSlacker.pickupCount} pickups`,
-      icon: '😴',
+      icon: '',
     });
   }
 
@@ -675,7 +675,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
       winner: { teamId: mostActive.team.id, teamName: mostActive.team.name, ownerName: mostActive.team.ownerName },
       value: `${mostActive.transactionCount} moves`,
       description: 'Most transactions',
-      icon: '🏃',
+      icon: '',
     });
   }
 
@@ -690,7 +690,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
       winner: { teamId: leastActive.team.id, teamName: leastActive.team.name, ownerName: leastActive.team.ownerName },
       value: `${leastActive.transactionCount} moves`,
       description: 'Fewest transactions',
-      icon: '🦥',
+      icon: '',
     });
   }
 
@@ -709,7 +709,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
         value: `${signed(tradeShark.netPAR)} PAR`,
         description: 'Best net PAR from trades',
         detail: `${tradeShark.wins}W-${tradeShark.losses}L`,
-        icon: '🦈',
+        icon: '',
       });
     }
 
@@ -724,7 +724,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
         value: `${tradeVictim.netPAR.toFixed(1)} PAR`,
         description: 'Worst net PAR from trades',
         detail: `${tradeVictim.wins}W-${tradeVictim.losses}L`,
-        icon: '🎯',
+        icon: '',
       });
     }
 
@@ -739,7 +739,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
         value: `${signed(bestTrade.netPAR)} PAR`,
         description: 'Highest PAR gain from single trade',
         detail: `Week ${bestTrade.week}`,
-        icon: '🤝',
+        icon: '',
       });
     }
 
@@ -754,7 +754,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
         value: `${worstTrade.netPAR.toFixed(1)} PAR`,
         description: 'Biggest PAR loss from single trade',
         detail: `Week ${worstTrade.week}`,
-        icon: '🤦',
+        icon: '',
       });
     }
 
@@ -768,7 +768,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
         winner: { teamId: tradeAddict.team.id, teamName: tradeAddict.team.name, ownerName: tradeAddict.team.ownerName },
         value: `${tradeAddict.count} trades`,
         description: 'Most trades completed',
-        icon: '🔄',
+        icon: '',
       });
     }
   }
@@ -791,7 +791,7 @@ export function calculateAllAwards(input: AwardCalculationInput): Award[] {
         winner: { teamId: tradeAvoiders[0].id, teamName: tradeAvoiders[0].name, ownerName: tradeAvoiders[0].ownerName },
         value: '0 trades',
         description: 'The only team that made zero trades',
-        icon: '🐺',
+        icon: '',
       });
     }
   }

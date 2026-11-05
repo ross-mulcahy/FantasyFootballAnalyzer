@@ -1,9 +1,9 @@
 .section { border-bottom:  1px dashed var(--rule); padding-bottom: 1.5rem; }
-.title { font-family: var(--font-headline); text-transform: uppercase; font-size: 1.3rem; color: var(--lime); margin-bottom: .75rem; }
+.title { font-family: var(--font-headline); text-transform: none; font-size: 22px; color: var(--lime); margin-bottom: .75rem; }
 .hint, .empty { color: var(--bone-dim); font-family: var(--font-display); font-style: normal; line-height: 1.5; }
 .empty { margin-top: .75rem; }
 .list { list-style: none; padding: 0; margin: 1rem 0 0; }
-.row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 0; border-top: 1px dashed var(--rule); }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 0; border-top: 1px solid var(--rule); }
 .details { min-width: 0; display: flex; flex-direction: column; gap: .5rem; }
 .name { color: var(--bone); overflow-wrap: anywhere; font-weight: 500; }
 .meta { color: var(--bone-dim); font-family: var(--font-mono); font-size: .65rem; text-transform: uppercase; letter-spacing: .12em; overflow-wrap: anywhere; }

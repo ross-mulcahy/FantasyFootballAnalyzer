@@ -37,7 +37,7 @@ it('shows repeated players and defenses with live stats, events, separate exposu
   expect(within(screen.getByLabelText("Ja'Marr Chase stats")).getByText('80')).toBeInTheDocument();
   expect(screen.getByText('6.00 pts · Proj. 20.00')).toBeVisible();
   expect(screen.getByText('12.00 pts · Proj. 20.00')).toBeVisible();
-  fireEvent.click(screen.getByRole('button', { name: 'Minimise Shared Players' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Minimise ROOTING CONFLICTS // SHARED STARTERS' }));
   expect(screen.queryByRole('heading', { name: "Ja'Marr Chase" })).not.toBeInTheDocument();
 });
 it('uses the shared refresh control and marks fresh player stats without highlighting the initial load', async () => {

@@ -10,10 +10,10 @@
 
 .title {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 22px;
   font-weight: 700;
   letter-spacing: 0.18em;
-  text-transform: uppercase;
+  text-transform: none;
   color: var(--gold);
   margin: 0 0 1rem;
 }

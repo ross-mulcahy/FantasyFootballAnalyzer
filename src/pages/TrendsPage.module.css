@@ -13,10 +13,10 @@
 
 .title {
   font-family: var(--font-headline);
-  font-size: var(--page-title-board);
+  font-size: 22px;
   font-weight: 400;
   line-height: 0.82;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: -0.025em;
   color: var(--bone);
   margin: 0 0 0.5rem;
@@ -300,7 +300,7 @@
     padding: 1.25rem 0 1.5rem;
   }
   .title {
-    font-size: 40px;
+    font-size: 22px;
   }
   .header {
     margin-bottom: 1.25rem;

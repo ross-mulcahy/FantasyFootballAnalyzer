@@ -6,8 +6,8 @@
 
 .title {
   font-family: var(--font-headline);
-  font-size: 1.35rem;
-  text-transform: uppercase;
+  font-size: 22px;
+  text-transform: none;
   letter-spacing: -0.02em;
   line-height: 0.95;
   margin: 0;
@@ -119,7 +119,7 @@
 }
 
 .roster {
-  border-top: 1px dashed var(--rule);
+  border-top: 1px solid var(--rule);
   padding-top: 0.4rem;
 }
 

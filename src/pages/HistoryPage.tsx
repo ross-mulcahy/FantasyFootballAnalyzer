@@ -5,7 +5,7 @@ import { loadLeagueHistory as loadSleeperHistory, loadHeadToHeadRecords as loadS
 import { loadLeagueHistory as loadESPNHistory, loadHeadToHeadRecords as loadESPNH2H } from '@/api/espn';
 import { loadLeagueHistory as loadYahooHistory, loadHeadToHeadRecords as loadYahooH2H } from '@/api/yahoo';
 import { RivalryCard } from '@/components';
-import { AWARD_ICONS } from '@/utils/awardIcons';
+import { BroadcastIcon } from '@/components/BroadcastIcon';
 import { logger } from '@/utils/logger';
 import { loadESPNCredentials } from '@/utils/espnCredentials';
 import styles from './HistoryPage.module.css';
@@ -259,7 +259,7 @@ export function HistoryPage({ league }: HistoryPageProps) {
                         <div key={`${s.leagueId}-${s.season}`} className={styles.championCard}>
                           <span className={styles.championYear}>{s.season}</span>
                           <span className={styles.championTrophy}>
-                            <img src={AWARD_ICONS.best_record} alt="Champion" />
+                            <span aria-label="Champion"><BroadcastIcon kind="award" /></span>
                           </span>
                           <span className={styles.championName}>{champ?.name ?? '?'}</span>
                           {champ && (
@@ -343,11 +343,11 @@ export function HistoryPage({ league }: HistoryPageProps) {
                 </span>
               </h2>
               <div className={`${styles.tableWrapper} scroll-x-hint`}>
-                <table className="table">
+                <table className={`table ${styles.historyTable}`}>
                   <thead>
                     <tr>
                       <th>Rank</th>
-                      <th>Team</th>
+                      <th className={styles.nameSticky}>Team</th>
                       <th>Championships</th>
                       <th>Record</th>
                       <th>Win %</th>
@@ -365,7 +365,7 @@ export function HistoryPage({ league }: HistoryPageProps) {
                       return (
                         <tr key={team.key} className={index < 3 ? styles.topThree : ''}>
                           <td className="font-mono">{index + 1}</td>
-                          <td>
+                          <td className={styles.nameSticky}>
                             <span className={styles.teamName}>{team.name}</span>
                           </td>
                           <td className="text-center">
@@ -376,7 +376,7 @@ export function HistoryPage({ league }: HistoryPageProps) {
                                 aria-label={`${team.championships} championship${team.championships === 1 ? '' : 's'}`}
                               >
                                 {Array.from({ length: team.championships }, (_, i) => (
-                                  <img key={i} src={AWARD_ICONS.best_record} alt="" />
+                                  <BroadcastIcon key={i} kind="award" />
                                 ))}
                               </span>
                             ) : '-'}
@@ -423,7 +423,7 @@ export function HistoryPage({ league }: HistoryPageProps) {
                               <span className={styles.standingTeam}>
                                 {isChamp && (
                                   <span className={styles.trophy}>
-                                    <img src={AWARD_ICONS.best_record} alt="Champion" />
+                                    <span aria-label="Champion"><BroadcastIcon kind="award" /></span>
                                   </span>
                                 )}
                                 {team.name}

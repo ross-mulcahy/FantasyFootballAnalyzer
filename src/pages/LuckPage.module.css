@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────
-   GRIDIRON · Luck
+   WITCHING HOUR · Luck
    ───────────────────────────────────────────── */
 
 .luckPage {
@@ -14,10 +14,10 @@
 
 .title {
   font-family: var(--font-headline);
-  font-size: var(--page-title);
+  font-size: 22px;
   font-weight: 400;
   line-height: 0.82;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: -0.025em;
   color: var(--bone);
   margin-bottom: 0.5rem;
@@ -31,7 +31,7 @@
   color: var(--lime);
 }
 .subtitle::before {
-  content: '★ ';
+  content: ' ';
 }
 
 .empty {
@@ -40,8 +40,8 @@
   font-size: 1.05rem;
   color: var(--bone-dim);
   padding: 2rem 0;
-  border-top: 1px dashed var(--rule);
-  border-bottom: 1px dashed var(--rule);
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
 
 .note {
@@ -123,7 +123,7 @@
   color: var(--bone);
   margin-bottom: 0.75rem;
   padding-bottom: 0.6rem;
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
 
 .table {
@@ -147,7 +147,7 @@
 .table td {
   padding: 0.85rem 1.1rem;
   text-align: left;
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px solid var(--rule);
   vertical-align: top;
 }
 
@@ -245,8 +245,11 @@
 }
 
 @media (max-width: 640px) {
-  .title { font-size: 56px; }
+  .title { font-size: 22px; }
   .sectionTitle { font-size: 1.6rem; }
   .headlineValue { font-size: 1.6rem; }
   .table th, .table td { padding: 0.55rem 0.65rem; font-size: 0.75rem; }
 }
+
+.page { padding: 0; }
+.header { margin-bottom: 20px; padding-bottom: 0; border: 0; }

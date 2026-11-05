@@ -5,8 +5,8 @@ import { NflTeamChip } from './NflTeamChip';
 describe('NflTeamChip', () => {
   it('shows canonical team abbreviations with their broadcast accent, without logo art', () => {
     const { container } = render(<NflTeamChip team="JAX" />);
-    expect(screen.getByText('JAC')).toHaveAttribute('title', 'Jacksonville Jaguars');
-    expect(screen.getByText('JAC')).toHaveStyle({ '--team-color': '#006778' });
+    expect(screen.getByText('JAX')).toHaveAttribute('title', 'Jacksonville Jaguars');
+    expect(screen.getByText('JAX')).toHaveStyle({ '--team-color': '#006778' });
     expect(container.querySelector('img')).toBeNull();
   });
 

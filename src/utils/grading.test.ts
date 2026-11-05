@@ -398,9 +398,9 @@ describe('calculateDraftSummary', () => {
 });
 
 describe('getGradeDisplayText', () => {
-  it('capitalizes first letter', () => {
-    expect(getGradeDisplayText('great')).toBe('Great');
-    expect(getGradeDisplayText('terrible')).toBe('Terrible');
+  it('uses front-office value labels', () => {
+    expect(getGradeDisplayText('great')).toBe('LEAGUE WINNER');
+    expect(getGradeDisplayText('terrible')).toBe('ROSTER CLOGGER');
   });
 });
 
@@ -466,13 +466,13 @@ describe('gradeAuctionDollarDelta bands (softened ratio)', () => {
 });
 
 describe('auctionBadgeWord', () => {
-  it('maps the five market bands onto short words with a Fair middle step', () => {
-    expect(auctionBadgeWord('Steal', 'great')).toEqual({ word: 'Great', cls: 'great' });
-    expect(auctionBadgeWord('Fair Price', 'good')).toEqual({ word: 'Good', cls: 'good' });
-    expect(auctionBadgeWord('Slight Overpay', 'bad')).toEqual({ word: 'Fair', cls: 'fair' });
-    expect(auctionBadgeWord('Overpay', 'bad')).toEqual({ word: 'Bad', cls: 'bad' });
-    expect(auctionBadgeWord('Big Overpay', 'terrible')).toEqual({ word: 'Terrible', cls: 'terrible' });
-    expect(auctionBadgeWord(undefined, 'bad')).toEqual({ word: 'Bad', cls: 'bad' });
+  it('maps market bands to front-office labels and retains the fair-value middle step', () => {
+    expect(auctionBadgeWord('Steal', 'great')).toEqual({ word: 'LEAGUE WINNER', cls: 'great' });
+    expect(auctionBadgeWord('Fair Price', 'good')).toEqual({ word: 'SOLID VALUE', cls: 'good' });
+    expect(auctionBadgeWord('Slight Overpay', 'bad')).toEqual({ word: 'FAIR VALUE', cls: 'fair' });
+    expect(auctionBadgeWord('Overpay', 'bad')).toEqual({ word: 'REACH', cls: 'bad' });
+    expect(auctionBadgeWord('Big Overpay', 'terrible')).toEqual({ word: 'ROSTER CLOGGER', cls: 'terrible' });
+    expect(auctionBadgeWord(undefined, 'bad')).toEqual({ word: 'REACH', cls: 'bad' });
   });
 });
 

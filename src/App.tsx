@@ -29,6 +29,7 @@ import { lazyPage } from '@/utils/staleChunk';
 // lazy) so a stale tab whose import resolves against a mixed build — chunk
 // loads, named export missing — self-heals with the one-shot reload instead
 // of dying in the route error boundary.
+const PdfExportPage = lazyPage(() => import('@/pages/PdfExportPage'), 'PdfExportPage');
 const DraftPage = lazyPage(() => import('@/pages/DraftPage'), 'DraftPage');
 const DraftRoomPage = lazyPage(() => import('@/pages/DraftRoomPage'), 'DraftRoomPage');
 const RankingsPage = lazyPage(() => import('@/pages/RankingsPage'), 'RankingsPage');
@@ -106,6 +107,7 @@ function RankingsVariantRoute({
 const PAGE_TITLES: Record<string, string> = {
   '/': 'Game Day',
   '/settings': 'Settings',
+  '/export': 'PDF Export',
   '/recap': 'Game Day Recap',
   '/draft': 'Draft Analysis',
   '/draft-room': 'Draft Room',
@@ -214,9 +216,9 @@ function App() {
       ? posForSlug(location.pathname.slice('/rankings/'.length).replace(/\/+$/, ''))
       : undefined;
     const page = rankPos ? `${labelForPos(rankPos)} Rankings` : PAGE_TITLES[location.pathname];
-    document.title = page
-      ? `${page} · Fantasy Football Analyzer`
-      : 'Fantasy Football Analyzer';
+    document.title = location.pathname === '/' ? 'Witching Hour // Multi-League Command Deck' : page
+      ? `${page} · Witching Hour`
+      : 'Witching Hour';
     // Sanitized, path-only page_view (gtag's automatic one is disabled so the
     // token-bearing /yahoo-success URL never reaches GA). Fires per SPA route.
     Analytics.pageView(location.pathname);
@@ -628,7 +630,7 @@ function App() {
 
   return (
     <GameDayContext.Provider value={gameDay}>
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div className="command-shell" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <a href="#main-content" className="skip-nav">Skip to main content</a>
       <Header
         leagueName={league && !league.isGuest && !globalPage ? league.name : undefined}
@@ -755,6 +757,7 @@ function App() {
           <Route path="/draft-grades" element={<ToolLanding content={TOOL_LANDINGS['draft-grades']} />} />
 
           {/* Data pages need a real connection; guests get bounced to Rankings. */}
+          <Route path="/export" element={dataRoute(l => <PdfExportPage league={l} />)} />
           <Route path="/draft" element={dataRoute(l => <DraftPage league={l} />)} />
           <Route path="/trades" element={dataRoute(l => <TradesPage league={l} />)} />
           <Route path="/waivers" element={dataRoute(l => <WaiversPage league={l} />)} />

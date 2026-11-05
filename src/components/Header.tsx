@@ -1,436 +1,83 @@
-import type { ReactNode } from 'react';
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useState, useRef, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import type { League } from '@/types';
 import { useSounds } from '@/hooks/useSounds';
-import { logger } from '@/utils/logger';
-import { Analytics } from '@/utils/analytics';
-import { hasDraftedPoolSeason } from '@/utils/draftSeasonState';
-import { importChunk } from '@/utils/staleChunk';
-import { LeagueLink } from './LeagueLink';
+import { useSavedLeagues } from '@/hooks/useSavedLeagues';
+import { GameDayContext } from '@/hooks/useGameDay';
+import { loadGameDayCache } from '@/utils/gameDayCache';
+import { loadCachedLeague } from '@/utils/leagueCache';
+import { lineupWarnings, matchupMargin, myMatchups } from '@/utils/gameDayInsights';
 import { leagueGameDayHref } from '@/utils/gameDayLinks';
+import { BroadcastIcon } from './BroadcastIcon';
 import styles from './Header.module.css';
 
 interface HeaderProps {
-  leagueName?: string;
-  platform?: string;
-  league?: League | null;
-  // Guest mode: no real connection. The header swaps the league name + refresh
-  // for a "Connect your league" CTA (which clears the guest and lands on the
-  // home form).
-  isGuest?: boolean;
-  onChangeLeague?: () => void;
-  onRefresh?: () => void;
-  isRefreshing?: boolean;
-  // Header doesn't construct YearSelector itself so it stays decoupled from
-  // credentials and the seasons cache. App.tsx renders it and hands it in.
-  yearSelector?: ReactNode;
+  leagueName?: string; platform?: string; league?: League | null; isGuest?: boolean;
+  onChangeLeague?: () => void; onRefresh?: () => void; isRefreshing?: boolean; yearSelector?: ReactNode;
 }
-
-function formatLoadedAt(ts: number): string {
-  const diffMs = Date.now() - ts;
-  const mins = Math.round(diffMs / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.round(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.round(hrs / 24);
-  return `${days}d ago`;
-}
-
-export function Header({
-  leagueName,
-  platform,
-  league,
-  isGuest,
-  onChangeLeague,
-  onRefresh,
-  isRefreshing,
-  yearSelector,
-}: HeaderProps) {
+export function Header({ league, isGuest, onRefresh, isRefreshing, yearSelector }: HeaderProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const globalView = ['/', '/settings', '/recap'].includes(location.pathname);
-  const isRosterView = location.pathname === '/rosters' || (location.pathname === '/teams' && new URLSearchParams(location.search).has('team'));
-  const { playClick, playExport, playPageTransition, playError, isMuted, toggleMute } = useSounds();
-  // Draft prep routes share a focused nav (Draft + Rankings + Values + Trends). Rankings
-  // covers the per-position landing routes (/rankings/qb etc.) too, so they get
-  // the focused nav instead of the full league nav (whose links bounce guests).
-  const isRankings = location.pathname === '/rankings' || location.pathname.startsWith('/rankings/');
-  const isValues = location.pathname === '/values';
-  const isTrends = location.pathname === '/trends';
-  const isDraftPrep = location.pathname === '/draft-room' || isRankings || isValues || isTrends;
-  // The league nav is only navigable with a real connected league: every one
-  // of its links redirects a guest to /rankings, and the PDF button is a
-  // silent no-op without a league to export. It was rendering on the public
-  // tool landings (/trade-analyzer, /draft-grades), which a visitor reaches
-  // from search with no league at all: eight controls, none of which went
-  // anywhere. Keyed on the league rather than another pathname list so the
-  // next public route cannot reintroduce this.
-  const showLeagueNav = !!league && !isGuest && !isDraftPrep;
-  // This league already drafted for the season the pool covers, so the Draft
-  // Room has nothing left to run for it.
-  const alreadyDrafted = hasDraftedPoolSeason(league);
-
-  // jspdf is dynamic-imported and the report takes a moment to build, so the
-  // button has to say something is happening — otherwise the first click looks
-  // like a dead one and gets repeated.
-  const [isExporting, setIsExporting] = useState(false);
-
-  // The logo, league controls, and mute button share one row that never
-  // wraps. The full wordmark shows only while everything fits at its natural
-  // width (league name untruncated); otherwise the "FFA" monogram takes its
-  // place. Both spellings stay in the layout (the idle one absolutely
-  // positioned and hidden) so either width can be measured from either mode.
-  // null until measured: prerendered HTML and the first paint fall back to
-  // the CSS breakpoint.
-  const topRowRef = useRef<HTMLDivElement>(null);
-  const [compactLogo, setCompactLogo] = useState<boolean | null>(null);
-  useLayoutEffect(() => {
-    const row = topRowRef.current;
-    if (!row || typeof ResizeObserver === 'undefined') return;
-    const measure = () => {
-      const full = row.querySelector<HTMLElement>(`.${styles.logoFull}`);
-      const short = row.querySelector<HTMLElement>(`.${styles.logoShort}`);
-      if (!full || !short) return;
-      const showingFull = getComputedStyle(full).position !== 'absolute';
-      const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
-      const items = Array.from(row.children) as HTMLElement[];
-      let needed = gap * (items.length - 1);
-      for (const el of items) {
-        const cs = getComputedStyle(el);
-        needed += el.getBoundingClientRect().width + (parseFloat(cs.marginLeft) || 0) + (parseFloat(cs.marginRight) || 0);
+  const saved = useSavedLeagues();
+  const gameDay = useContext(GameDayContext);
+  const { isMuted, toggleMute, playPageTransition } = useSounds();
+  const [open, setOpen] = useState(false);
+  const sidebar = useRef<HTMLElement>(null);
+  const menu = useRef<HTMLButtonElement>(null);
+  const [sync, setSync] = useState<{ at: number | null; busy: boolean }>({ at: null, busy: false });
+  useEffect(() => {
+    const update = (event: Event) => setSync((event as CustomEvent).detail);
+    window.addEventListener('witching-hour:sync-status', update);
+    return () => window.removeEventListener('witching-hour:sync-status', update);
+  }, []);
+  const connected = !!league && !isGuest && !league.isGuest;
+  const navClick = () => { setOpen(false); playPageTransition(); };
+  const navLeague = connected ? { platform: league.platform, id: league.id, season: league.season } : saved[0] ? { platform: saved[0].platform, id: saved[0].leagueId, season: saved[0].season } : null;
+  const analysisHref = (path: string) => !connected && navLeague ? `${path}?${new URLSearchParams({ league: `${navLeague.platform}:${navLeague.id}`, year: String(navLeague.season) })}` : path;
+  useEffect(() => {
+    if (!open) return;
+    const controls = () => Array.from(sidebar.current?.querySelectorAll<HTMLElement>('a, button:not(:disabled)') ?? []);
+    controls()[0]?.focus();
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { setOpen(false); menu.current?.focus(); }
+      if (event.key === 'Tab') {
+        const items = controls(); const first = items[0], last = items[items.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
       }
-      // Width the ellipsized league name is missing.
-      const name = row.querySelector<HTMLElement>(`.${styles.leagueName}`);
-      if (name) needed += Math.max(0, name.scrollWidth - name.clientWidth);
-      const fullW = full.getBoundingClientRect().width;
-      const shortW = short.getBoundingClientRect().width;
-      if (!showingFull) needed += fullW - shortW;
-      // Hysteresis: drop to FFA the moment the full row overflows, but only
-      // return to the wordmark with a clear margin. The two modes measure a
-      // pixel or two apart (the truncated name's scrollWidth rounds), so a
-      // single threshold flickered between them at the boundary width.
-      setCompactLogo(showingFull ? needed > row.clientWidth + 0.5 : needed > row.clientWidth - 12);
     };
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(row);
-    for (const el of Array.from(row.children)) ro.observe(el);
-    return () => ro.disconnect();
-  }, [leagueName, platform, isGuest, yearSelector, league?.loadedAt, location.pathname]);
-
-  const handleExportPdf = () => {
-    if (league && !isExporting) {
-      playExport();
-      setIsExporting(true);
-      // Dynamic import: Header is part of the always-mounted shell, and
-      // exportPdf statically reaches the full draft pool (via awards +
-      // grading), so a static import here would park the ~450KB pool JSON in
-      // the eager entry chunk on every route. The catch also covers a failed
-      // chunk load (offline, or a stale deploy hash), which would otherwise be
-      // a silent unhandled rejection. importChunk holds the promise open
-      // while the stale-deploy reload is in flight instead of alerting.
-      Analytics.pdfExported('league_report');
-      importChunk(() => import('@/utils/exportPdf'), 'PDF export')
-        .then(({ exportLeagueReport }) => exportLeagueReport(league))
-        .catch(err => {
-          logger.error('PDF export failed:', err);
-          playError();
-          window.alert("Couldn't build the PDF report. Check your connection and try again.");
-        })
-        .finally(() => setIsExporting(false));
-    }
-  };
-
-  const handleChangeLeague = () => {
-    playClick();
-    if (onChangeLeague) {
-      onChangeLeague();
-    }
-    navigate('/');
-  };
-
-  const handleNavClick = () => {
-    playPageTransition();
-  };
-
-  return (
-    // app-header is a global hook so the phone draft room can hide the
-    // masthead and nav while a draft is live (see .draft-focus in index.css).
-    // The module class is hashed, so a stable name is the only way in.
-    <header className={`${styles.header} ${globalView ? styles.compactHeader : ''} app-header`}>
-      <div className={`container ${styles.headerContent}`}>
-        <div
-          ref={topRowRef}
-          className={`${styles.topRow} ${compactLogo === true ? styles.logoCompact : compactLogo === false ? styles.logoWide : ''}`}
-        >
-          <div className={styles.logoSection}>
-            {league && !isGuest && !globalView && (
-              <button
-                onClick={handleChangeLeague}
-                className={styles.backButton}
-                title="All leagues"
-                aria-label="All leagues"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.backIcon} aria-hidden="true">
-                  <polyline points="15 18 9 12 15 6" />
-                </svg>
-              </button>
-            )}
-            <Link to="/" className={styles.logo} aria-label="Fantasy Football Analyzer">
-              <span className={styles.logoFull}>
-                FANTASY <span className={styles.logoAccent}>FOOTBALL</span> ANALYZER
-              </span>
-              <span className={styles.logoShort} aria-hidden="true">
-                F<span className={styles.logoAccent}>F</span>A
-              </span>
-            </Link>
-          </div>
-
-          {leagueName && (
-            <div className={styles.leagueGroup}>
-              {yearSelector}
-              <div className={styles.leagueInfo} data-platform={platform}>
-                {league ? <LeagueLink league={league} className={styles.leagueName}>{leagueName}</LeagueLink> : <span className={styles.leagueName}>{leagueName}</span>}
-                {platform && (
-                  <span className={`platform-badge ${platform}`}>{platform}</span>
-                )}
-                {league?.loadedAt && (
-                  <span className={styles.loadedAt} title={new Date(league.loadedAt).toLocaleString()}>
-                    {formatLoadedAt(league.loadedAt)}
-                  </span>
-                )}
-                {onRefresh && (
-                  <button
-                    type="button"
-                    onClick={() => { playClick(); onRefresh(); }}
-                    className={styles.refreshButton}
-                    title={
-                      league?.loadedAt
-                        ? `Refresh league data (updated ${new Date(league.loadedAt).toLocaleString()})`
-                        : 'Refresh league data'
-                    }
-                    aria-label="Refresh league data"
-                    disabled={isRefreshing}
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`${styles.refreshIcon} ${isRefreshing ? styles.refreshIconSpinning : ''}`} aria-hidden="true">
-                      <polyline points="23 4 23 10 17 10" />
-                      <polyline points="1 20 1 14 7 14" />
-                      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-
-          {isGuest && (
-            <div className={`${styles.leagueGroup} ${styles.guestGroup}`}>
-              <span className={styles.guestTag}>Guest</span>
-              {/* Everywhere but home, GuestBanner renders directly below this
-                  row with the same CTA, so the two sat a hundred pixels apart
-                  saying the same thing. The banner keeps it there: it carries
-                  the explanation of what a connection buys. Home has no banner,
-                  so the header owns the CTA. */}
-              {location.pathname === '/' && (
-                <button
-                  onClick={() => { playClick(); navigate('/settings'); }}
-                  className={styles.connectCta}
-                  title="Connect your real league for team names, grades, and history"
-                  aria-label="Connect your league"
-                >
-                  <span className={styles.connectCtaFull}>Connect your league</span>
-                  <span className={styles.connectCtaShort} aria-hidden="true">Connect</span>
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Outside the nav on purpose: the home page plays load sounds, so
-              the mute control must exist where the first sound can fire. */}
-          <button
-            onClick={toggleMute}
-            className={styles.soundButton}
-            title={isMuted ? 'Enable sounds' : 'Mute sounds'}
-            aria-label={isMuted ? 'Enable sounds' : 'Mute sounds'}
-            aria-pressed={!isMuted}
-          >
-            {isMuted ? (
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.soundIcon} aria-hidden="true">
-                <line x1="1" y1="1" x2="23" y2="23" />
-                <path d="M9 4L4 9H0v6h4l5 5V4z" />
-                <path d="M19 15l-6-6" />
-                <path d="M13 9l6 6" />
-              </svg>
-            ) : (
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.soundIcon} aria-hidden="true">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-              </svg>
-            )}
-          </button>
-        </div>
-
-        {(
-          <nav className={styles.nav} aria-label="Main navigation">
-            {globalView && <Link to="/" className={`${styles.navLink} ${location.pathname === '/' ? styles.active : ''}`} onClick={handleNavClick} aria-current={location.pathname === '/' ? 'page' : undefined}>Game Day</Link>}
-            {globalView && <Link to="/recap" className={`${styles.navLink} ${location.pathname === '/recap' ? styles.active : ''}`} onClick={handleNavClick} aria-current={location.pathname === '/recap' ? 'page' : undefined}>Recap</Link>}
-            {!globalView && <>
-            <Link to={league && !isGuest ? leagueGameDayHref(league) : "/"} className={`${styles.navLink} ${['/', '/game-day'].includes(location.pathname) ? styles.active : ''}`} onClick={handleNavClick} aria-current={['/', '/game-day'].includes(location.pathname) ? 'page' : undefined}>Game Day</Link>
-            {league && !isGuest && <>
-              <Link to="/rosters" className={`${styles.navLink} ${isRosterView ? styles.active : ''}`} onClick={handleNavClick} aria-current={isRosterView ? 'page' : undefined}>Rosters</Link>
-            </>}
-            {!showLeagueNav ? (
-              /* Draft prep is its own focused mode: just the draft-state
-                 tabs, no season-analysis noise. It is also the fallback for
-                 anyone without a connected league, since these three are the
-                 only routes that work without one. */
-              <>
-                <Link
-                  to="/draft-room"
-                  className={`${styles.navLink} ${location.pathname === '/draft-room' ? styles.active : ''}`}
-                  onClick={handleNavClick}
-                  aria-current={location.pathname === '/draft-room' ? 'page' : undefined}
-                >
-                  Draft
-                </Link>
-                <Link
-                  to="/rankings"
-                  className={`${styles.navLink} ${isRankings ? styles.active : ''}`}
-                  onClick={handleNavClick}
-                  aria-current={isRankings ? 'page' : undefined}
-                >
-                  Rankings
-                </Link>
-                <Link
-                  to="/values"
-                  className={`${styles.navLink} ${isValues ? styles.active : ''}`}
-                  onClick={handleNavClick}
-                  aria-current={isValues ? 'page' : undefined}
-                >
-                  Values
-                </Link>
-                <Link
-                  to="/trends"
-                  className={`${styles.navLink} ${isTrends ? styles.active : ''}`}
-                  onClick={handleNavClick}
-                  aria-current={isTrends ? 'page' : undefined}
-                >
-                  Trends
-                </Link>
-              </>
-            ) : (
-              <>
-            <Link
-              to="/draft"
-              className={`${styles.navLink} ${location.pathname === '/draft' ? styles.active : ''}`}
-              onClick={handleNavClick}
-              aria-current={location.pathname === '/draft' ? 'page' : undefined}
-            >
-              Draft
-            </Link>
-            {/* Draft prep is for the upcoming season; on a completed season,
-                or once this league's own draft for the pool season has already
-                run, the tab is noise that opens a setup screen for a draft
-                that is over. The year dropdown's "draft prep" entry stays as
-                the path into the Draft Room for mocks. */}
-            {league?.status !== 'final' && !alreadyDrafted && (
-              <Link
-                to="/draft-room"
-                className={`${styles.navLink} ${location.pathname === '/draft-room' ? styles.active : ''}`}
-                onClick={handleNavClick}
-                aria-current={location.pathname === '/draft-room' ? 'page' : undefined}
-              >
-                Draft Room
-              </Link>
-            )}
-            <Link
-              to="/trades"
-              className={`${styles.navLink} ${location.pathname === '/trades' ? styles.active : ''}`}
-              onClick={handleNavClick}
-              aria-current={location.pathname === '/trades' ? 'page' : undefined}
-            >
-              Trades
-            </Link>
-            <Link
-              to="/waivers"
-              className={`${styles.navLink} ${location.pathname === '/waivers' ? styles.active : ''}`}
-              onClick={handleNavClick}
-              aria-current={location.pathname === '/waivers' ? 'page' : undefined}
-            >
-              Waivers
-            </Link>
-            <Link
-              to="/teams"
-              className={`${styles.navLink} ${location.pathname === '/teams' && !isRosterView ? styles.active : ''}`}
-              onClick={handleNavClick}
-              aria-current={location.pathname === '/teams' && !isRosterView ? 'page' : undefined}
-            >
-              Teams
-            </Link>
-            {/* History walks prior seasons: Sleeper's previous_league_id,
-                ESPN's per-year endpoints, Yahoo's `renew` chain. */}
-            {(league?.platform === 'sleeper' || league?.platform === 'espn' || league?.platform === 'yahoo') && (
-              <Link
-                to="/history"
-                className={`${styles.navLink} ${location.pathname === '/history' ? styles.active : ''}`}
-                onClick={handleNavClick}
-                aria-current={location.pathname === '/history' ? 'page' : undefined}
-              >
-                History
-              </Link>
-            )}
-            <Link
-              to="/awards"
-              className={`${styles.navLink} ${location.pathname === '/awards' ? styles.active : ''}`}
-              onClick={handleNavClick}
-              aria-current={location.pathname === '/awards' ? 'page' : undefined}
-            >
-              Awards
-            </Link>
-            <Link
-              to="/luck"
-              className={`${styles.navLink} ${location.pathname === '/luck' ? styles.active : ''}`}
-              onClick={handleNavClick}
-              aria-current={location.pathname === '/luck' ? 'page' : undefined}
-            >
-              Luck
-            </Link>
-            <Link
-              to="/players"
-              className={`${styles.navLink} ${location.pathname === '/players' ? styles.active : ''}`}
-              onClick={handleNavClick}
-              aria-current={location.pathname === '/players' ? 'page' : undefined}
-            >
-              Players
-            </Link>
-            <button
-              onClick={handleExportPdf}
-              disabled={isExporting}
-              aria-busy={isExporting}
-              className={styles.exportButton}
-              title="Export PDF Report"
-              aria-label="Export PDF Report"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.exportIcon} aria-hidden="true">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="12" y1="18" x2="12" y2="12" />
-                <line x1="9" y1="15" x2="12" y2="18" />
-                <line x1="15" y1="15" x2="12" y2="18" />
-              </svg>
-              {isExporting ? 'Building…' : 'PDF'}
-            </button>
-              </>
-            )}
-            </>}
-            <Link to="/settings" className={`${styles.navLink} ${location.pathname === '/settings' ? styles.active : ''}`} onClick={handleNavClick} aria-current={location.pathname === '/settings' ? 'page' : undefined}>Settings</Link>
-          </nav>
-        )}
-
-      </div>
-    </header>
-  );
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [open]);
+  const groups = [
+    { title: 'CONTROL ROOM', items: [['Game Day Hub', '/', 'grid'], ['League Matchups', navLeague ? leagueGameDayHref(navLeague) : '/settings', 'activity']] },
+    { title: 'FRONT OFFICE', items: navLeague ? [['Rosters', '/rosters', 'users'], ['Waivers', '/waivers', 'activity'], ['Trades', '/trades', 'swap'], ['Players', '/players', 'users']] : [['Rankings', '/rankings', 'users'], ['Values', '/values', 'activity'], ['Trends', '/trends', 'activity']] },
+    { title: 'TELEMETRY', items: navLeague ? [['Teams Dossier', '/teams', 'shield'], ['Draft Grades', '/draft', 'file'], ['Luck & PAR', '/luck', 'activity'], ['Draft Room', '/draft-room', 'grid']] : [['Draft Room', '/draft-room', 'grid']] },
+    { title: 'THE VAULT', items: [...(navLeague ? [['History', '/history', 'file'], ['Awards', '/awards', 'award'], ['PDF Export', '/export', 'file']] : []), ['Recap', '/recap', 'file'], ['Settings', '/settings', 'settings']] },
+  ];
+  const active = (href: string) => href === '/' ? location.pathname === '/' : href.startsWith('/game-day') ? location.pathname === '/game-day' : href === '/rosters' ? location.pathname === '/rosters' || (location.pathname === '/teams' && new URLSearchParams(location.search).has('team')) : location.pathname === href && !(href === '/teams' && new URLSearchParams(location.search).has('team'));
+  const times = saved.map(row => loadGameDayCache({ platform: row.platform, id: row.leagueId, season: row.season })?.fetchedAt ?? null);
+  const lastSync = location.pathname === '/' ? sync.at : times.length && times.every(time => time !== null) ? Math.min(...times as number[]) : null;
+  return <header className="app-header">
+    <div className={styles.mobileBar}><Link className={styles.wordmark} to="/">WITCHING <span>HOUR</span></Link><button ref={menu} className={styles.menuButton} aria-label={open ? 'Close navigation' : 'Open navigation'} aria-expanded={open} aria-controls="command-sidebar" onClick={() => setOpen(!open)}><BroadcastIcon kind="menu" size={20} /></button></div>
+    {open && <button className={styles.scrim} aria-label="Close navigation" onClick={() => setOpen(false)} />}
+    <aside ref={sidebar} id="command-sidebar" className={`${styles.sidebar} ${open ? styles.open : ''}`}>
+      <Link to="/" className={styles.wordmark} onClick={navClick} aria-label="Witching Hour">WITCHING <span>HOUR</span></Link>
+      <p className={styles.tagline}>Where Losses Become Wins</p>
+      <div className={styles.broadcast}><span className={styles.pulse} /> <b>ON AIR</b><span>QUAD-BOX // LIVE</span></div>
+      <nav aria-label="Main navigation" className={styles.nav}>{groups.map(group => <div className={styles.group} key={group.title}><h2>{group.title}</h2>{group.items.map(([label, href, icon]) => <Link key={label} to={group.title !== 'CONTROL ROOM' && group.title !== 'THE VAULT' || ['/history', '/awards', '/export'].includes(href) ? analysisHref(href) : href} className={`${styles.navLink} ${active(href) && !(label === 'League Matchups' && !connected) ? styles.active : ''}`} onClick={navClick} aria-current={active(href) && !(label === 'League Matchups' && !connected) ? 'page' : undefined}><BroadcastIcon kind={icon} size={15} />{label}</Link>)}</div>)}</nav>
+      <div className={styles.footer}><button onClick={toggleMute} aria-label={isMuted ? 'Enable sounds' : 'Mute sounds'} aria-pressed={!isMuted} className={styles.audio}><BroadcastIcon kind="audio" />Audio alerts <span>{isMuted ? 'OFF' : 'ON'}</span></button><p>LAST SYNC <time>{lastSync ? new Date(lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Awaiting data'}</time></p><button className={styles.sync} disabled={!saved.length || (location.pathname === '/' && sync.busy)} onClick={() => { setOpen(false); if (location.pathname === '/') window.dispatchEvent(new Event('witching-hour:sync-all')); else navigate('/?sync=all'); }}><BroadcastIcon kind="sync" />{location.pathname === '/' && sync.busy ? 'Syncing leagues…' : 'Sync All Leagues'}</button></div>
+    </aside>
+    <div className={styles.dock}><nav aria-label="League dock" className={styles.leagues}><Link className={`${styles.leaguePill} ${location.pathname === '/' ? styles.selected : ''}`} to="/">All Leagues</Link>{saved.map(row => {
+      const identity = { platform: row.platform, id: row.leagueId, season: row.season };
+      const snapshot = connected && league.id === row.leagueId && league.platform === row.platform && league.season === row.season ? gameDay?.snapshot ?? loadGameDayCache(identity) : loadGameDayCache(identity);
+      const cached = loadCachedLeague(row.platform, row.leagueId, row.season);
+      const context = { saved: row, snapshot, myTeamId: row.teamId ?? cached?.teams.find(team => team.isMyTeam)?.id, error: null };
+      const hazards = lineupWarnings([context], {}, Date.now());
+      const close = myMatchups(context).some(match => { const margin = matchupMargin(context, match, 'projected', null); return margin !== null && Math.abs(margin) <= 10; });
+      const known = !!snapshot?.teams.find(team => team.id === context.myTeamId)?.roster?.length;
+      const status = hazards.length ? 'Lineup hazard' : close ? 'Witching Hour sweat' : known ? 'No reported lineup hazards' : 'Awaiting roster data';
+      return <Link key={`${row.platform}:${row.leagueId}:${row.season}`} to={leagueGameDayHref(identity)} className={`${styles.leaguePill} ${connected && league.id === row.leagueId && league.platform === row.platform && league.season === row.season && location.pathname !== '/' ? styles.selected : ''}`}><i className={styles.statusDot} style={{ background: hazards.length ? 'var(--blood)' : close ? 'var(--gold)' : known ? 'var(--lime)' : 'var(--bone-dim)' }} aria-label={status} />{row.name}<span>· {row.platform === 'sleeper' ? 'SLP' : row.platform.toUpperCase()}</span></Link>;
+    })}</nav><div className={styles.contextControls}><div id="workspace-controls" className={styles.workspaceControls} />{yearSelector}{connected && onRefresh && <button className={styles.dockButton} onClick={onRefresh} disabled={isRefreshing} aria-label="Refresh league data"><BroadcastIcon kind="sync" /></button>}{!navLeague && <button className={styles.dockButton} onClick={() => navigate('/settings')}>Connect your league</button>}</div></div>
+  </header>;
 }

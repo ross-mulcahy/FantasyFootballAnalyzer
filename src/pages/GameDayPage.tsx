@@ -1,3 +1,4 @@
+import { ProjectionBar } from '@/components/ProjectionBar';
 import { ProviderLink } from '@/components/ConnectionHealth';
 import { LeagueLink } from '@/components/LeagueLink';
 import { useEffect, useState } from 'react';
@@ -74,7 +75,7 @@ function GameDayView({ league, credentials }: Props) {
     <div className={styles.page}><div className="container">
       <div className={styles.header}>
         {selectedMatchup && <Link to="/game-day" className={styles.backLink}>← All matchups</Link>}
-        <h1 className={styles.title}>{selectedMatchup ? 'Matchup' : 'Game Day'}</h1>
+        <h1 className={styles.title}>{selectedMatchup ? 'Matchup' : 'League Matchups'}</h1>
         <p className={styles.subtitle}><LeagueLink league={league}>{league.name}</LeagueLink> · {league.season} · {league.platform}</p>
       </div>
       <div className={styles.toolbar}>
@@ -94,12 +95,20 @@ function GameDayView({ league, credentials }: Props) {
       {league.platform === 'yahoo' && <p className={styles.hint}>Fantasy data provided by Yahoo Fantasy.</p>}
       {snapshot && !selectedMatchup && <div className={styles.leagueCommandLayout}><MatchupPanel title="Matchups" panelKey="matchups" headingId="matchups-heading" className={`${styles.card} ${styles.section}`}>
         <div className={styles.grid}>
-          {snapshot.matchups.map((m, index) => <Link className={`${styles.card} ${styles.matchupLink}`} to={matchupHref(m)} key={`${m.id}-${index}`} aria-label={`View matchup: ${teamName(m.team1Id)} vs ${teamName(m.team2Id)}`}>
-            <p className={styles.period}>{m.period}</p>
-            <div className={styles.scoreRow}><span className={styles.teamName}>{teamName(m.team1Id)}</span><strong>{score(m.team1Points)}</strong></div>
-            <div className={styles.scoreRow}><span className={styles.teamName}>{teamName(m.team2Id)}</span><strong>{score(m.team2Points)}</strong></div>
-            <span className={styles.openMatchup}>View matchup →</span>
-          </Link>)}
+          {snapshot.matchups.map((m, index) => {
+            const own = m.team1Projection ?? lineupProjection(snapshot.teams.find(t => t.id === m.team1Id));
+            const opponent = m.team2Projection ?? lineupProjection(snapshot.teams.find(t => t.id === m.team2Id));
+            const sweat = !/Weeks /i.test(m.period) && typeof own === 'number' && typeof opponent === 'number' && Math.abs(own - opponent) <= 10;
+            const record = (id: string | null) => { const t = league.teams.find(t => t.id === id); return t ? `${t.wins}-${t.losses}${t.ties ? `-${t.ties}` : ''}` : '—'; };
+            return <Link className={`${styles.scorebug} ${styles.matchupLink} ${sweat ? styles.sweat : ''}`} to={matchupHref(m)} key={`${m.id}-${index}`} aria-label={`View matchup: ${teamName(m.team1Id)} vs ${teamName(m.team2Id)}`}>
+              <div className={styles.bezel}>{m.period}{sweat && <span>WITCHING HOUR SWEAT</span>}</div>
+              <div className={styles.compactMatchup}>
+                <div className={styles.ownTeam}><span className={styles.rowTeamName}>{teamName(m.team1Id)}</span><span className={styles.rowMeta}>{record(m.team1Id)} · Proj. {score(own)}</span></div>
+                <div className={styles.rowScores}><strong>{score(m.team1Points)}</strong><span>:</span><strong>{score(m.team2Points)}</strong></div>
+                <div className={styles.opponentTeam}><span className={styles.rowTeamName}>{teamName(m.team2Id)}</span><span className={styles.rowMeta}>{record(m.team2Id)} · Proj. {score(opponent)}</span></div>
+              </div><ProjectionBar own={own} opponent={opponent} />
+            </Link>;
+          })}
         </div>
         {!snapshot.matchups.length && <p className={styles.empty}>No matchups were returned for this period. <Link to="/rosters">View rosters</Link>.</p>}
       </MatchupPanel><aside className={`${styles.card} ${styles.section} ${styles.leagueContext}`} aria-label="League board"><h2 className={styles.sectionTitle}>League board</h2><dl><div><dt>Week</dt><dd>{snapshot.week}</dd></div><div><dt>Matchups</dt><dd>{snapshot.matchups.length}</dd></div><div><dt>Teams</dt><dd>{snapshot.teams.length}</dd></div></dl><Link className={styles.rosterLink} to="/rosters">View rosters →</Link></aside></div>}

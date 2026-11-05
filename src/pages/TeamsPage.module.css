@@ -1,4 +1,4 @@
-/* GRIDIRON · Teams roster */
+/* WITCHING HOUR · Teams roster */
 
 .page {
   padding: 1.5rem 0 1.5rem;
@@ -12,10 +12,10 @@
 
 .title {
   font-family: var(--font-headline);
-  font-size: var(--page-title);
+  font-size: 22px;
   font-weight: 400;
   line-height: 0.82;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: -0.025em;
   color: var(--bone);
   margin-bottom: 0.5rem;
@@ -39,7 +39,7 @@
 }
 
 @media (max-width: 640px) {
-  .title { font-size: 56px; }
+  .title { font-size: 22px; }
   .grid { grid-template-columns: 1fr; }
 }
 
@@ -78,7 +78,7 @@
   align-items: center;
   gap: 0.9rem;
   padding: 0.45rem 0.8rem;
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px solid var(--rule);
   font-family: var(--font-mono);
 }
 
@@ -157,14 +157,14 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--bone-dim);
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px solid var(--rule);
   text-align: left;
   white-space: nowrap;
 }
 
 .matrix td {
   padding: 0.35rem 0.5rem;
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px solid var(--rule);
   text-align: center;
   white-space: nowrap;
 }
@@ -192,3 +192,9 @@
     display: none;
   }
 }
+.matrixWin { background: #10b9811f; }
+.matrixLoss { background: #ef44441f; }
+.grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+
+.page { padding: 0; }
+.header { margin-bottom: 20px; padding-bottom: 0; border: 0; }

@@ -1,3 +1,4 @@
+import { outlierHeatmap } from '@/utils/outlierHeatmap';
 import { LeagueLink } from '@/components/LeagueLink';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
@@ -65,6 +66,7 @@ export function LuckPage({ league }: LuckPageProps) {
     );
   }
 
+  const luckHeat = outlierHeatmap(luckMetrics.map(m => m.luckScore));
   const byLuck = [...luckMetrics].sort((a, b) => b.luckScore - a.luckScore);
   const luckiest = byLuck[0];
   const unluckiest = byLuck[byLuck.length - 1];
@@ -173,7 +175,7 @@ export function LuckPage({ league }: LuckPageProps) {
                       {anyTies && `-${m.actualTies}`}
                     </td>
                     <td>{m.expectedWins.toFixed(1)}</td>
-                    <td className={getLuckClass(m.luckScore)}>
+                    <td className={`${getLuckClass(m.luckScore)} ${luckHeat(m.luckScore)}`}>
                       {signed(m.luckScore)} <LuckIcon rating={m.luckRating} />
                     </td>
                     <td title={`Ranked #${m.pointsForRank} in scoring, #${m.winsRank} in wins`}>

@@ -24,7 +24,7 @@
   background: var(--lime);
   color: var(--ink);
   border-color: var(--lime);
-  transform: translate(-1px,-1px);
+  transform: none;
   box-shadow: none;
 }
 .trigger:disabled { opacity: 0.5; cursor: not-allowed; }

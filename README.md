@@ -1,4 +1,4 @@
-# Fantasy Football Analyzer
+# WITCHING HOUR
 
 Fantasy football analysis and draft tools for Sleeper, ESPN and Yahoo. This fork adds **Game Day**, a single view of your teams' matchups across leagues. Run it locally or use the private [Spacefast install](docs/SPACEFAST.md).
 

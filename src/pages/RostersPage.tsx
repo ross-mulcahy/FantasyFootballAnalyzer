@@ -1,3 +1,4 @@
+import { WorkspaceControls } from '@/components/WorkspaceControls';
 import { LeagueLink } from '@/components/LeagueLink';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { League, LeagueCredentials } from '@/types';
@@ -14,11 +15,11 @@ export function RostersPage({ league, credentials }: { league: League; credentia
       <h1 className={styles.title}>Rosters</h1>
       <p className={styles.subtitle}><LeagueLink league={league}>{league.name}</LeagueLink> · {league.season} · {league.platform}</p>
     </div>
-    <label className={styles.selector}>Team<select className="input" value={team?.id ?? ''} onChange={event => setParams(previous => {
+    <WorkspaceControls><label className={styles.selector}>Team<select className="input" value={team?.id ?? ''} onChange={event => setParams(previous => {
       const next = new URLSearchParams(previous);
       next.set('team', event.target.value);
       return next;
-    })}>{league.teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
+    })}>{league.teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label></WorkspaceControls>
     {team ? <TeamRosterView league={league} team={team} credentials={credentials} onBack={() => navigate('/teams')} /> : <p className={styles.empty}>No teams were returned for this league.</p>}
   </div></div>;
 }

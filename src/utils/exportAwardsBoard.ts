@@ -1,15 +1,14 @@
 // Renders the whole awards case as one shareable PNG, canvas-drawn in the
-// Tactical Slate palette like the draft boards, and copies it to the clipboard
+// RedZone Control Room palette like the draft boards, and copies it to the clipboard
 // (downloading instead where the browser can't hold images). One pasteable
 // image for the group chat beats screenshotting a scrolling page.
 
 import type { Award } from './awards';
 import { getCategoryDisplayName } from './awards';
-import { loadAwardIcon } from './awardIcons';
 import { logger } from './logger';
 
 const INK = '#0b0f17';
-const INK2 = '#161f30';
+const INK2 = '#131b2e';
 const BONE = '#f8fafc';
 const BONE_DIM = '#94a3b8';
 const LIME = '#10b981';
@@ -47,11 +46,6 @@ function truncate(ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
 async function drawAwardsBoard(data: AwardsBoardData): Promise<HTMLCanvasElement | null> {
   const sections = data.sections.filter(s => s.awards.length > 0);
   if (sections.length === 0) return null;
-
-  const all = sections.flatMap(s => s.awards);
-  const icons = new Map(
-    await Promise.all(all.map(async a => [a.id, await loadAwardIcon(a.id)] as const)),
-  );
 
   const sectionHeights = sections.map(
     s => SECTION_H + Math.ceil(s.awards.length / COLS) * (TILE_H + GAP),
@@ -108,14 +102,13 @@ async function drawAwardsBoard(data: AwardsBoardData): Promise<HTMLCanvasElement
       ctx.fillStyle = INK2;
       ctx.fillRect(x, ty, TILE_W, TILE_H);
 
-      const icon = icons.get(award.id);
       const iconY = ty + (TILE_H - ICON) / 2;
-      if (icon) {
-        ctx.drawImage(icon, x + 10, iconY, ICON, ICON);
-      } else {
-        ctx.font = `40px ${SERIF}`;
-        ctx.fillText(award.icon || '🏆', x + 12, iconY + 44);
-      }
+      ctx.save();
+      ctx.translate(x + 22, iconY + 12);
+      ctx.strokeStyle = /worst|bust|loser|low/i.test(award.id) ? '#EF4444' : '#F59E0B';
+      ctx.lineWidth = 1.75;
+      ctx.stroke(new Path2D('M8 3h8v5a4 4 0 0 1-8 0z M8 5H4v2a4 4 0 0 0 4 4 M16 5h4v2a4 4 0 0 1-4 4 M12 12v7 M7 21h10'));
+      ctx.restore();
 
       const tx = x + 10 + ICON + 12;
       const tw = TILE_W - (tx - x) - 10;
@@ -141,7 +134,7 @@ async function drawAwardsBoard(data: AwardsBoardData): Promise<HTMLCanvasElement
   ctx.fillStyle = BONE_DIM;
   ctx.font = `700 13px ${MONO}`;
   ctx.textAlign = 'right';
-  ctx.fillText('Fantasy Football Analyzer', w - MARGIN, h - 22);
+  ctx.fillText('WITCHING HOUR', w - MARGIN, h - 22);
   ctx.textAlign = 'left';
 
   return canvas;

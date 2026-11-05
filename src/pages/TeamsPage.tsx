@@ -116,7 +116,7 @@ export function TeamsPage({ league }: TeamsPageProps) {
     <div className={styles.page}>
       <div className="container">
         <div className={styles.header}>
-          <h1 className={styles.title}>Team Overview</h1>
+          <h1 className={styles.title}>Teams Dossier</h1>
           <p className={styles.subtitle}>
             {league.totalTeams} teams in <LeagueLink league={league}>{league.name}</LeagueLink>
           </p>

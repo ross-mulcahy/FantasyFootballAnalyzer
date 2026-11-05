@@ -81,189 +81,23 @@ export function TeamCard({ league, team, onClick, luckMetrics }: TeamCardProps) 
       .slice(0, 3);
   }, [league.weeklyLineups, team.id, team.roster]);
 
-  return (
-    <div
-      className={styles.card}
-      onClick={onClick}
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
-      onKeyDown={
-        onClick
-          ? e => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onClick();
-              }
-            }
-          : undefined
-      }
-    >
-      <div className={styles.header}>
-        {team.avatarUrl ? (
-          <img src={team.avatarUrl} alt="" className={styles.avatar} />
-        ) : (
-          <div className={styles.avatarPlaceholder}>
-            {team.name.charAt(0).toUpperCase()}
-          </div>
-        )}
-        <div className={styles.headerInfo}>
-          <h3 className={styles.teamName}>{team.name}</h3>
-          {team.ownerName && (
-            <span className={styles.ownerName}>{team.ownerName}</span>
-          )}
-        </div>
-      </div>
-
-      <div className={styles.record}>
-        <span className={styles.recordValue}>
-          {team.wins}-{team.losses}{team.ties ? `-${team.ties}` : ''}
-        </span>
-        <span className={styles.recordLabel}>Record</span>
-        {luckMetrics && (
-          <span
-            className={`${styles.luckBadge} ${getLuckClass(luckMetrics.luckScore, styles)}`}
-            title="Wins above or below expected (Luck tab)"
-          >
-            <LuckIcon rating={luckMetrics.luckRating} /> {luckMetrics.luckScore >= 0 ? '+' : ''}{luckMetrics.luckScore.toFixed(1)} luck
-          </span>
-        )}
-      </div>
-
-      <div className={styles.stats}>
-        <div className={styles.statSection}>
-          <h4 className={styles.sectionTitle}>Draft Performance</h4>
-          <div className={styles.gradeBars}>
-            <div className={styles.gradeBar}>
-              <span className={styles.gradeLabel}>Great</span>
-              <div className={styles.barTrack}>
-                <div
-                  className={`${styles.barFill} ${styles.great}`}
-                  style={{ width: `${summary.totalPicks > 0 ? (summary.great / summary.totalPicks) * 100 : 0}%` }}
-                />
-              </div>
-              <span className={styles.gradeCount}>{summary.great}</span>
-            </div>
-            <div className={styles.gradeBar}>
-              <span className={styles.gradeLabel}>Good</span>
-              <div className={styles.barTrack}>
-                <div
-                  className={`${styles.barFill} ${styles.good}`}
-                  style={{ width: `${summary.totalPicks > 0 ? (summary.good / summary.totalPicks) * 100 : 0}%` }}
-                />
-              </div>
-              <span className={styles.gradeCount}>{summary.good}</span>
-            </div>
-            <div className={styles.gradeBar}>
-              <span className={styles.gradeLabel}>Bad</span>
-              <div className={styles.barTrack}>
-                <div
-                  className={`${styles.barFill} ${styles.bad}`}
-                  style={{ width: `${summary.totalPicks > 0 ? (summary.bad / summary.totalPicks) * 100 : 0}%` }}
-                />
-              </div>
-              <span className={styles.gradeCount}>{summary.bad}</span>
-            </div>
-            <div className={styles.gradeBar}>
-              <span className={styles.gradeLabel}>Terrible</span>
-              <div className={styles.barTrack}>
-                <div
-                  className={`${styles.barFill} ${styles.terrible}`}
-                  style={{ width: `${summary.totalPicks > 0 ? (summary.terrible / summary.totalPicks) * 100 : 0}%` }}
-                />
-              </div>
-              <span className={styles.gradeCount}>{summary.terrible}</span>
-            </div>
-          </div>
-          <div className={styles.avgValue}>
-            Avg Value: <span className={summary.averageValue >= 0 ? 'grade-great' : 'grade-terrible'}>
-              {valuesInDollars
-                ? `${summary.averageValue < 0 ? '-' : '+'}$${Math.abs(summary.averageValue).toFixed(1)}`
-                : `${summary.averageValue >= 0 ? '+' : ''}${summary.averageValue.toFixed(1)}`}
-            </span>
-          </div>
-        </div>
-
-        <div className={styles.statSection}>
-          <h4 className={styles.sectionTitle}>Waiver Wire</h4>
-          <div className={styles.waiverStats}>
-            <div className={styles.waiverStat}>
-              <span className={styles.waiverValue}>{waiverStats.count}</span>
-              <span className={styles.waiverLabel}>Pickups</span>
-            </div>
-            <div className={styles.waiverStat}>
-              <span className={styles.waiverValue}>
-                {waiverStats.totalPAR >= 0 ? '+' : ''}
-                {waiverStats.totalPAR.toFixed(0)}
-              </span>
-              <span className={styles.waiverLabel}>PAR Added</span>
-            </div>
-          </div>
-        </div>
-
-        {topScorers.length > 0 && (
-          <div className={styles.statSection}>
-            <h4 className={styles.sectionTitle}>Top Scorers</h4>
-            <ul className={styles.topScorers}>
-              {topScorers.map(player => (
-                <li key={player.id} className={styles.topScorer}>
-                  <span className={styles.topScorerName}>{player.name}</span>
-                  <span className={styles.topScorerPts}>
-                    {player.points.toFixed(1)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <div className={styles.statSection}>
-          <h4 className={styles.sectionTitle}>Season Totals</h4>
-          <div className={styles.seasonStats}>
-            <div className={styles.seasonStat}>
-              <span className={styles.seasonValue}>{team.pointsFor?.toFixed(1) || '-'}</span>
-              <span className={styles.seasonLabel}>Points For</span>
-            </div>
-            <div className={styles.seasonStat}>
-              <span className={styles.seasonValue}>{team.pointsAgainst?.toFixed(1) || '-'}</span>
-              <span className={styles.seasonLabel}>Points Against</span>
-            </div>
-          </div>
-        </div>
-
-        {luckMetrics && (
-          <div className={styles.statSection}>
-            <h4 className={styles.sectionTitle}>Luck Analysis</h4>
-            <div className={styles.luckStats}>
-              <div className={styles.luckStat}>
-                <span className={styles.luckValue}>{luckMetrics.expectedWins.toFixed(1)}</span>
-                <span className={styles.luckLabel}>Expected W</span>
-              </div>
-              <div className={styles.luckStat}>
-                <span className={styles.luckValue}>
-                  {luckMetrics.allPlayWins}-{luckMetrics.allPlayLosses}
-                </span>
-                <span className={styles.luckLabel}>All-Play</span>
-              </div>
-              <div className={styles.luckStat}>
-                <span className={styles.luckValue}>
-                  {luckMetrics.closeWins + luckMetrics.closeLosses > 0
-                    ? `${luckMetrics.closeWins}-${luckMetrics.closeLosses}`
-                    : '-'}
-                </span>
-                <span className={styles.luckLabel}>Close Games</span>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function getLuckClass(luckScore: number, styles: Record<string, string>): string {
-  if (luckScore >= 2) return styles.veryLucky;
-  if (luckScore >= 1) return styles.lucky;
-  if (luckScore <= -2) return styles.veryUnlucky;
-  if (luckScore <= -1) return styles.unlucky;
-  return styles.neutral;
+  const rank = [...league.teams].sort((a, b) => (b.wins ?? 0) - (a.wins ?? 0) || (b.pointsFor ?? 0) - (a.pointsFor ?? 0)).findIndex(t => t.id === team.id) + 1;
+  const positions = ['QB', 'RB', 'WR', 'TE'].map(pos => ({ pos, points: (team.roster ?? []).filter(player => player.position === pos).reduce((sum, player) => sum + (player.seasonPoints ?? 0), 0) }));
+  const maxPosition = Math.max(1, ...positions.map(p => p.points));
+  return <article className={styles.card} onClick={onClick} role={onClick ? 'button' : undefined} tabIndex={onClick ? 0 : undefined} onKeyDown={onClick ? event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onClick(); } } : undefined}>
+    <header className={styles.header}>
+      <svg className={styles.shield} viewBox="0 0 40 44" aria-hidden="true"><path d="M20 2 3 8v16c0 9 17 18 17 18s17-9 17-18V8z" fill="var(--ink-3)" stroke="var(--rule)" /><text x="20" y="26" textAnchor="middle" fill="var(--lime)" fontSize="13" fontWeight="800">{team.name.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase()}</text></svg>
+      <div className={styles.headerInfo}><h3 className={styles.teamName}>{team.name}</h3><span className={styles.ownerName}>{team.ownerName || 'Manager unlisted'}</span></div>
+      <div className={styles.record}><strong>{team.wins}-{team.losses}{team.ties ? `-${team.ties}` : ''}</strong><span>RANK {rank}</span></div>
+    </header>
+    <dl className={styles.stats}>
+      <div><dt>Points for</dt><dd>{team.pointsFor?.toFixed(1) ?? '—'}</dd></div><div><dt>Points against</dt><dd>{team.pointsAgainst?.toFixed(1) ?? '—'}</dd></div>
+      <div><dt>Waiver PAR · {waiverStats.count} adds</dt><dd className={waiverStats.totalPAR >= 0 ? 'grade-great' : 'grade-terrible'}>{waiverStats.totalPAR >= 0 ? '+' : ''}{waiverStats.totalPAR.toFixed(1)}</dd></div>
+      <div><dt>Average draft value</dt><dd>{summary.totalPicks ? `${summary.averageValue >= 0 ? '+' : '-'}${valuesInDollars ? '$' : ''}${Math.abs(summary.averageValue).toFixed(1)}` : '—'}</dd></div>
+    </dl>
+    <section className={styles.section}><h4>POSITIONAL STRENGTH // ROSTER POINTS</h4>{positions.map(({ pos, points }) => <div className={styles.position} key={pos}><span>{pos}</span><div><i style={{ width: `${Math.max(0, points) / maxPosition * 100}%` }} /></div><strong>{points.toFixed(1)}</strong></div>)}</section>
+    <section className={styles.section}><h4>DRAFT // VALUE DISTRIBUTION</h4><div className={styles.grades}>{([['League winner', summary.great], ['Solid value', summary.good], ['Reach', summary.bad], ['Roster clogger', summary.terrible]] as const).map(([label, count]) => <span key={label}>{label}<b>{count}</b></span>)}</div></section>
+    <section className={styles.section}><h4>TOP THREE // SCORERS</h4><ul className={styles.topScorers}>{topScorers.map(player => <li key={player.id}><span>{player.name}</span><strong>{player.points.toFixed(1)}</strong></li>)}</ul>{!topScorers.length && <p>No player scoring data returned.</p>}</section>
+    {luckMetrics && <footer className={styles.luck}><span><LuckIcon rating={luckMetrics.luckRating} /> {luckMetrics.luckScore >= 0 ? '+' : ''}{luckMetrics.luckScore.toFixed(1)} luck</span><span>{luckMetrics.expectedWins.toFixed(1)} expected W</span><span>{luckMetrics.allPlayWins}-{luckMetrics.allPlayLosses} all-play</span></footer>}
+  </article>;
 }

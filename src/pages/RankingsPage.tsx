@@ -1,3 +1,4 @@
+import { BroadcastIcon } from '@/components/BroadcastIcon';
 import { Fragment, useDeferredValue, useMemo, useState } from 'react';
 import { POOL } from '@/data/draftPool';
 import { formatBuildDate } from '@/utils/formatBuildDate';
@@ -524,7 +525,7 @@ export function RankingsPage({ league, onUpdateGuest, initialPos }: RankingsPage
                         }
                         aria-label={`Toggle target status for ${p.name}`}
                       >
-                        {avoided.has(p.id) ? '✕' : '★'}
+                        <BroadcastIcon kind={avoided.has(p.id) ? 'close' : 'star'} />
                       </button>
                     </td>
                     <td className={styles.player}>

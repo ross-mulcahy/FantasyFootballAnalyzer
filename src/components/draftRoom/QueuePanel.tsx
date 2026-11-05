@@ -1,3 +1,4 @@
+import { BroadcastIcon } from '@/components/BroadcastIcon';
 import { useMemo } from 'react';
 import type { PoolPlayer } from '@/types/draft';
 import type { UseDraftQueueReturn } from '@/hooks/useDraftQueue';
@@ -105,7 +106,7 @@ export function QueuePanel({ room, queue, onSelect }: QueuePanelProps) {
                   aria-label={`Remove ${p.name} from queue`}
                   title="Remove from queue"
                 >
-                  ✕
+                  <BroadcastIcon kind="close" />
                 </button>
               </span>
             </li>

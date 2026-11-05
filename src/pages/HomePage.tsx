@@ -1,3 +1,4 @@
+import { BroadcastIcon } from '@/components/BroadcastIcon';
 import { useState } from 'react';
 import { LeagueForm } from '@/components/LeagueForm';
 import { HomeHero } from './HomeHero';
@@ -106,10 +107,10 @@ export function HomePage({ onLoadLeague, onGuest, isLoading, error, progress }: 
         <button
           className={styles.secretButton}
           onClick={handleSecretClick}
-          title="🐊"
+          title="League loader"
           aria-label="Secret league loader"
         >
-          🐊
+          <BroadcastIcon kind="shield" />
         </button>
       )}
     </div>

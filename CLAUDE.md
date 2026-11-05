@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Fantasy Football Analyzer is a React + TypeScript single-page app (Vite). It is
+WITCHING HOUR is a React + TypeScript single-page app (Vite). It is
 a static site with no backend of its own, plus a thin Vercel serverless layer in
 `api/` that exists only to hold secrets and bypass CORS. League data (Sleeper,
 ESPN, Yahoo) is fetched in the browser; draft rankings are bundled at build time.
@@ -357,8 +357,7 @@ LAST season during draft prep; the Draft Room targets the upcoming season
 
 - No AI cliches (see docs/DESIGN_SYSTEM.md voice section)
 - The pitch is personal and plain: built for my own draft prep and review,
-  completely free, enjoy. No punchy-tagline hype ("settle the group chat"
-  was removed as corny, 2026-07-12).
+  completely free, enjoy. Use the brand tagline “Where Losses Become Wins” and the broadcast microcopy in the design system.
 
 ## Docs map
 
@@ -366,10 +365,14 @@ LAST season during draft prep; the Draft Room targets the upcoming season
 - `docs/FANTASY_FOOTBALL.md` - domain rules, season calendar, format/value math.
 - `docs/SPACEFAST.md` - private hosted build, migration and update procedure.
 - `docs/API_REFERENCE.md` - Sleeper/ESPN/Yahoo endpoint reality, reality-checked.
-- `docs/DESIGN_SYSTEM.md` - the GRIDIRON visual language.
+- `docs/DESIGN_SYSTEM.md` - the WITCHING HOUR RedZone Control Room specification.
 - `docs/PROJECT_REVIEW_2026-06.md`, `docs/YAHOO_DATA_COMPARISON_2026-06.md` -
   dated review snapshots (historical).
 - `docs/redesign-proposal.html` - design exploration, referenced from DESIGN_SYSTEM.md.
 - `docs/archive/` - superseded docs kept for history.
 - Nested memories: `scripts/CLAUDE.md` (pipeline), `extension/CLAUDE.md` and
   `extension/README.md` (extension), `data/award-sheets/README.md` (award icons).
+
+## WITCHING HOUR implementation contract
+
+Use the 220px command sidebar, fast-switch league dock, and four page archetypes in docs/DESIGN_SYSTEM.md. Inter for names; JetBrains Mono for numeric data. Broadcast crimson is reserved for live/scoring; penalty red marks lineup hazards and negative outliers. Use SVG icons and NflTeamChip; no NFL bitmap logos or emoji. Preserve provider fetches, state, routes, calculations, storage keys and generated data.
