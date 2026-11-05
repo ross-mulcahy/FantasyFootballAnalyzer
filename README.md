@@ -198,3 +198,7 @@ the full list.
 - [Design system](docs/DESIGN_SYSTEM.md) — GRIDIRON styles and component patterns
 - [API reference](docs/API_REFERENCE.md) — platform endpoint notes
 - `docs/archive/` — superseded and historical documents
+
+## Spacefast hosting
+
+See [Spacefast install](docs/SPACEFAST.md) for the private hosted build, same-origin ESPN proxy, local backup migration and Yahoo setup limitation.

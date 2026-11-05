@@ -42,3 +42,10 @@ coverage
 # Source documents transcribed into data/*.csv (keep binaries out of history)
 data/*.xlsx
 data/*.pdf
+
+# Spacefast local connection state
+.spacefast/
+.spacefast/state.json
+/.spacefast-*
+.spacefast/.spacefast-*
+.spacefast/.space-link-*.tmp

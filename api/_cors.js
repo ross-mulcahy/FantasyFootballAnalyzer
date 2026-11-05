@@ -5,7 +5,7 @@
 
 export function configuredFrontendBase() {
   try {
-    const url = new URL(process.env.FRONTEND_URL || '');
+    const url = new URL((typeof process !== 'undefined' ? process.env.FRONTEND_URL : '') || '');
     if (url.username || url.password || url.search || url.hash || !['https:', 'http:'].includes(url.protocol)) return null;
     if (url.protocol === 'http:' && !['localhost', '127.0.0.1'].includes(url.hostname)) return null;
     return url.origin + url.pathname.replace(/\/+$/, '');
