@@ -6,9 +6,9 @@
 }
 
 .column {
-  border: 2px solid var(--bone);
-  box-shadow: 5px 5px 0 var(--bone);
-  background: var(--ink);
+  border: 1px solid var(--rule);
+  box-shadow: none;
+  background: var(--ink-2);
   display: flex;
   flex-direction: column;
   max-height: calc(100dvh - 280px);
@@ -34,8 +34,8 @@
   justify-content: space-between;
   gap: 0.5rem;
   padding: 0.6rem 0.75rem;
-  background: var(--ink);
-  border-bottom: 2px solid var(--bone);
+  background: var(--ink-2);
+  border-bottom: 1px solid var(--rule);
 }
 
 .columnPos {
@@ -94,17 +94,17 @@
 
 .player:hover {
   background: var(--ink-2);
-  box-shadow: inset 4px 0 0 var(--lime);
+  box-shadow: none;
 }
 
 .playerOn {
   background: var(--ink-2);
-  box-shadow: inset 4px 0 0 var(--lime);
+  box-shadow: none;
 }
 
 .playerName {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 0.92rem;
   color: var(--bone);
@@ -120,7 +120,7 @@
 
 .empty {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   color: var(--bone-dim);
   padding: 1.5rem 0.75rem;
   text-align: center;
@@ -136,7 +136,7 @@
   padding: 0.4rem 0.75rem;
   border-bottom: 1px dashed var(--rule);
   pointer-events: none;
-  animation: rowDraftOut 0.35s cubic-bezier(.2, .8, .2, 1) forwards;
+  animation: rowDraftOut 0.1s cubic-bezier(.2, .8, .2, 1) forwards;
 }
 
 @keyframes rowDraftOut {

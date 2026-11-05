@@ -6,10 +6,10 @@
   max-width: 720px;
   margin: 0 auto 4rem;
   padding: 1.6rem 1.7rem 1.8rem;
-  background: var(--ink);
-  border: 2px solid var(--bone);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   border-left: 6px solid var(--lime);
-  box-shadow: 5px 5px 0 var(--bone);
+  box-shadow: none;
 }
 
 .kicker {
@@ -73,7 +73,7 @@
 /* Segmented control: hard-edged toggle row matching the brand. */
 .segmented {
   display: inline-flex;
-  border: 2px solid var(--bone);
+  border: 1px solid var(--rule);
 }
 
 .seg,
@@ -87,10 +87,10 @@
   padding: 0.5rem 0.6rem;
   cursor: pointer;
   border: none;
-  border-right: 2px solid var(--bone);
-  background: var(--ink);
+  border-right: 1px solid var(--rule);
+  background: var(--ink-2);
   color: var(--bone);
-  transition: background .15s ease, color .15s ease;
+  transition: background 0.1s ease, color 0.1s ease;
 }
 .seg:last-child,
 .segOn:last-child { border-right: none; }
@@ -107,9 +107,9 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   padding: 0.5rem 0.6rem;
-  background: var(--ink);
+  background: var(--ink-2);
   color: var(--bone);
-  border: 2px solid var(--bone);
+  border: 1px solid var(--rule);
   cursor: pointer;
 }
 
@@ -146,20 +146,20 @@
   text-transform: uppercase;
   padding: 0.85rem 1rem;
   cursor: pointer;
-  border: 2px solid var(--bone);
-  transition: transform .12s ease, box-shadow .12s ease, background .15s ease;
+  border: 1px solid var(--rule);
+  transition: transform .12s ease, box-shadow .12s ease, background 0.1s ease;
 }
 
 .primary {
   background: var(--lime);
   color: var(--ink);
-  box-shadow: 4px 4px 0 var(--bone);
+  box-shadow: none;
 }
-.primary:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--bone); }
-.primary:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--bone); }
+.primary:hover { transform: translate(-1px, -1px); box-shadow: none; }
+.primary:active { transform: translate(2px, 2px); box-shadow: none; }
 
 .secondary {
-  background: var(--ink);
+  background: var(--ink-2);
   color: var(--bone);
 }
 .secondary:hover { background: var(--ink-2); }

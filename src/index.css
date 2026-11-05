@@ -1,22 +1,18 @@
 :root {
-  /* ─────────────────────────────────────────────
-     GRIDIRON · sports tabloid meets terminal
-     Dark variant. Bone on ink.
-     ───────────────────────────────────────────── */
+  /* Tactical Slate: restrained surfaces and functional signals. */
 
   /* Core palette */
-  --ink:        #0a0a0a;   /* deep night */
-  --ink-2:      #141412;   /* raised panel */
-  --ink-3:      #1f1e1a;   /* hover / input */
-  --rule:       #2a2823;   /* border / hairline */
-  --bone:       #f1ece1;   /* primary text, paper */
-  --bone-dim:   #948e80;   /* secondary text */
-  --lime:       #d6ff2e;   /* electric accent */
-  --blood:      #e63a1f;   /* signal red: backgrounds, borders, large display */
-  --blood-text: #ff6242;   /* signal red for small text; --blood is 4.0:1 on ink,
-                              under the 4.5:1 AA floor for body sizes */
-  --turf:       #0f3d2e;   /* deep field green */
-  --gold:       #ffcf3a;   /* hardware */
+  --ink:        #0b0f17;
+  --ink-2:      #161f30;
+  --ink-3:      #232f46;
+  --rule:       #232f46;
+  --bone:       #f8fafc;
+  --bone-dim:   #94a3b8;
+  --lime:       #10b981;
+  --blood:      #ef4444;
+  --blood-text: #ef4444;
+  --turf:       #123b35;
+  --gold:       #f59e0b;
 
   /* ── Legacy aliases (existing modules read these) ── */
   --bg-primary:    var(--ink);
@@ -35,37 +31,38 @@
   --border:               var(--rule);
   --accent:               var(--lime);
 
-  --accent-gold:   var(--lime);   /* lime takes over what was gold */
+  --accent-gold:   var(--gold);
   --accent-bronze: #cd7f32;
   --accent-silver: #c0c0c0;
   --field-green:   var(--turf);
-  --field-lines:   rgba(241, 236, 225, 0.05);
+  --field-lines:   rgba(148, 163, 184, 0.05);
 
   /* Grades */
   --color-great:    var(--lime);
-  --color-good:     #a6e22e;
-  --color-bad:      #ff8a3d;
+  --color-good:     #22c55e;
+  --color-bad:      #eab308;
   --color-terrible: var(--blood-text);
   --color-neutral:  var(--bone-dim);
 
   --color-positive: var(--lime);
   --color-negative: var(--blood-text);
-  --color-warning:  #ff8a3d;
+  --color-warning:  #eab308;
 
   /* Platform colors */
-  --sleeper-color: #01b2ff;
-  --espn-color:    #d00;
-  --yahoo-color:   #6001d2;
+  --sleeper-color: #38bdf8;
+  --espn-color:    #ef4444;
+  --yahoo-color:   #a855f7;
 
   /* Position colors: desaturated takes on the industry palette (every
      draft tool color-codes positions; the eye scans color before text).
      Accent-only — stripes, badges, dots — never body text. */
-  --pos-qb:  #d66a6a;
-  --pos-rb:  #6fbf8f;
-  --pos-wr:  #6a9fd6;
-  --pos-te:  #d6a25e;
-  --pos-k:   #b08fd6;
-  --pos-dst: #8fa3ad;
+  --pos-qb:  #f43f5e;
+  --pos-rb:  #10b981;
+  --pos-wr:  #38bdf8;
+  --pos-te:  #f59e0b;
+  --pos-flex: #a855f7;
+  --pos-k:   #a855f7;
+  --pos-dst: #94a3b8;
 
   /* Draft tier heat: tier 1 burns gold, cooling toward mute by tier 5+
      (which stays plain --bone-dim). Accent text only, never backgrounds. */
@@ -75,25 +72,20 @@
   --tier-4: color-mix(in srgb, var(--lime) 30%, var(--bone-dim));
 
   /* ── Type system ── */
-  --font-headline: "Bowlby One", Impact, "Arial Black", sans-serif;
-  --font-display:  "Fraunces", Georgia, "Times New Roman", serif;
-  --font-body:     "Fraunces", Georgia, "Times New Roman", serif;
+  --font-headline: "Inter Variable", Inter, "Segoe UI", sans-serif;
+  --font-display:  "Inter Variable", Inter, "Segoe UI", sans-serif;
+  --font-body:     "Inter Variable", Inter, "Segoe UI", sans-serif;
   --font-mono:     "JetBrains Mono", "SF Mono", "Cascadia Code", Consolas, monospace;
 
   /* Hard-edged offset shadow */
-  --shadow-offset: 6px 6px 0 var(--ink);
-  --shadow-offset-bone: 6px 6px 0 var(--bone);
+  --shadow-offset: none;
+  --shadow-offset-bone: none;
 
   /* Layout heights (kept in sync between Ticker and Header) */
   --ticker-h: 38px;
 
-  /* Page h1 size, shared by every page's .title. One token because the floor
-     has to be tuned against the narrowest phone: Bowlby One is a very wide
-     face and the longest unbreakable heading word ("QUARTERBACK", from
-     /rankings/qb) ran past a 375px viewport at the old 56px floor. Overflowing
-     the viewport is what makes iOS Safari shrink-to-fit the whole document on
-     load, so the page opens at the wrong zoom. Keep the phone step below. */
-  --page-title: clamp(56px, 9vw, 140px);
+  /* Compact page headings keep the board visible above the fold. */
+  --page-title: clamp(32px, 4vw, 56px);
 
   /* Board pages (Rankings, Site Values) run a scrolling table as their whole
      reason to exist, and the full-size headline plus its rule pushed the
@@ -101,7 +93,7 @@
      the board, then scrolled the board. Same formula, roughly half the cap,
      so the masthead still lands as a masthead and the data starts near the
      fold. */
-  --page-title-board: clamp(40px, 5.2vw, 76px);
+  --page-title-board: clamp(30px, 3.5vw, 48px);
 }
 
 /* 640px matches the compact-masthead breakpoint. 10vw keeps the ramp
@@ -109,8 +101,8 @@
    where this query ends and the desktop clamp takes over. */
 @media (max-width: 640px) {
   :root {
-    --page-title: clamp(34px, 10vw, 56px);
-    --page-title-board: clamp(30px, 8vw, 44px);
+    --page-title: clamp(28px, 8vw, 38px);
+    --page-title-board: clamp(28px, 7vw, 36px);
   }
 }
 
@@ -137,20 +129,16 @@ html {
 
 body {
   font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
   background-color: var(--ink);
   color: var(--bone);
-  line-height: 1.55;
+  line-height: 1.4;
   /* dvh so a short page does not sit 60-100px taller than the visible area
      while the mobile URL bar is expanded. vh first for browsers without dvh. */
   min-height: 100vh;
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
-  /* Atmospheric noise + faint grid */
-  background-image:
-    repeating-linear-gradient(0deg, transparent 0 79px, rgba(241,236,225,0.035) 79px 80px),
-    repeating-linear-gradient(90deg, transparent 0 79px, rgba(241,236,225,0.025) 79px 80px),
-    radial-gradient(ellipse at top, #15140f 0%, var(--ink) 60%);
-  background-attachment: fixed;
+  background-image: none;
 }
 
 /* The pinned background is the single worst thing on a touch screen. Fixed
@@ -188,7 +176,7 @@ select:not([hidden]) {
   padding-right: 1.9rem;
   /* Bone-dim triangle. Inline SVG cannot read a CSS variable, so the two
      states are two literals of --bone-dim and --lime. */
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath fill='%23948e80' d='M0 0h9L4.5 6z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath fill='%2394a3b8' d='M0 0h9L4.5 6z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.6rem center;
   background-size: 9px 6px;
@@ -197,7 +185,7 @@ select:not([hidden]) {
 
 select:not([hidden]):hover,
 select:not([hidden]):focus {
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath fill='%23d6ff2e' d='M0 0h9L4.5 6z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath fill='%2310b981' d='M0 0h9L4.5 6z'/%3E%3C/svg%3E");
 }
 
 select:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -297,11 +285,11 @@ html {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  border: 2px solid var(--ink);
-  box-shadow: 3px 3px 0 var(--ink);
-  transition: transform .15s ease, box-shadow .15s ease;
+  border: 1px solid var(--ink);
+  box-shadow: none;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
-.grade-badge:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--ink); }
+.grade-badge:hover { transform: translate(-1px,-1px); box-shadow: none; }
 
 .grade-badge.great    { background: var(--lime);   color: var(--ink); }
 .grade-badge.good     { background: #a6e22e;       color: var(--ink); }
@@ -320,17 +308,17 @@ html {
   letter-spacing: 0.12em;
   border: 1px solid var(--ink);
 }
-.platform-badge.sleeper { background: var(--sleeper-color); color: #000; }
+.platform-badge.sleeper { background: var(--sleeper-color); color: var(--ink); }
 .platform-badge.espn    { background: var(--espn-color);    color: #fff; }
 .platform-badge.yahoo   { background: var(--yahoo-color);   color: #fff; }
 
 /* ─── Card primitive (tabloid) ─── */
 .card {
   background-color: var(--ink-2);
-  border: 2px solid var(--bone);
+  border: 1px solid var(--rule);
   padding: 1.5rem;
   position: relative;
-  box-shadow: var(--shadow-offset-bone);
+  box-shadow: none;
 }
 .card::before {
   content: '';
@@ -352,14 +340,14 @@ html {
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  border: 2px solid var(--bone);
+  border: 1px solid var(--rule);
   background: transparent;
   color: var(--bone);
-  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
-  box-shadow: 4px 4px 0 var(--bone);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+  box-shadow: none;
 }
-.btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--bone); }
-.btn:active { transform: translate(0,0); box-shadow: 2px 2px 0 var(--bone); }
+.btn:hover { transform: translate(-2px,-2px); box-shadow: none; }
+.btn:active { transform: translate(0,0); box-shadow: none; }
 
 /* A disabled button must read as disabled at rest, not only via the cursor:
    otherwise it's a dead click waiting to happen (the League ID silent no-op
@@ -370,18 +358,18 @@ html {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
-  box-shadow: 2px 2px 0 var(--bone);
+  box-shadow: none;
 }
-.btn-primary:disabled { box-shadow: 2px 2px 0 var(--ink); }
+.btn-primary:disabled { box-shadow: none; }
 
 .btn-primary {
   background: var(--lime);
   color: var(--ink);
   border-color: var(--lime);
-  box-shadow: 4px 4px 0 var(--ink);
+  box-shadow: none;
 }
-.btn-primary:hover { box-shadow: 6px 6px 0 var(--ink); }
-.btn-primary:active { box-shadow: 2px 2px 0 var(--ink); }
+.btn-primary:hover { box-shadow: none; }
+.btn-primary:active { box-shadow: none; }
 
 .btn-secondary {
   background: var(--ink-2);
@@ -394,18 +382,18 @@ html {
   width: 100%;
   padding: 0.75rem 0.9rem;
   background: var(--ink);
-  border: 2px solid var(--bone-dim);
+  border: 1px solid var(--rule);
   color: var(--bone);
   font-family: var(--font-mono);
   font-size: 0.9rem;
-  transition: border-color .15s ease, box-shadow .2s ease;
+  transition: border-color 0.1s ease, box-shadow 0.1s ease;
 }
 .input:focus {
   outline: none;
   border-color: var(--lime);
-  box-shadow: 4px 4px 0 var(--lime);
+  box-shadow: none;
 }
-.input::placeholder { color: var(--bone-dim); font-style: italic; font-family: var(--font-body); }
+.input::placeholder { color: var(--bone-dim); font-style: normal; font-family: var(--font-body); }
 
 /* ─── Tables ─── */
 .table {
@@ -427,19 +415,19 @@ html {
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  border-bottom: 2px solid var(--bone);
+  border-bottom: 1px solid var(--rule);
   position: sticky;
   top: 0;
   z-index: 10;
 }
-.table tbody tr { transition: background-color .15s ease; }
+.table tbody tr { transition: background-color 0.1s ease; }
 .table tbody tr:hover { background: var(--ink-2); }
-.table tbody tr:hover td:first-child { box-shadow: inset 4px 0 0 var(--lime); }
+.table tbody tr:hover td:first-child { box-shadow: none; }
 
 /* ─── Spinner ─── */
 .spinner {
   width: 40px; height: 40px;
-  border: 3px solid var(--ink-3);
+  border: 1px solid var(--ink-3);
   border-top-color: var(--lime);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -454,7 +442,7 @@ html {
 /* ─── Footer ─── */
 .site-footer {
   padding: 2rem 0;
-  border-top: 2px solid var(--bone);
+  border-top: 1px solid var(--rule);
   text-align: center;
   margin-top: auto;
   font-family: var(--font-mono);
@@ -464,7 +452,7 @@ html {
   color: var(--bone-dim);
 }
 .site-footer p { font-size: inherit; }
-.site-footer a { color: var(--lime); transition: color .2s ease; }
+.site-footer a { color: var(--lime); transition: color 0.1s ease; }
 /* Neutral brighten: red is reserved for negative states, and --blood is
    under the AA floor at this size anyway. */
 .site-footer a:hover { color: var(--bone); }
@@ -510,7 +498,7 @@ html {
 /* Route entrance fade. Keyed on pathname in App.tsx so every navigation
    re-triggers it; entrance-only, nothing choreographed on exit. */
 .page-in {
-  animation: pageIn 0.25s ease-out;
+  animation: pageIn 0.1s ease-out;
 }
 @keyframes pageIn {
   from { opacity: 0; transform: translateY(4px); }
@@ -539,7 +527,7 @@ html {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(241, 236, 225, 0.05) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.05) 50%, transparent 100%);
   animation: skeletonSweep 1.4s steps(8) infinite;
 }
 
@@ -570,8 +558,8 @@ html {
   background-image:
     linear-gradient(90deg, var(--ink) 40%, transparent),
     linear-gradient(270deg, var(--ink) 40%, transparent),
-    linear-gradient(90deg, rgba(241, 236, 225, 0.2), transparent),
-    linear-gradient(270deg, rgba(241, 236, 225, 0.2), transparent);
+    linear-gradient(90deg, rgba(148, 163, 184, 0.2), transparent),
+    linear-gradient(270deg, rgba(148, 163, 184, 0.2), transparent);
   background-position: left, right, left, right;
   background-size: 32px 100%, 32px 100%, 12px 100%, 12px 100%;
   background-repeat: no-repeat;
@@ -618,6 +606,50 @@ html {
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* Tactical Slate primitives shared by every route. */
+.tactical-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--bone-dim);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+.tactical-loading-mark { color: var(--lime); }
+h1, h2, h3, h4 { font-weight: 700; letter-spacing: -0.01em; line-height: 1.15; }
+button, input, select, textarea, .btn, .card, .grade-badge, .platform-badge {
+  border-radius: 4px;
+}
+button, input, select, textarea { transition-duration: 0.1s; }
+.headline { line-height: 1.05; letter-spacing: -0.01em; }
+.card { padding: 1rem; border: 1px solid var(--rule); box-shadow: none; }
+.card::before { content: none; }
+.btn, .btn-secondary { padding: 0.55rem 0.8rem; border: 1px solid var(--rule); letter-spacing: 0.05em; box-shadow: none; }
+.btn-primary { border-color: var(--lime); }
+.btn:hover, .btn:active, .btn-primary:hover, .btn-primary:active { transform: none; box-shadow: none; }
+.btn-secondary:hover { background: var(--ink-3); }
+.input { padding: 0.55rem 0.7rem; background: var(--ink-3); border: 1px solid var(--rule); }
+.input:focus { box-shadow: none; outline: 2px solid var(--lime); outline-offset: 1px; }
+.grade-badge { border: 1px solid currentColor; box-shadow: none; letter-spacing: 0.04em; }
+.grade-badge:hover { transform: none; box-shadow: none; }
+.grade-badge.great, .grade-badge.good { background: color-mix(in srgb, #22c55e 15%, transparent); color: #22c55e; }
+.grade-badge.fair, .grade-badge.bad { background: color-mix(in srgb, #eab308 15%, transparent); color: #eab308; }
+.grade-badge.terrible { background: color-mix(in srgb, #ef4444 15%, transparent); color: #ef4444; }
+.table { font-variant-numeric: tabular-nums; }
+.table th, .table td { padding: 0.5rem 0.65rem; border-bottom: 1px solid var(--rule); }
+.table th { border-bottom: 1px solid var(--rule); letter-spacing: 0.06em; }
+table th:first-child, table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background-color: var(--ink-2);
+}
+table thead th:first-child { z-index: 12; background-color: var(--ink); }
+table tbody tr:hover td:first-child { background-color: var(--ink-3); }
+@media (prefers-reduced-motion: no-preference) {
+  .page-in { animation-duration: 0.1s; }
 }
 
 /* ── Print ──

@@ -4,10 +4,10 @@
   gap: 1rem;
   flex-wrap: wrap;
   background: var(--ink-2);
-  border: 2px solid var(--lime);
+  border: 1px solid var(--lime);
   padding: 0.75rem 1rem;
   margin-bottom: 2rem;
-  animation: bannerIn 0.3s cubic-bezier(.2, .8, .2, 1);
+  animation: bannerIn 0.1s cubic-bezier(.2, .8, .2, 1);
 }
 
 @keyframes bannerIn {

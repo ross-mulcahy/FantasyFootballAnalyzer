@@ -13,9 +13,9 @@
   gap: 1rem 1.25rem;
   align-items: flex-end;
   padding: 1rem 1.2rem;
-  background: var(--ink);
-  border: 2px solid var(--bone);
-  box-shadow: 4px 4px 0 var(--bone);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
+  box-shadow: none;
 }
 
 .filter {
@@ -63,7 +63,7 @@
   text-transform: uppercase;
   background: transparent;
   color: var(--lime);
-  border: 2px solid var(--lime);
+  border: 1px solid var(--lime);
   cursor: pointer;
 }
 .shareBoard:hover:not(:disabled) {
@@ -78,7 +78,7 @@
 .gradeBasis {
   margin: 0 0 1rem;
   padding: 0.6rem 0.8rem;
-  border-left: 3px solid var(--bone-dim);
+  border-left: 1px solid var(--rule);
   font-size: 0.85rem;
   line-height: 1.5;
   color: var(--bone-dim);
@@ -88,11 +88,11 @@
 /* ── Table ── */
 .tableWrapper {
   overflow-x: auto;
-  border: 2px solid var(--bone);
-  box-shadow: 5px 5px 0 var(--bone);
+  border: 1px solid var(--rule);
+  box-shadow: none;
   /* background-color, not the shorthand: the wrapper carries the global
      scroll-x-hint gradient layers on touch screens. */
-  background-color: var(--ink);
+  background-color: var(--ink-2);
 }
 
 .table {
@@ -104,7 +104,7 @@
   user-select: none;
   white-space: nowrap;
   position: relative;
-  transition: color .15s ease;
+  transition: color 0.1s ease;
 }
 .sortable:hover { color: var(--lime); }
 .sortable::after {
@@ -116,7 +116,7 @@
   background: var(--lime);
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 0.2s ease;
+  transition: transform 0.1s ease;
 }
 .sortable:hover::after { transform: scaleX(1); }
 
@@ -128,7 +128,7 @@
 
 .playerName {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   color: var(--bone);
 }
@@ -148,11 +148,11 @@
   font-size: 0.62rem;
   font-weight: 700;
   background: var(--ink-2);
-  border: 1px solid var(--bone-dim);
+  border: 1px solid var(--rule);
   color: var(--bone);
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  transition: all .15s ease;
+  transition: all 0.1s ease;
 }
 .positionBadge:hover {
   border-color: var(--lime);
@@ -165,7 +165,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   color: var(--bone);
 }
@@ -173,9 +173,9 @@
 /* ── Empty ── */
 .empty {
   text-align: center;
-  padding: 4rem 2rem;
-  background: var(--ink);
-  border: 2px dashed var(--bone-dim);
+  padding: 1.5rem 2rem;
+  background: var(--ink-2);
+  border: 1px dashed var(--rule);
 }
 
 .emptyIcon {
@@ -197,7 +197,7 @@
 
 .emptyText {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-size: 0.95rem;
   max-width: 420px;
   margin: 0 auto;
@@ -249,9 +249,9 @@
 .leaderboardGrid {
   display: flex;
   flex-direction: column;
-  border: 2px solid var(--bone);
-  box-shadow: 4px 4px 0 var(--bone);
-  background: var(--ink);
+  border: 1px solid var(--rule);
+  box-shadow: none;
+  background: var(--ink-2);
   /* Shared by the header and every row so the columns line up. Stat
      columns are fixed-width; the team name takes what is left and
      truncates, so the board never scrolls sideways on a phone. */
@@ -304,7 +304,7 @@
 
 .leaderboardRowOn {
   background: var(--ink-2);
-  box-shadow: inset 4px 0 0 var(--lime);
+  box-shadow: none;
 }
 
 .lbRank {
@@ -314,7 +314,7 @@
 
 .lbName {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 0.95rem;
   color: var(--bone);

@@ -5,7 +5,7 @@
 .header {
   margin-bottom: 2.5rem;
   padding-bottom: 1.25rem;
-  border-bottom: 3px solid var(--bone);
+  border-bottom: 1px solid var(--rule);
 }
 
 .title {
@@ -43,16 +43,16 @@
   padding: 0.85rem 1rem;
   font-family: var(--font-mono);
   font-size: 0.85rem;
-  background: var(--ink);
-  border: 2px solid var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   color: var(--bone);
-  transition: border-color .15s ease, box-shadow .15s ease;
+  transition: border-color 0.1s ease, box-shadow 0.1s ease;
 }
-.searchInput::placeholder { color: var(--bone-dim); font-style: italic; font-family: var(--font-display); }
+.searchInput::placeholder { color: var(--bone-dim); font-style: normal; font-family: var(--font-display); }
 .searchInput:focus {
   outline: none;
   border-color: var(--lime);
-  box-shadow: 4px 4px 0 var(--lime);
+  box-shadow: none;
 }
 
 .positionFilter {
@@ -61,8 +61,8 @@
   font-size: 0.78rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  background: var(--ink);
-  border: 2px solid var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   color: var(--bone);
   cursor: pointer;
   min-width: 160px;
@@ -70,7 +70,7 @@
 .positionFilter:focus {
   outline: none;
   border-color: var(--lime);
-  box-shadow: 4px 4px 0 var(--lime);
+  box-shadow: none;
 }
 
 /* ── Layout ── */
@@ -85,9 +85,9 @@
 
 /* ── Player list ── */
 .playerList {
-  background: var(--ink);
-  border: 2px solid var(--bone);
-  box-shadow: 5px 5px 0 var(--bone);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
+  box-shadow: none;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -95,7 +95,7 @@
 
 .listHeader {
   padding: 0.85rem 1rem;
-  border-bottom: 2px solid var(--bone);
+  border-bottom: 1px solid var(--rule);
   background: var(--ink-2);
 }
 
@@ -124,10 +124,10 @@
   background: transparent;
   border: none;
   border-bottom: 1px dashed var(--rule);
-  border-left: 3px solid transparent;
+  border-left: 1px solid transparent;
   cursor: pointer;
   text-align: left;
-  transition: background .15s ease, border-left-color .15s ease;
+  transition: background 0.1s ease, border-left-color 0.1s ease;
   color: var(--bone);
 }
 .playerItem:hover {
@@ -148,7 +148,7 @@
 
 .playerName {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   color: var(--bone);
   white-space: nowrap;
@@ -205,7 +205,7 @@ button.moreResults {
   width: 100%;
   background: transparent;
   border: 0;
-  border-top: 1px dashed var(--bone-dim);
+  border-top: 1px dashed var(--rule);
   cursor: pointer;
   transition: color 120ms ease, background 120ms ease;
 }
@@ -217,9 +217,9 @@ button.moreResults:hover {
 
 /* ── Player detail ── */
 .playerDetail {
-  background: var(--ink);
-  border: 2px solid var(--bone);
-  box-shadow: 5px 5px 0 var(--bone);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
+  box-shadow: none;
   padding: 1.5rem 1.6rem 1.75rem;
 }
 
@@ -230,7 +230,7 @@ button.moreResults:hover {
   height: 100%;
   min-height: 400px;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   color: var(--bone-dim);
 }
 
@@ -240,7 +240,7 @@ button.moreResults:hover {
   align-items: flex-start;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 2px dashed var(--bone-dim);
+  border-bottom: 1px dashed var(--rule);
 }
 
 .detailInfo { display: flex; flex-direction: column; gap: 0.3rem; }
@@ -281,7 +281,7 @@ button.moreResults:hover {
 
 .currentTeamName {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   color: var(--lime);
   font-size: 1.1rem;
@@ -345,9 +345,9 @@ button.moreResults:hover {
   background: var(--ink-2);
   border-left: 4px solid var(--rule);
   font-family: var(--font-mono);
-  transition: background .15s ease;
+  transition: background 0.1s ease;
 }
-.event:hover { background: var(--ink); }
+.event:hover { background: var(--ink-2); }
 
 .eventDrafted   { border-left-color: var(--lime); }
 .eventTradeIn   { border-left-color: var(--lime); }
@@ -374,7 +374,7 @@ button.moreResults:hover {
 
 .eventLabel {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 0.95rem;
   color: var(--bone);
@@ -398,7 +398,7 @@ button.moreResults:hover {
   padding: 2rem;
   text-align: center;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   color: var(--bone-dim);
   background: var(--ink-2);
   border: 1px dashed var(--rule);
@@ -438,7 +438,7 @@ button.moreResults:hover {
   flex: 1;
   min-width: 0;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 0.92rem;
   color: var(--bone);

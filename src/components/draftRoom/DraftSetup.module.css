@@ -32,9 +32,9 @@
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  border: 2px solid var(--bone);
+  border: 1px solid var(--rule);
   border-left: 6px solid var(--lime);
-  box-shadow: 5px 5px 0 var(--bone);
+  box-shadow: none;
   padding: 1.2rem 1.4rem;
 }
 
@@ -55,7 +55,7 @@
 
 .resumeDetail {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   color: var(--bone-dim);
 }
 
@@ -65,9 +65,9 @@
 }
 
 .section {
-  border: 2px solid var(--bone);
-  background: var(--ink);
-  box-shadow: 5px 5px 0 var(--bone);
+  border: 1px solid var(--rule);
+  background: var(--ink-2);
+  box-shadow: none;
   padding: 1.4rem 1.6rem 1.5rem;
 }
 
@@ -169,8 +169,8 @@
 
 .input {
   padding: 0.6rem 0.8rem;
-  background: var(--ink);
-  border: 2px solid var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   color: var(--bone);
   font-family: var(--font-mono);
   font-size: 0.9rem;
@@ -181,7 +181,7 @@
 .input:focus {
   outline: none;
   border-color: var(--lime);
-  box-shadow: 4px 4px 0 var(--lime);
+  box-shadow: none;
 }
 
 .field .input[type='number'] {
@@ -200,7 +200,7 @@
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  border: 2px solid var(--bone);
+  border: 1px solid var(--rule);
   cursor: pointer;
 }
 
@@ -222,7 +222,7 @@
 
 .hint {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 300;
   color: var(--bone-dim);
   margin: 0.75rem 0 0;
@@ -242,7 +242,7 @@
   gap: 0.75rem;
   padding: 0.4rem 0.6rem;
   background: var(--ink-2);
-  border-left: 3px solid var(--rule);
+  border-left: 1px solid var(--rule);
 }
 
 .teamRow:hover {
@@ -285,7 +285,7 @@
   font-family: var(--font-mono);
   font-size: 0.7rem;
   background: transparent;
-  border: 2px solid var(--bone-dim);
+  border: 1px solid var(--rule);
   color: var(--bone-dim);
   cursor: pointer;
 }
@@ -347,7 +347,7 @@
   gap: 0.75rem;
   padding: 0.4rem 0.6rem;
   background: var(--ink-2);
-  border-left: 3px solid var(--rule);
+  border-left: 1px solid var(--rule);
 }
 
 .keeperRow:hover {
@@ -356,7 +356,7 @@
 
 .keeperTeam {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   min-width: 160px;
   color: var(--bone);
@@ -368,8 +368,8 @@
 .keeperSelect {
   flex: 1;
   padding: 0.5rem 0.7rem;
-  background: var(--ink);
-  border: 2px solid var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   color: var(--bone);
   font-family: var(--font-mono);
   font-size: 0.8rem;
@@ -379,12 +379,12 @@
 .keeperSelect:focus {
   outline: none;
   border-color: var(--lime);
-  box-shadow: 4px 4px 0 var(--lime);
+  box-shadow: none;
 }
 
 .keeperNone {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   color: var(--bone-dim);
   font-size: 0.9rem;
 }
@@ -409,8 +409,8 @@
   width: 5rem;
   flex: none;
   padding: 0.5rem 0.6rem;
-  background: var(--ink);
-  border: 2px solid var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   color: var(--bone);
   font-family: var(--font-mono);
   font-size: 0.8rem;
@@ -419,7 +419,7 @@
 .keeperPrice:focus {
   outline: none;
   border-color: var(--lime);
-  box-shadow: 4px 4px 0 var(--lime);
+  box-shadow: none;
 }
 
 /* The keeper row holds a taller stack now, so top-align the team label. */
@@ -462,29 +462,29 @@
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  border: 2px solid var(--bone);
+  border: 1px solid var(--rule);
   background: transparent;
   color: var(--bone);
-  box-shadow: 4px 4px 0 var(--bone);
+  box-shadow: none;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .btn:hover,
 .btnPrimary:hover:not(:disabled) {
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 var(--bone);
+  box-shadow: none;
 }
 
 .btnPrimary {
   background: var(--lime);
   color: var(--ink);
   border-color: var(--lime);
-  box-shadow: 4px 4px 0 var(--ink);
+  box-shadow: none;
 }
 
 .btnPrimary:hover:not(:disabled) {
-  box-shadow: 6px 6px 0 var(--ink);
+  box-shadow: none;
 }
 
 .btnPrimary:disabled {
@@ -493,13 +493,13 @@
 }
 
 .warnBox {
-  border: 2px solid var(--gold);
-  box-shadow: 4px 4px 0 var(--gold);
-  background: var(--ink);
+  border: 1px solid var(--gold);
+  box-shadow: none;
+  background: var(--ink-2);
   color: var(--bone);
   padding: 0.8rem 1rem;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 300;
   font-size: 0.92rem;
 }
@@ -555,8 +555,8 @@
     gap: 0.5rem;
     margin-top: 0;
     padding: 0.8rem 0 max(0.8rem, env(safe-area-inset-bottom));
-    background: var(--ink);
-    border-top: 2px solid var(--bone);
+    background: var(--ink-2);
+    border-top: 1px solid var(--rule);
   }
 
   .startRow .summary {

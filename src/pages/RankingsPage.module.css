@@ -1,13 +1,13 @@
 /* Tighter than the standard 3rem/2.5rem page rhythm on purpose: see
    --page-title-board. Every pixel above the board is a row you cannot see. */
 .page {
-  padding: 2rem 0 3rem;
+  padding: 2rem 0 1.5rem;
 }
 
 .header {
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 3px solid var(--bone);
+  border-bottom: 1px solid var(--rule);
 }
 
 .title {
@@ -39,11 +39,11 @@
   align-items: center;
   gap: 1.25rem;
   flex-wrap: wrap;
-  border: 2px solid var(--bone);
-  box-shadow: 4px 4px 0 var(--bone);
+  border: 1px solid var(--rule);
+  box-shadow: none;
   padding: 0.75rem 1rem;
   margin-bottom: 1.5rem;
-  background: var(--ink);
+  background: var(--ink-2);
 }
 
 .settingsItem,
@@ -83,8 +83,8 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--bone);
-  background: var(--ink);
-  border: 2px solid var(--bone);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   padding: 0.3rem 0.4rem;
   cursor: pointer;
 }
@@ -105,11 +105,11 @@
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  border: 2px solid var(--bone-dim);
+  border: 1px solid var(--rule);
   background: transparent;
   color: var(--bone-dim);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  transition: color 0.1s ease, border-color 0.1s ease, background 0.1s ease;
 }
 
 .tab:hover {
@@ -121,7 +121,7 @@
   background: var(--lime);
   color: var(--ink);
   border-color: var(--lime);
-  box-shadow: 3px 3px 0 var(--bone);
+  box-shadow: none;
 }
 
 .yahooStatus {
@@ -145,8 +145,8 @@
   flex: 0 1 360px;
   min-width: 200px;
   padding: 0.75rem 0.9rem;
-  background: var(--ink);
-  border: 2px solid var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   color: var(--bone);
   font-family: var(--font-mono);
   font-size: 0.9rem;
@@ -155,12 +155,12 @@
 .search:focus {
   outline: none;
   border-color: var(--lime);
-  box-shadow: 4px 4px 0 var(--lime);
+  box-shadow: none;
 }
 
 .search::placeholder {
   color: var(--bone-dim);
-  font-style: italic;
+  font-style: normal;
   font-family: var(--font-body);
 }
 
@@ -178,7 +178,7 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  border: 2px solid var(--bone-dim);
+  border: 1px solid var(--rule);
   background: transparent;
   color: var(--bone-dim);
   cursor: pointer;
@@ -221,11 +221,11 @@
      instead of leaving a band of dead ink above the footer. */
   max-height: calc(100dvh - 200px);
   min-height: 420px;
-  border: 2px solid var(--bone);
-  box-shadow: 5px 5px 0 var(--bone);
+  border: 1px solid var(--rule);
+  box-shadow: none;
   /* background-color, not the shorthand: the wrapper carries the global
      scroll-x-hint gradient layers on touch screens. */
-  background-color: var(--ink);
+  background-color: var(--ink-2);
 }
 
 /* The stacked header eats far more than 280px of a phone viewport, and the
@@ -250,13 +250,13 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  background: var(--ink);
+  background: var(--ink-2);
   font-weight: 700;
   color: var(--bone-dim);
   font-size: 0.66rem;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  border-bottom: 2px solid var(--bone);
+  border-bottom: 1px solid var(--rule);
   padding: 0.6rem 0.65rem;
   text-align: left;
   white-space: nowrap;
@@ -288,7 +288,7 @@
   background: var(--lime);
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 0.35s cubic-bezier(.2, .8, .2, 1);
+  transition: transform 0.1s cubic-bezier(.2, .8, .2, 1);
 }
 
 .sortable:hover::after { transform: scaleX(1); }
@@ -313,12 +313,15 @@
 }
 
 .row:hover td:first-child {
-  box-shadow: inset 4px 0 0 var(--lime);
+  box-shadow: none;
 }
+
+.deltaOutlierGood { background: color-mix(in srgb, #10b981 15%, transparent); color: #10b981 !important; }
+.deltaOutlierBad { background: color-mix(in srgb, #ef4444 15%, transparent); color: #ef4444 !important; }
 
 .player {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 0.95rem;
   white-space: nowrap;
@@ -342,8 +345,8 @@
     position: sticky;
     left: 0;
     z-index: 1;
-    background: var(--ink);
-    border-right: 2px solid var(--bone-dim);
+    background: var(--ink-2);
+    border-right: 1px solid var(--rule);
     /* Cap the frozen column so the stats keep real estate beside it. The
        NAME ellipsizes (flex child below); the rookie/injury tags stay
        visible - they are draft signals, the name tail is not. */
@@ -363,7 +366,7 @@
     position: sticky;
     left: 0;
     z-index: 3;
-    border-right: 2px solid var(--bone-dim);
+    border-right: 1px solid var(--rule);
   }
   /* Tighter cells: the desktop padding and header tracking pushed all but
      three columns off a 390px screen. */
@@ -405,7 +408,7 @@
 .emptyRow {
   text-align: center;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   color: var(--bone-dim);
   padding: 2rem 1rem !important;
 }
@@ -417,7 +420,7 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--bone-dim);
-  border-top: 2px solid var(--rule);
+  border-top: 1px solid var(--rule);
 }
 
 .rookieTag,
@@ -490,7 +493,7 @@
 }
 
 .tierBreakRow td {
-  border-bottom: 2px dashed var(--lime);
+  border-bottom: 1px dashed var(--lime);
   padding: 0.15rem 0.65rem;
   font-family: var(--font-mono);
   font-size: 0.6rem;
@@ -510,4 +513,15 @@
     margin-bottom: 1.25rem;
     padding-bottom: 0.75rem;
   }
+}
+
+/* Thumb-friendly instant position triage. */
+.chips { align-items: center; }
+.chip, .chipOn { min-height: 36px; border-radius: 4px; letter-spacing: 0.03em; transition-duration: 0.1s; }
+.chip:hover { background: var(--ink-3); border-color: var(--rule); }
+.chipOn { background: color-mix(in srgb, var(--lime) 15%, var(--ink-2)); color: var(--lime); border-color: var(--lime); }
+
+@media (min-width: 641px) {
+  .table .player, .table .playerHead { position: sticky; left: 1.6rem; background: var(--ink-2); z-index: 3; border-right: 1px solid var(--rule); }
+  .table .playerHead { top: 0; z-index: 13; background: var(--ink-2); }
 }

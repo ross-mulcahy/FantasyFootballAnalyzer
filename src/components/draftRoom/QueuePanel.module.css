@@ -29,7 +29,7 @@
   border-bottom: 1px dashed var(--rule);
   /* Mount-only: React keys each row by player id, so this only plays when a
      row is actually new (queued just now), not on a reorder re-render. */
-  animation: queueRowIn 0.3s cubic-bezier(.2, .8, .2, 1);
+  animation: queueRowIn 0.1s cubic-bezier(.2, .8, .2, 1);
 }
 
 .queueRow:last-child {
@@ -73,7 +73,7 @@
 
 .pickBtn:hover {
   background: var(--ink-2);
-  box-shadow: inset 3px 0 0 var(--lime);
+  box-shadow: none;
 }
 
 .ctrls {

@@ -5,7 +5,7 @@
 .header {
   margin-bottom: 2.5rem;
   padding-bottom: 1.25rem;
-  border-bottom: 3px solid var(--bone);
+  border-bottom: 1px solid var(--rule);
 }
 
 .title {
@@ -30,9 +30,9 @@
 
 .empty {
   text-align: center;
-  padding: 4rem 2rem;
-  background: var(--ink);
-  border: 2px dashed var(--bone-dim);
+  padding: 1.5rem 2rem;
+  background: var(--ink-2);
+  border: 1px dashed var(--rule);
 }
 .empty h2 {
   font-family: var(--font-headline);
@@ -44,7 +44,7 @@
 }
 .empty p {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   color: var(--bone-dim);
 }
 

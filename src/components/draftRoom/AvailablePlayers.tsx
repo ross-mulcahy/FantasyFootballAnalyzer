@@ -456,7 +456,7 @@ export function AvailablePlayers({
                 </li>
               </Fragment>
             ))}
-            {visible.length === 0 && <li className={styles.mEmpty}>No available players match.</li>}
+            {visible.length === 0 && <li className={styles.mEmpty}>Nobody here. The waiver wire has better odds.</li>}
             {leavingPlayers.map(p => (
               <li key={`leaving-${p.id}`} className={styles.mRowDraftOut} aria-hidden="true">
                 {p.name} drafted
@@ -799,7 +799,7 @@ export function AvailablePlayers({
             {visible.length === 0 && (
               <tr>
                 <td colSpan={colCount} className={styles.emptyRow}>
-                  No available players match.
+                  Nobody here. The waiver wire has better odds.
                 </td>
               </tr>
             )}

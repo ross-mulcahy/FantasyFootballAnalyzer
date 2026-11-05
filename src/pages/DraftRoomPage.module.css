@@ -1,5 +1,5 @@
 .page {
-  padding: 3rem 0 5rem;
+  padding: 1.5rem 0 1.5rem;
 }
 
 /* The draft board is the densest screen in the app: side column + a wide
@@ -12,7 +12,7 @@
 .header {
   margin-bottom: 2.5rem;
   padding-bottom: 1.25rem;
-  border-bottom: 3px solid var(--bone);
+  border-bottom: 1px solid var(--rule);
 }
 
 .title {
@@ -45,11 +45,11 @@
   align-content: center;
   gap: 0.6rem 1.5rem;
   flex-wrap: wrap;
-  border: 2px solid var(--bone);
-  box-shadow: 4px 4px 0 var(--bone);
+  border: 1px solid var(--rule);
+  box-shadow: none;
   padding: 0.75rem 1rem;
   margin-bottom: 1.5rem;
-  background: var(--ink);
+  background: var(--ink-2);
 }
 
 /* While drafting, reserve the bar's tallest common shape so alert badges
@@ -126,7 +126,7 @@
 /* The room should shout when it's your pick: lime flood, one pulse. */
 .statusBarMine {
   border-color: var(--lime);
-  box-shadow: 4px 4px 0 var(--lime);
+  box-shadow: none;
   background: var(--ink-2);
   animation: statusPulse 0.6s ease 1;
 }
@@ -159,7 +159,7 @@
      so the whole bar (and the board below) shifted every time a run badge
      came or went - which is exactly the on-the-clock handoff moment. */
   line-height: 1.2;
-  animation: statusAlertPop 0.3s cubic-bezier(.2, .8, .2, 1);
+  animation: statusAlertPop 0.1s cubic-bezier(.2, .8, .2, 1);
 }
 
 /* The run badge renders twice: once inside the primary group (for the phone
@@ -204,11 +204,11 @@
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  border: 2px solid var(--bone-dim);
+  border: 1px solid var(--rule);
   background: transparent;
   color: var(--bone-dim);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  transition: color 0.1s ease, border-color 0.1s ease, background 0.1s ease;
 }
 
 .tab:hover {
@@ -220,7 +220,7 @@
   background: var(--lime);
   color: var(--ink);
   border-color: var(--lime);
-  box-shadow: 3px 3px 0 var(--bone);
+  box-shadow: none;
 }
 
 /* Keyed on the active board tab (see DraftRoomPage.tsx), so this remounts
@@ -229,7 +229,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  animation: tabFadeIn 0.2s ease-out;
+  animation: tabFadeIn 0.1s ease-out;
 }
 
 @keyframes tabFadeIn {
@@ -260,17 +260,17 @@
   font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  border: 2px solid var(--bone);
+  border: 1px solid var(--rule);
   background: transparent;
   color: var(--bone);
-  box-shadow: 3px 3px 0 var(--bone);
+  box-shadow: none;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .statusUndoBtn:hover:not(:disabled) {
   transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0 var(--bone);
+  box-shadow: none;
 }
 
 .statusUndoBtn:disabled {
@@ -285,12 +285,12 @@
   font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  border: 2px solid var(--blood);
+  border: 1px solid var(--blood);
   background: transparent;
   color: var(--blood-text);
-  box-shadow: 3px 3px 0 var(--blood);
+  box-shadow: none;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
   /* Wide enough for the armed "Confirm Reset?" label so the two-step
      confirm doesn't resize the bar. */
   min-width: 9.5rem;
@@ -299,7 +299,7 @@
 
 .statusBtn:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0 var(--blood);
+  box-shadow: none;
 }
 
 /* The Yahoo-style working area: pick logger + running pick log on the left,
@@ -343,7 +343,7 @@
 }
 
 .teamsSection {
-  border-top: 2px dashed var(--bone-dim);
+  border-top: 1px dashed var(--rule);
   padding-top: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -461,10 +461,10 @@
   font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  border: 2px solid var(--blood);
+  border: 1px solid var(--blood);
   background: var(--blood);
   color: var(--ink);
-  box-shadow: 3px 3px 0 var(--bone);
+  box-shadow: none;
   cursor: pointer;
   min-width: 9.5rem;
   text-align: center;
@@ -491,10 +491,10 @@
   padding: 0.3rem 0.55rem;
   font-size: 0.85rem;
   line-height: 1;
-  border: 2px solid var(--bone-dim);
+  border: 1px solid var(--rule);
   background: transparent;
   cursor: pointer;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.1s ease;
 }
 
 .soundBtn:hover {
@@ -516,11 +516,11 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  border: 2px solid var(--bone-dim);
+  border: 1px solid var(--rule);
   background: transparent;
   color: var(--bone-dim);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  transition: color 0.1s ease, border-color 0.1s ease, background 0.1s ease;
 }
 
 .syncBtn:hover {
@@ -541,7 +541,7 @@
   padding: 0.3rem 0.5rem;
   font-family: var(--font-mono);
   font-size: 0.62rem;
-  border: 2px solid var(--bone-dim);
+  border: 1px solid var(--rule);
   background: transparent;
   color: var(--bone);
 }
@@ -569,7 +569,7 @@
   background: color-mix(in srgb, var(--lime) 18%, var(--ink));
   border: 1px solid var(--lime);
   border-left: 4px solid var(--lime);
-  box-shadow: 4px 4px 0 rgb(0 0 0 / 0.55);
+  box-shadow: none;
   color: var(--lime);
   font-family: var(--font-mono);
   font-size: 0.82rem;
@@ -637,7 +637,7 @@
     overflow: hidden;
     /* No offset block shadow: flush to the screen edges it would hang off
        the right and get clipped. A plain drop shadow does the separating. */
-    box-shadow: 0 10px 14px -10px rgb(0 0 0 / 0.85);
+    box-shadow: none;
     border-left: none;
     border-right: none;
   }
@@ -669,7 +669,7 @@
     line-height: 1;
     color: var(--bone);
     text-decoration: none;
-    border: 2px solid var(--bone-dim);
+    border: 1px solid var(--rule);
   }
 
   /* The frame's flexible row: the board takes whatever is left between the
@@ -762,7 +762,7 @@
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--bone);
-    border: 2px solid var(--bone-dim);
+    border: 1px solid var(--rule);
     text-decoration: none;
   }
 }
@@ -773,9 +773,9 @@
 .draftDonePanel {
   margin-bottom: 2rem;
   padding: 1.25rem 1.4rem;
-  border: 2px solid var(--bone);
-  box-shadow: 4px 4px 0 var(--bone);
-  background: var(--ink);
+  border: 1px solid var(--rule);
+  box-shadow: none;
+  background: var(--ink-2);
 }
 
 .draftDoneTitle {
@@ -805,7 +805,7 @@
 .draftDoneCta {
   display: inline-block;
   padding: 0.55rem 1.1rem;
-  border: 2px solid var(--lime);
+  border: 1px solid var(--lime);
   background: var(--lime);
   color: var(--ink);
   font-family: var(--font-mono);

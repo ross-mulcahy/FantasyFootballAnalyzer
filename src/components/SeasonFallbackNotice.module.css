@@ -1,6 +1,6 @@
 .notice {
   background: var(--ink-2);
-  border-bottom: 2px solid var(--gold);
+  border-bottom: 1px solid var(--gold);
 }
 
 .inner {

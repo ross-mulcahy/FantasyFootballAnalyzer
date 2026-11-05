@@ -3,13 +3,13 @@
    ───────────────────────────────────────────── */
 
 .luckPage {
-  padding: 3rem 0 5rem;
+  padding: 1.5rem 0 1.5rem;
 }
 
 .header {
   margin-bottom: 2rem;
   padding-bottom: 1.25rem;
-  border-bottom: 3px solid var(--bone);
+  border-bottom: 1px solid var(--rule);
 }
 
 .title {
@@ -36,7 +36,7 @@
 
 .empty {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-size: 1.05rem;
   color: var(--bone-dim);
   padding: 2rem 0;
@@ -63,9 +63,9 @@
   flex-direction: column;
   gap: 0.3rem;
   padding: 0.9rem 1rem 1rem;
-  border: 2px solid var(--bone);
-  background: var(--ink);
-  box-shadow: 4px 4px 0 var(--bone);
+  border: 1px solid var(--rule);
+  background: var(--ink-2);
+  box-shadow: none;
 }
 .headline:nth-child(1) {
   background: var(--lime);
@@ -90,7 +90,7 @@
 
 .headlineTeam {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 1.05rem;
   color: var(--bone);
@@ -123,16 +123,16 @@
   color: var(--bone);
   margin-bottom: 0.75rem;
   padding-bottom: 0.6rem;
-  border-bottom: 2px dashed var(--bone-dim);
+  border-bottom: 1px dashed var(--rule);
 }
 
 .table {
   overflow-x: auto;
-  border: 2px solid var(--bone);
-  box-shadow: 5px 5px 0 var(--bone);
+  border: 1px solid var(--rule);
+  box-shadow: none;
   /* background-color, not the shorthand, so the global scroll-x-hint
      gradient layers show through on touch screens. */
-  background-color: var(--ink);
+  background-color: var(--ink-2);
 }
 
 .table table {
@@ -152,28 +152,28 @@
 }
 
 .table th {
-  background: var(--ink);
+  background: var(--ink-2);
   font-weight: 700;
   font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.18em;
   color: var(--bone-dim);
-  border-bottom: 2px solid var(--bone);
+  border-bottom: 1px solid var(--rule);
 }
 
 .table tbody tr {
-  transition: background .15s ease;
+  transition: background 0.1s ease;
 }
 .table tbody tr:hover {
   background: var(--ink-2);
 }
 .table tbody tr:hover td:first-child {
-  box-shadow: inset 4px 0 0 var(--lime);
+  box-shadow: none;
 }
 
 .teamName {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 1rem;
   color: var(--bone);

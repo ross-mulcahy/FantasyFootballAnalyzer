@@ -1,25 +1,24 @@
 .badge {
+  --position-color: var(--bone-dim);
   display: inline-flex;
   align-items: baseline;
   gap: 1px;
-  padding: 0 0.35em;
-  border-left: 3px solid var(--rule);
+  padding: 0.08rem 0.35rem;
+  border: 1px solid color-mix(in srgb, var(--position-color) 30%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--position-color) 15%, transparent);
+  color: var(--position-color);
   font-family: var(--font-mono);
-  font-size: 0.95em;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
-  color: var(--bone-dim);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
 }
-
-.rank {
-  font-weight: 400;
-  font-size: 0.85em;
-  color: var(--bone-dim);
-}
-
-.qb { border-left-color: var(--pos-qb); color: var(--pos-qb); }
-.rb { border-left-color: var(--pos-rb); color: var(--pos-rb); }
-.wr { border-left-color: var(--pos-wr); color: var(--pos-wr); }
-.te { border-left-color: var(--pos-te); color: var(--pos-te); }
-.k { border-left-color: var(--pos-k); color: var(--pos-k); }
-.dst { border-left-color: var(--pos-dst); color: var(--pos-dst); }
+.rank { font-weight: 400; }
+.qb { --position-color: var(--pos-qb); }
+.rb { --position-color: var(--pos-rb); }
+.wr { --position-color: var(--pos-wr); }
+.te { --position-color: var(--pos-te); }
+.flex, .sf, .superflex, .pick { --position-color: var(--pos-flex); }
+.k { --position-color: var(--pos-k); }
+.dst, .def { --position-color: var(--pos-dst); }

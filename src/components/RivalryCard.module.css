@@ -1,24 +1,24 @@
 /* GRIDIRON · RivalryCard */
 
 .card {
-  background: var(--ink);
-  border: 2px solid var(--bone);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   padding: 1.25rem 1.3rem 1.4rem;
   position: relative;
-  transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
-  box-shadow: 4px 4px 0 var(--bone);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+  box-shadow: none;
 }
 
 .card:hover {
   transform: translate(-2px,-2px);
-  box-shadow: 6px 6px 0 var(--lime);
+  box-shadow: none;
   border-color: var(--lime);
   background: var(--ink-2);
 }
 
-.card.winning  { box-shadow: 4px 4px 0 var(--lime);  border-color: var(--lime); }
-.card.losing   { box-shadow: 4px 4px 0 var(--blood); border-color: var(--blood); }
-.card.even     { box-shadow: 4px 4px 0 var(--bone-dim); border-color: var(--bone-dim); }
+.card.winning  { box-shadow: none;  border-color: var(--lime); }
+.card.losing   { box-shadow: none; border-color: var(--blood); }
+.card.even     { box-shadow: none; border-color: var(--bone-dim); }
 
 .header {
   display: flex;
@@ -143,7 +143,7 @@
   padding: 0.4rem 0.55rem;
   font-family: var(--font-mono);
   font-size: 0.72rem;
-  border-left: 3px solid transparent;
+  border-left: 1px solid transparent;
   background: var(--ink-2);
 }
 

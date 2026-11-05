@@ -21,8 +21,8 @@
 }
 
 .card {
-  background: var(--ink);
-  border: 2px solid var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   padding: 0.8rem 0.9rem 0.9rem;
   display: flex;
   flex-direction: column;
@@ -31,7 +31,7 @@
 
 .cardMine {
   border-color: var(--bone);
-  box-shadow: 4px 4px 0 var(--bone);
+  box-shadow: none;
 }
 
 .cardOnClock {
@@ -47,7 +47,7 @@
 
 .teamName {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 1rem;
   color: var(--bone);
@@ -64,8 +64,8 @@
   padding: 0.15rem 0.4rem;
   background: var(--lime);
   color: var(--ink);
-  border: 2px solid var(--ink);
-  box-shadow: 2px 2px 0 var(--ink);
+  border: 1px solid var(--ink);
+  box-shadow: none;
 }
 
 .money {

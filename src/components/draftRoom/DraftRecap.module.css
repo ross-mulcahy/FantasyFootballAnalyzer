@@ -10,7 +10,7 @@
   align-items: baseline;
   gap: 1rem;
   flex-wrap: wrap;
-  border-bottom: 2px solid var(--bone);
+  border-bottom: 1px solid var(--rule);
   padding-bottom: 0.5rem;
 }
 
@@ -26,7 +26,7 @@
 
 .kicker {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 300;
   font-size: 0.9rem;
   color: var(--bone-dim);
@@ -45,7 +45,7 @@
   align-items: baseline;
   gap: 0.75rem;
   flex-wrap: wrap;
-  border-bottom: 2px dashed var(--bone-dim);
+  border-bottom: 1px dashed var(--rule);
   padding-bottom: 0.35rem;
 }
 
@@ -65,16 +65,16 @@
 
 .sectionNote {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 300;
   font-size: 0.85rem;
   color: var(--bone-dim);
 }
 
 .mineCard {
-  border: 2px solid var(--lime);
-  box-shadow: 5px 5px 0 var(--lime);
-  background: var(--ink);
+  border: 1px solid var(--lime);
+  box-shadow: none;
+  background: var(--ink-2);
   padding: 1rem 1.2rem;
 }
 
@@ -163,7 +163,7 @@
 .minePlayer {
   flex: 1;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 0.92rem;
   color: var(--bone);
@@ -192,10 +192,10 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   background: transparent;
-  border: 2px solid var(--bone-dim);
+  border: 1px solid var(--rule);
   color: var(--bone-dim);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color 0.1s ease, border-color 0.1s ease;
 }
 
 .btn:hover {
@@ -213,9 +213,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  border: 2px solid var(--bone);
-  box-shadow: 4px 4px 0 var(--bone);
-  background: var(--ink);
+  border: 1px solid var(--rule);
+  box-shadow: none;
+  background: var(--ink-2);
   padding: 0.8rem 0.9rem;
   text-align: left;
   cursor: pointer;
@@ -223,7 +223,7 @@
 
 .cardMine {
   border-color: var(--lime);
-  box-shadow: 4px 4px 0 var(--lime);
+  box-shadow: none;
 }
 
 .cardHead {
@@ -241,7 +241,7 @@
 
 .cardName {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 0.95rem;
   color: var(--bone);

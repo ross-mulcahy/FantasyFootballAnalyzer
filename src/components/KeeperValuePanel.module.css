@@ -3,9 +3,9 @@
 .panel {
   margin-bottom: 1.5rem;
   padding: 1rem 1.1rem 1.1rem;
-  border: 2px solid var(--gold);
-  box-shadow: 4px 4px 0 var(--gold);
-  background: var(--ink);
+  border: 1px solid var(--gold);
+  box-shadow: none;
+  background: var(--ink-2);
 }
 
 .title {

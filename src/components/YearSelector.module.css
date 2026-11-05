@@ -9,7 +9,7 @@
   gap: 0.5rem;
   padding: 0.45rem 0.7rem;
   background: transparent;
-  border: 2px solid var(--bone);
+  border: 1px solid var(--rule);
   color: var(--bone);
   font-family: var(--font-mono);
   font-size: 0.78rem;
@@ -17,15 +17,15 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: all .15s ease;
-  box-shadow: 3px 3px 0 var(--bone);
+  transition: all 0.1s ease;
+  box-shadow: none;
 }
 .trigger:hover:not(:disabled) {
   background: var(--lime);
   color: var(--ink);
   border-color: var(--lime);
   transform: translate(-1px,-1px);
-  box-shadow: 4px 4px 0 var(--lime);
+  box-shadow: none;
 }
 .trigger:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -41,9 +41,9 @@
   margin: 0;
   padding: 0.25rem;
   list-style: none;
-  background: var(--ink);
-  border: 2px solid var(--bone);
-  box-shadow: 6px 6px 0 var(--bone);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
+  box-shadow: none;
   z-index: 200;
 }
 

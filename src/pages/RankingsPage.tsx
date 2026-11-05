@@ -215,6 +215,20 @@ export function RankingsPage({ league, onUpdateGuest, initialPos }: RankingsPage
   }, [deferredQuery, posFilter, sortBy, sortRev, avgById, scaledValues, source, scoring, superflex, yahoo.costs]);
 
   const visible = rows.slice(0, MAX_ROWS);
+  const deltaOutliers = useMemo(() => {
+    const values = rows
+      .map(player => {
+        const marketRank = source.value(player);
+        return marketRank == null ? null : marketRank - (avgById.get(player.id) ?? player.overallRank);
+      })
+      .filter((value): value is number => value !== null)
+      .sort((a, b) => a - b);
+    if (values.length < 7) return null;
+    return {
+      low: values[Math.floor((values.length - 1) * 0.15)],
+      high: values[Math.ceil((values.length - 1) * 0.85)],
+    };
+  }, [rows, source, avgById]);
 
   const sortableTh = (key: SortKey, label: string, title: string) => {
     const active = sortBy === key;
@@ -525,10 +539,10 @@ export function RankingsPage({ league, onUpdateGuest, initialPos }: RankingsPage
                     <td className={`${styles.num} ${styles.avg}`}>{avg.toFixed(1)}</td>
                     <td
                       className={`${styles.num} ${
-                        delta !== undefined && delta >= 1
-                          ? styles.deltaGood
-                          : delta !== undefined && delta <= -1
-                            ? styles.deltaBad
+                        delta !== undefined && deltaOutliers && delta > 0 && delta >= deltaOutliers.high
+                          ? styles.deltaOutlierGood
+                          : delta !== undefined && deltaOutliers && delta < 0 && delta <= deltaOutliers.low
+                            ? styles.deltaOutlierBad
                             : styles.dim
                       }`}
                     >
@@ -569,7 +583,7 @@ export function RankingsPage({ league, onUpdateGuest, initialPos }: RankingsPage
               {visible.length === 0 && (
                 <tr>
                   <td colSpan={auctionView ? 12 : 11} className={styles.emptyRow}>
-                    No players match.
+                    Nobody here. Even in a 14-team league, you don't need to dig this far.
                   </td>
                 </tr>
               )}

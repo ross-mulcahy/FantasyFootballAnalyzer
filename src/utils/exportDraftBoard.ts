@@ -1,4 +1,4 @@
-// Renders the draft as shareable PNGs, canvas-drawn in the GRIDIRON palette.
+// Renders the draft as shareable PNGs, canvas-drawn in the Tactical Slate palette.
 // Built for the group chat, same as the awards board - one pasteable image
 // beats a four-page PDF and beats screenshotting a scrolling table.
 //
@@ -10,23 +10,23 @@ import type { DraftGrade } from '@/types';
 import type { GradedPick } from './grading';
 import { logger } from './logger';
 
-const INK = '#0a0a0a';
-const INK2 = '#141412';
-const BONE = '#f1ece1';
-const BONE_DIM = '#948e80';
-const LIME = '#d6ff2e';
+const INK = '#0b0f17';
+const INK2 = '#161f30';
+const BONE = '#f8fafc';
+const BONE_DIM = '#94a3b8';
+const LIME = '#10b981';
 
 // The grade-badge palette from DraftTable.module.css, except terrible uses
 // --blood-text, not --blood: #e63a1f is 4.0:1 on ink, too dim for 15px text.
 const GRADE_COLORS: Record<DraftGrade, string> = {
-  great: '#d6ff2e',
-  good: '#a6e22e',
-  bad: '#ff8a3d',
-  terrible: '#ff6242',
+  great: '#10b981',
+  good: '#22c55e',
+  bad: '#eab308',
+  terrible: '#ef4444',
 };
 
 const MONO = "'JetBrains Mono', Consolas, monospace";
-const BLACK = "'Bowlby One', 'Arial Black', Arial, sans-serif";
+const BLACK = "'Inter Variable', Inter, Arial, sans-serif";
 
 const MARGIN = 40;
 const GAP = 16;

@@ -5,7 +5,7 @@
 .header {
   margin-bottom: 2.5rem;
   padding-bottom: 1.25rem;
-  border-bottom: 3px solid var(--bone);
+  border-bottom: 1px solid var(--rule);
 }
 
 .title {
@@ -32,7 +32,7 @@
   display: inline-flex;
   gap: 0;
   margin-bottom: 1.5rem;
-  border: 2px solid var(--bone-dim);
+  border: 1px solid var(--rule);
 }
 
 .sourceOff,
@@ -47,13 +47,13 @@
   color: var(--bone-dim);
   border: none;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.1s ease, color 0.1s ease;
 }
 .sourceOff + .sourceOff,
 .sourceOff + .sourceOn,
 .sourceOn + .sourceOff,
 .sourceOn + .sourceOn {
-  border-left: 2px solid var(--bone-dim);
+  border-left: 1px solid var(--rule);
 }
 .sourceOff:hover { color: var(--bone); }
 .sourceOn {
@@ -63,9 +63,9 @@
 
 .empty {
   text-align: center;
-  padding: 4rem 2rem;
-  background: var(--ink);
-  border: 2px dashed var(--bone-dim);
+  padding: 1.5rem 2rem;
+  background: var(--ink-2);
+  border: 1px dashed var(--rule);
 }
 .empty h2 {
   font-family: var(--font-headline);
@@ -77,7 +77,7 @@
 }
 .empty p {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   color: var(--bone-dim);
   margin-bottom: 1rem;
 }
@@ -122,15 +122,15 @@
   letter-spacing: 0.15em;
   background: var(--lime);
   color: var(--ink);
-  border: 2px solid var(--lime);
-  box-shadow: 4px 4px 0 var(--ink);
+  border: 1px solid var(--lime);
+  box-shadow: none;
   text-decoration: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .ctaButton:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 var(--ink);
+  box-shadow: none;
 }
 
 @media (max-width: 640px) { .title { font-size: 56px; } }

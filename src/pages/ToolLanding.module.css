@@ -1,9 +1,9 @@
 .page {
-  padding: 3rem 0 5rem;
+  padding: 1.5rem 0 1.5rem;
 }
 
 .hero {
-  border-bottom: 3px solid var(--bone);
+  border-bottom: 1px solid var(--rule);
   padding-bottom: 2rem;
   margin-bottom: 2.5rem;
 }
@@ -37,7 +37,7 @@
   line-height: 1.45;
   color: var(--bone);
   max-width: 62ch;
-  border-left: 3px solid var(--lime);
+  border-left: 1px solid var(--lime);
   padding-left: 1.1rem;
   margin: 0 0 1.75rem;
 }
@@ -57,29 +57,29 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   padding: 0.7rem 1.15rem;
-  border: 2px solid var(--lime);
+  border: 1px solid var(--lime);
   transition: transform .12s ease, box-shadow .12s ease;
 }
 .ctaPrimary {
   color: var(--ink);
   background: var(--lime);
-  box-shadow: 4px 4px 0 var(--bone);
+  box-shadow: none;
 }
 .ctaSecondary {
   color: var(--bone);
   background: transparent;
   border-color: var(--bone);
-  box-shadow: 4px 4px 0 var(--lime);
+  box-shadow: none;
 }
 .ctaPrimary:hover,
 .ctaSecondary:hover {
   transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0 var(--bone);
+  box-shadow: none;
 }
 .ctaPrimary:active,
 .ctaSecondary:active {
   transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 var(--bone);
+  box-shadow: none;
 }
 
 .points {
@@ -89,7 +89,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
-  border: 2px solid var(--bone);
+  border: 1px solid var(--rule);
 }
 @media (max-width: 760px) {
   .points { grid-template-columns: 1fr; }
@@ -97,12 +97,12 @@
 
 .point {
   padding: 1.6rem 1.4rem;
-  background: var(--ink);
-  border-right: 2px solid var(--bone);
+  background: var(--ink-2);
+  border-right: 1px solid var(--rule);
 }
 .point:last-child { border-right: none; }
 @media (max-width: 760px) {
-  .point { border-right: none; border-bottom: 2px solid var(--bone); }
+  .point { border-right: none; border-bottom:  1px solid var(--rule); }
   .point:last-child { border-bottom: none; }
 }
 
@@ -119,7 +119,7 @@
 
 .pointBody {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 300;
   font-size: 0.95rem;
   line-height: 1.45;

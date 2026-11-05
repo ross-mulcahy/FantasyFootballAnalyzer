@@ -10,6 +10,7 @@ import { DraftPrepBanner } from '@/components/DraftPrepBanner';
 import { GuestBanner } from '@/components/GuestBanner';
 import { SeasonFallbackNotice } from '@/components/SeasonFallbackNotice';
 import { RouteErrorBoundary } from '@/components/RouteErrorBoundary';
+import { TacticalLoading } from '@/components/TacticalLoading';
 // Direct import for the same reason as the components above: the '@/pages'
 // barrel re-exports every lazy()-split page (DraftPage, TeamsPage, AwardsPage
 // all reach the full draft pool), so importing the homepage through it would drag
@@ -79,7 +80,7 @@ function GuestAutoEnter({ onEnter }: { onEnter: (settings: GuestSettings) => voi
   }, [onEnter]);
   return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
-      <div className="spinner" />
+      <TacticalLoading />
     </div>
   );
 }
@@ -663,7 +664,7 @@ function App() {
     if (shareLoadPending) {
       return (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
-          <div className="spinner" />
+          <TacticalLoading />
         </div>
       );
     }
@@ -732,7 +733,7 @@ function App() {
           />
         )}
         <RouteErrorBoundary resetKey={location.pathname}>
-        <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><div className="spinner" /></div>}>
+        <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', padding: '1.5rem' }}><TacticalLoading /></div>}>
         {/* Keyed on pathname so each route swap gets a fresh entrance fade
             (pageIn, in index.css). Entrance-only - no exit orchestration. */}
         <div key={location.pathname} className="page-in">

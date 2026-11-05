@@ -1,13 +1,13 @@
 /* GRIDIRON · Teams roster */
 
 .page {
-  padding: 3rem 0 5rem;
+  padding: 1.5rem 0 1.5rem;
 }
 
 .header {
   margin-bottom: 2.5rem;
   padding-bottom: 1.25rem;
-  border-bottom: 3px solid var(--bone);
+  border-bottom: 1px solid var(--rule);
 }
 
 .title {
@@ -54,7 +54,7 @@
 
 .sectionHint {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 300;
   font-size: 0.85rem;
   color: var(--bone-dim);
@@ -68,9 +68,9 @@
 .skillList {
   display: flex;
   flex-direction: column;
-  border: 2px solid var(--bone);
-  box-shadow: 4px 4px 0 var(--bone);
-  background: var(--ink);
+  border: 1px solid var(--rule);
+  box-shadow: none;
+  background: var(--ink-2);
 }
 
 .skillRow {
@@ -93,7 +93,7 @@
   flex: 0 0 28%;
   min-width: 0;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 0.95rem;
   color: var(--bone);
@@ -136,11 +136,11 @@
 
 .matrixWrapper {
   overflow-x: auto;
-  border: 2px solid var(--bone);
-  box-shadow: 4px 4px 0 var(--bone);
+  border: 1px solid var(--rule);
+  box-shadow: none;
   /* background-color, not the shorthand: the wrapper carries the global
      scroll-x-hint gradient layers on touch screens. */
-  background-color: var(--ink);
+  background-color: var(--ink-2);
 }
 
 .matrix {

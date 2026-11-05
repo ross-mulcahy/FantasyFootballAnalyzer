@@ -1,6 +1,6 @@
 .banner {
   background: var(--ink-2);
-  border-bottom: 2px solid var(--lime);
+  border-bottom: 1px solid var(--lime);
 }
 
 .inner {
@@ -48,13 +48,13 @@
   cursor: pointer;
   background: var(--lime);
   color: var(--ink);
-  border: 2px solid var(--lime);
-  box-shadow: 3px 3px 0 var(--bone);
-  transition: transform .12s ease, box-shadow .12s ease, background .15s ease;
+  border: 1px solid var(--lime);
+  box-shadow: none;
+  transition: transform .12s ease, box-shadow .12s ease, background 0.1s ease;
 }
 /* Red is reserved for negative states; connecting is the banner's positive
    action, so hover keeps the lime fill and just lifts. */
 .connect:hover {
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--bone);
+  box-shadow: none;
 }

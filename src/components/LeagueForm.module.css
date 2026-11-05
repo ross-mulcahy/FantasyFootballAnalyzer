@@ -19,15 +19,15 @@
   align-items: center;
   gap: 0.6rem;
   padding: 1rem 0.75rem;
-  background: var(--ink);
-  border: 2px solid var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   color: var(--bone);
   font-family: var(--font-mono);
   font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  transition: all .15s ease;
+  transition: all 0.1s ease;
   position: relative;
   cursor: pointer;
 }
@@ -35,14 +35,14 @@
 .platformButton:hover:not(:disabled) {
   border-color: var(--bone);
   transform: translate(-1px,-1px);
-  box-shadow: 3px 3px 0 var(--bone);
+  box-shadow: none;
 }
 
 .platformButton.active {
   border-color: var(--lime);
   background: var(--ink-2);
   color: var(--lime);
-  box-shadow: 4px 4px 0 var(--lime);
+  box-shadow: none;
   transform: translate(-1px,-1px);
 }
 
@@ -60,9 +60,9 @@
   font-family: var(--font-headline);
   font-weight: 400;
   font-size: 1.2rem;
-  border: 2px solid var(--ink);
+  border: 1px solid var(--ink);
 }
-.platformButton:nth-child(1) .platformIcon { background: var(--sleeper-color); color: #000; }
+.platformButton:nth-child(1) .platformIcon { background: var(--sleeper-color); color: var(--ink); }
 .platformButton:nth-child(2) .platformIcon { background: var(--espn-color);    color: #fff; }
 .platformButton:nth-child(3) .platformIcon { background: var(--yahoo-color);   color: #fff; }
 
@@ -99,7 +99,7 @@
 
 .hint {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-size: 0.78rem;
   color: var(--bone-dim);
 }
@@ -122,8 +122,8 @@
 
 /* ── ESPN Auth ── */
 .espnAuth {
-  background: var(--ink);
-  border: 2px solid var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   padding: 1.1rem 1.2rem;
 }
 
@@ -158,7 +158,7 @@
 }
 
 .helpBox code {
-  background: var(--ink);
+  background: var(--ink-2);
   border: 1px solid var(--rule);
   padding: 0.15rem 0.4rem;
   font-family: var(--font-mono);
@@ -167,19 +167,19 @@
 }
 
 .helpBox kbd {
-  background: var(--ink);
-  border: 1px solid var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   padding: 0.15rem 0.55rem;
   font-family: var(--font-mono);
   font-size: 0.78rem;
   color: var(--bone);
-  box-shadow: 2px 2px 0 var(--bone-dim);
+  box-shadow: none;
 }
 
 .helpBox a { color: var(--lime); border-bottom: 1px solid var(--lime); }
 .helpBox a:hover { color: var(--bone); border-bottom-color: var(--bone); }
 
-.helpIntro { margin: 0 0 1rem 0; color: var(--bone-dim); font-style: italic; }
+.helpIntro { margin: 0 0 1rem 0; color: var(--bone-dim); font-style: normal; }
 
 .helpSteps {
   display: flex;
@@ -205,7 +205,7 @@
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: 0.85rem;
-  border: 2px solid var(--ink);
+  border: 1px solid var(--ink);
 }
 
 .stepContent {
@@ -225,8 +225,8 @@
 .helpNote {
   margin: 1rem 0 0 0;
   padding: 0.85rem 1rem;
-  background: var(--ink);
-  border: 2px solid var(--lime);
+  background: var(--ink-2);
+  border: 1px solid var(--lime);
   color: var(--lime);
   font-family: var(--font-mono);
   font-size: 0.72rem;
@@ -246,7 +246,7 @@
   display: inline-block;
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(241,236,225,0.25);
+  border: 1px solid rgba(148,163,184,0.25);
   /* currentColor keeps the arc visible everywhere: ink inside the lime
      primary button, bone-dim in the dark "loading leagues" row. */
   border-top-color: currentColor;
@@ -258,8 +258,8 @@
 
 /* ── Yahoo Auth ── */
 .yahooAuth {
-  background: var(--ink);
-  border: 2px solid var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   padding: 1.5rem;
 }
 
@@ -273,7 +273,7 @@
 
 .yahooDescription {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   color: var(--bone-dim);
   margin: 0;
 }
@@ -341,7 +341,7 @@
   font-size: 0.7rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  border-bottom: 1px solid var(--bone-dim);
+  border-bottom: 1px solid var(--rule);
   cursor: pointer;
 }
 .logoutButton:hover { color: var(--bone); border-bottom-color: var(--bone); }
@@ -355,7 +355,7 @@
   font-size: 0.7rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  border-bottom: 1px solid var(--bone-dim);
+  border-bottom: 1px solid var(--rule);
   cursor: pointer;
   padding: 0;
 }
@@ -376,7 +376,7 @@
 
 .noLeagues {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   color: var(--bone-dim);
   margin: 0;
   padding: 0.5rem 0;
@@ -417,7 +417,7 @@
 /* ── Companion extension panel ── */
 .extensionPanel {
   background: var(--ink-2);
-  border: 2px solid var(--lime);
+  border: 1px solid var(--lime);
   padding: 1rem 1.1rem;
   margin-bottom: 1rem;
   display: flex;
@@ -454,7 +454,7 @@
   align-self: flex-start;
   background: var(--lime);
   color: var(--ink);
-  border: 2px solid var(--ink);
+  border: 1px solid var(--ink);
   padding: 0.55rem 1rem;
   font-family: var(--font-mono);
   font-size: 0.72rem;
@@ -462,11 +462,11 @@
   letter-spacing: 0.15em;
   text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 3px 3px 0 var(--ink);
+  box-shadow: none;
   transition: transform .12s ease, box-shadow .12s ease;
 }
 .extensionButton:hover:not(:disabled) {
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--ink);
+  box-shadow: none;
 }
 .extensionButton:disabled { opacity: 0.5; cursor: not-allowed; }

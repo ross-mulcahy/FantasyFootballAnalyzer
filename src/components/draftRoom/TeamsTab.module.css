@@ -2,8 +2,8 @@
    body reuses Panels.module.css; this file only styles the navigation. */
 
 .wrap {
-  border: 2px solid var(--bone-dim);
-  background: var(--ink);
+  border: 1px solid var(--rule);
+  background: var(--ink-2);
   padding: 1rem 1.1rem 1.1rem;
   display: flex;
   flex-direction: column;
@@ -13,7 +13,7 @@
 .wrapMine {
   border-color: var(--bone);
   border-left: 6px solid var(--lime);
-  box-shadow: 5px 5px 0 var(--bone);
+  box-shadow: none;
 }
 
 .nav {
@@ -21,7 +21,7 @@
   align-items: center;
   gap: 0.75rem;
   padding-bottom: 0.6rem;
-  border-bottom: 2px dashed var(--bone-dim);
+  border-bottom: 1px dashed var(--rule);
 }
 
 .arrow {
@@ -29,11 +29,11 @@
   font-family: var(--font-mono);
   font-size: 0.78rem;
   font-weight: 700;
-  border: 2px solid var(--bone-dim);
+  border: 1px solid var(--rule);
   background: transparent;
   color: var(--bone);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  transition: color 0.1s ease, border-color 0.1s ease, background 0.1s ease;
 }
 
 .arrow:hover {
@@ -99,8 +99,8 @@
 .jump {
   max-width: 11rem;
   padding: 0.4rem 0.5rem;
-  background: var(--ink);
-  border: 2px solid var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   color: var(--bone);
   font-family: var(--font-mono);
   font-size: 0.68rem;
@@ -110,7 +110,7 @@
 .jump:focus {
   outline: none;
   border-color: var(--lime);
-  box-shadow: 4px 4px 0 var(--lime);
+  box-shadow: none;
 }
 
 .picksLine {

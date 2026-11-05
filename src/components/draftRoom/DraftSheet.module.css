@@ -12,9 +12,9 @@
   flex-direction: column;
   height: 7.5dvh;
   min-height: 4.5rem;
-  background: var(--ink);
-  border-top: 3px solid var(--bone);
-  transition: height 0.2s ease;
+  background: var(--ink-2);
+  border-top: 1px solid var(--rule);
+  transition: height 0.1s ease;
 }
 
 .sheet[data-snap='half'] {
@@ -65,7 +65,7 @@
 .tabsRow {
   display: flex;
   align-items: stretch;
-  border-bottom: 2px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
 
 .tab,
@@ -97,7 +97,7 @@
 
 .tabOn {
   color: var(--lime);
-  box-shadow: inset 0 -3px 0 var(--lime);
+  box-shadow: none;
 }
 
 .snapBtn {
@@ -129,7 +129,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
-  animation: tabFadeIn 0.2s ease-out;
+  animation: tabFadeIn 0.1s ease-out;
 }
 
 @keyframes tabFadeIn {

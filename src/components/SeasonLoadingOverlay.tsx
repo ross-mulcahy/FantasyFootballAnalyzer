@@ -1,5 +1,6 @@
 import type { LoadingProgress } from '@/hooks/useLeague';
 import styles from './SeasonLoadingOverlay.module.css';
+import { TacticalLoading } from './TacticalLoading';
 
 interface SeasonLoadingOverlayProps {
   // The season being switched to; omitted for a same-season refresh.
@@ -18,7 +19,7 @@ export function SeasonLoadingOverlay({ season, progress, title }: SeasonLoadingO
   return (
     <div className={styles.veil} role="status" aria-live="polite">
       <div className={styles.panel}>
-        <div className="spinner" />
+        <TacticalLoading />
         <div className={styles.text}>
           <span className={styles.title}>
             {title ?? (season ? `Loading the ${season} season` : 'Refreshing league data')}

@@ -5,7 +5,7 @@
 .header {
   margin-bottom: 2.5rem;
   padding-bottom: 1.25rem;
-  border-bottom: 3px solid var(--bone);
+  border-bottom: 1px solid var(--rule);
 }
 
 .title {
@@ -33,7 +33,7 @@
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  padding: 3rem;
+  padding: 1.5rem;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.15em;
@@ -42,23 +42,23 @@
 }
 
 .error {
-  background: var(--ink);
-  border: 2px solid var(--blood);
+  background: var(--ink-2);
+  border: 1px solid var(--blood);
   color: var(--bone);
   padding: 1rem 1.2rem;
   text-align: center;
   font-family: var(--font-mono);
   font-size: 0.85rem;
-  box-shadow: 4px 4px 0 var(--blood);
+  box-shadow: none;
 }
 
 .notice {
-  background: var(--ink);
-  border: 2px dashed var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px dashed var(--rule);
   padding: 2rem;
   text-align: center;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   color: var(--bone-dim);
 }
 
@@ -74,28 +74,28 @@
   color: var(--bone);
   margin-bottom: 1.25rem;
   padding-bottom: 0.6rem;
-  border-bottom: 2px dashed var(--bone-dim);
+  border-bottom: 1px dashed var(--rule);
 }
 .sectionTitle::before { content: '★ '; color: var(--lime); }
 
 .tableWrapper {
   overflow-x: auto;
-  border: 2px solid var(--bone);
-  box-shadow: 5px 5px 0 var(--bone);
+  border: 1px solid var(--rule);
+  box-shadow: none;
   /* background-color, not the shorthand: the wrapper carries the global
      scroll-x-hint gradient layers on touch screens. */
-  background-color: var(--ink);
+  background-color: var(--ink-2);
 }
 
-.topThree { background: rgba(214,255,46,0.04); }
+.topThree { background: rgba(16,185,129,0.04); }
 .topThree:first-child {
-  background: rgba(214,255,46,0.08);
-  box-shadow: inset 4px 0 0 var(--lime);
+  background: rgba(16,185,129,0.08);
+  box-shadow: none;
 }
 
 .teamName {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   color: var(--bone);
 }
@@ -119,15 +119,15 @@
 }
 
 .seasonCard {
-  background: var(--ink);
-  border: 2px solid var(--bone);
-  box-shadow: 5px 5px 0 var(--bone);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
+  box-shadow: none;
   overflow: hidden;
-  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
 }
 .seasonCard:hover {
   transform: translate(-3px,-3px);
-  box-shadow: 8px 8px 0 var(--lime);
+  box-shadow: none;
   border-color: var(--lime);
 }
 
@@ -137,7 +137,7 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  border-bottom: 2px solid var(--bone);
+  border-bottom: 1px solid var(--rule);
 }
 
 .seasonYear {
@@ -180,14 +180,14 @@
   font-family: var(--font-mono);
   font-size: 0.78rem;
   border-bottom: 1px dashed var(--rule);
-  transition: background .15s ease;
+  transition: background 0.1s ease;
 }
 .standingRow:last-child { border-bottom: none; }
 .standingRow:hover { background: var(--ink-2); }
 
 .champion {
-  background: rgba(214,255,46,0.06);
-  box-shadow: inset 4px 0 0 var(--lime);
+  background: rgba(16,185,129,0.06);
+  box-shadow: none;
 }
 
 .standing {
@@ -200,7 +200,7 @@
 
 .standingTeam {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   color: var(--bone);
   display: flex;
@@ -235,7 +235,7 @@
 /* ── Rivalries section ── */
 .sectionDescription {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   color: var(--bone-dim);
   font-size: 0.95rem;
   margin-bottom: 1.25rem;
@@ -251,17 +251,17 @@
   font-size: 0.8rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  background: var(--ink);
-  border: 2px solid var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   color: var(--bone);
   cursor: pointer;
-  transition: border-color .15s ease, box-shadow .15s ease;
+  transition: border-color 0.1s ease, box-shadow 0.1s ease;
 }
 .teamDropdown:hover { border-color: var(--bone); }
 .teamDropdown:focus {
   outline: none;
   border-color: var(--lime);
-  box-shadow: 4px 4px 0 var(--lime);
+  box-shadow: none;
 }
 
 .rivalriesLoading {
@@ -287,10 +287,10 @@
   padding: 2rem;
   text-align: center;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   color: var(--bone-dim);
-  background: var(--ink);
-  border: 2px dashed var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px dashed var(--rule);
 }
 
 @media (max-width: 640px) {
@@ -328,9 +328,9 @@
   gap: 0.25rem;
   min-width: 130px;
   padding: 0.8rem 0.9rem;
-  border: 2px solid var(--gold);
-  box-shadow: 4px 4px 0 var(--gold);
-  background: var(--ink);
+  border: 1px solid var(--gold);
+  box-shadow: none;
+  background: var(--ink-2);
 }
 
 .championYear {
@@ -348,7 +348,7 @@
 
 .championName {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 0.95rem;
   color: var(--bone);

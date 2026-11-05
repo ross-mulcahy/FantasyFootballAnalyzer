@@ -123,19 +123,21 @@ export function TeamDetail({ league, team, onBack, currentRoster }: TeamDetailPr
     );
   }, [league, team.id]);
 
-  // Step-line sparkline of weekly points.
+  // A compact, honest five-week scoring trend; snap and target history is not
+  // supplied by the league providers, so we never imply that this measures usage.
   const sparkline = useMemo(() => {
     if (weekly.length < 2) return null;
-    const w = 600;
-    const h = 80;
-    const max = Math.max(...weekly.map(r => r.points));
-    const min = Math.min(...weekly.map(r => r.points));
+    const recent = weekly.slice(-5);
+    const w = 120;
+    const h = 28;
+    const max = Math.max(...recent.map(r => r.points));
+    const min = Math.min(...recent.map(r => r.points));
     const span = Math.max(1, max - min);
-    const step = w / (weekly.length - 1);
-    const points = weekly
+    const step = w / (recent.length - 1);
+    const points = recent
       .map((r, i) => `${(i * step).toFixed(1)},${(h - ((r.points - min) / span) * (h - 8) - 4).toFixed(1)}`)
       .join(' ');
-    return { w, h, points, max, min };
+    return { w, h, points, max, min, recent };
   }, [weekly]);
 
   return (
@@ -183,7 +185,7 @@ export function TeamDetail({ league, team, onBack, currentRoster }: TeamDetailPr
 
       {sparkline && (
         <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>Weekly Scores</h3>
+          <h3 className={styles.sectionTitle}>Last 5 Weeks · Points</h3>
           <svg
             viewBox={`0 0 ${sparkline.w} ${sparkline.h}`}
             className={styles.sparkline}
@@ -200,7 +202,7 @@ export function TeamDetail({ league, team, onBack, currentRoster }: TeamDetailPr
             />
           </svg>
           <div className={styles.weekRow}>
-            {weekly.map(r => (
+            {sparkline.recent.map(r => (
               <span
                 key={r.week}
                 className={r.won ? styles.weekWin : styles.weekLoss}

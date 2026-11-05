@@ -2,8 +2,8 @@
    the running draft is readable without scrolling to the page bottom. */
 
 .log {
-  border: 2px solid var(--bone-dim);
-  background: var(--ink);
+  border: 1px solid var(--rule);
+  background: var(--ink-2);
   padding: 1rem 1.1rem 1.1rem;
   display: flex;
   flex-direction: column;
@@ -48,7 +48,7 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  border: 1px solid var(--bone-dim);
+  border: 1px solid var(--rule);
   background: transparent;
   color: var(--bone-dim);
   cursor: pointer;
@@ -87,7 +87,7 @@
 }
 
 .latestRow {
-  box-shadow: inset 3px 0 0 var(--lime);
+  box-shadow: none;
   padding-left: 0.4rem;
 }
 
@@ -110,7 +110,7 @@
 
 .player {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 0.9rem;
   color: var(--bone);
@@ -152,7 +152,7 @@
 
 .emptyRow {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   color: var(--bone-dim);
   padding: 0.5rem 0;
 }

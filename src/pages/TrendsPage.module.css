@@ -2,13 +2,13 @@
    applies (the tighter --page-title-board cap still keys the headline to the
    other draft-prep pages). */
 .page {
-  padding: 2rem 0 3rem;
+  padding: 2rem 0 1.5rem;
 }
 
 .header {
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 3px solid var(--bone);
+  border-bottom: 1px solid var(--rule);
 }
 
 .title {
@@ -49,11 +49,11 @@
   align-items: center;
   gap: 1.25rem;
   flex-wrap: wrap;
-  border: 2px solid var(--bone);
-  box-shadow: 4px 4px 0 var(--bone);
+  border: 1px solid var(--rule);
+  box-shadow: none;
   padding: 0.75rem 1rem;
   margin-bottom: 1.75rem;
-  background: var(--ink);
+  background: var(--ink-2);
 }
 
 .settingsDim {
@@ -87,7 +87,7 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  border: 2px solid var(--bone-dim);
+  border: 1px solid var(--rule);
   background: transparent;
   color: var(--bone-dim);
   cursor: pointer;
@@ -145,9 +145,9 @@
 }
 
 .card {
-  border: 2px solid var(--bone);
-  box-shadow: 4px 4px 0 var(--bone);
-  background: var(--ink);
+  border: 1px solid var(--rule);
+  box-shadow: none;
+  background: var(--ink-2);
   padding: 0.9rem 1rem 1rem;
 }
 
@@ -155,7 +155,7 @@
 .cardTitleDown {
   margin: 0 0 0.75rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
   font-family: var(--font-headline);
   font-size: 1.5rem;
   font-weight: 400;
@@ -196,11 +196,11 @@
 }
 
 .rowUp {
-  box-shadow: inset 3px 0 0 var(--lime);
+  box-shadow: none;
 }
 
 .rowDown {
-  box-shadow: inset 3px 0 0 var(--blood);
+  box-shadow: none;
 }
 
 .face,
@@ -215,16 +215,16 @@
 
 .face {
   object-fit: cover;
-  background: var(--ink);
-  border: 2px solid var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
 }
 
 .faceFallback {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--ink);
-  border: 2px solid var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   font-family: var(--font-mono);
   font-size: 0.62rem;
   font-weight: 700;
@@ -239,7 +239,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 1rem;
   color: var(--bone);
@@ -279,10 +279,10 @@
 .empty {
   margin: 0;
   padding: 1rem 0.25rem;
-  border: 2px dashed var(--rule);
+  border: 1px dashed var(--rule);
   text-align: center;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   color: var(--bone-dim);
 }
 
@@ -297,7 +297,7 @@
 
 @media (max-width: 640px) {
   .page {
-    padding: 1.25rem 0 3rem;
+    padding: 1.25rem 0 1.5rem;
   }
   .title {
     font-size: 40px;

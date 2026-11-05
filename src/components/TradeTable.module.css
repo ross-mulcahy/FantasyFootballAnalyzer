@@ -13,9 +13,9 @@
   gap: 1rem 1.25rem;
   align-items: flex-end;
   padding: 1rem 1.2rem;
-  background: var(--ink);
-  border: 2px solid var(--bone);
-  box-shadow: 4px 4px 0 var(--bone);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
+  box-shadow: none;
 }
 
 .filter {
@@ -71,16 +71,16 @@
 }
 
 .tradeCard {
-  background: var(--ink);
-  border: 2px solid var(--bone);
-  box-shadow: 5px 5px 0 var(--bone);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
+  box-shadow: none;
   overflow: hidden;
-  transition: transform .2s ease, box-shadow .2s ease;
-  animation: tradeCardIn 0.4s cubic-bezier(.2, .8, .2, 1) backwards;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  animation: tradeCardIn 0.1s cubic-bezier(.2, .8, .2, 1) backwards;
 }
 .tradeCard:hover {
   transform: translate(-2px,-2px);
-  box-shadow: 7px 7px 0 var(--lime);
+  box-shadow: none;
   border-color: var(--lime);
 }
 
@@ -103,7 +103,7 @@
   opacity: 0.65;
 }
 .tradeCard.incomplete:hover {
-  box-shadow: 7px 7px 0 var(--bone-dim);
+  box-shadow: none;
   border-color: var(--bone-dim);
 }
 
@@ -113,7 +113,7 @@
   align-items: center;
   padding: 0.75rem 1.1rem;
   background: var(--ink-2);
-  border-bottom: 2px solid var(--bone);
+  border-bottom: 1px solid var(--rule);
   gap: 0.75rem;
   flex-wrap: wrap;
   font-family: var(--font-mono);
@@ -128,7 +128,7 @@
 .incompleteTag {
   font-size: 0.6rem;
   padding: 0.25rem 0.55rem;
-  background: var(--ink);
+  background: var(--ink-2);
   color: var(--color-bad);
   border: 1px solid var(--color-bad);
   margin-left: auto;
@@ -148,26 +148,24 @@
   position: relative;
 }
 .tradeSide:first-child {
-  border-right: 2px dashed var(--rule);
+  border-right: 1px dashed var(--rule);
 }
 @media (max-width: 768px) {
   .tradeSide:first-child {
     border-right: none;
-    border-bottom: 2px dashed var(--rule);
+    border-bottom: 1px dashed var(--rule);
   }
 }
 
 .tradeSide.winner {
-  background: linear-gradient(180deg, rgba(214,255,46,0.08), transparent 50%);
-  animation: winnerPulse 0.4s ease 0.4s 1;
+  background: color-mix(in srgb, var(--lime) 8%, var(--ink-2));
 }
 
 /* One-shot bloom once the card entrance has settled, so the eye lands on
    the winning side without it feeling like part of the slide-in. */
 @keyframes winnerPulse {
-  0%   { box-shadow: 0 0 0 0 rgba(214,255,46,0); }
-  50%  { box-shadow: inset 0 0 24px 4px rgba(214,255,46,0.25); }
-  100% { box-shadow: 0 0 0 0 rgba(214,255,46,0); }
+  from { opacity: 1; }
+  to { opacity: 1; }
 }
 .tradeSide.winner::before {
   content: '★ WINNER';
@@ -206,12 +204,12 @@
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  border: 2px solid var(--ink);
-  box-shadow: 2px 2px 0 var(--ink);
+  border: 1px solid var(--ink);
+  box-shadow: none;
 }
 .bigWin    { background: var(--lime);  color: var(--ink); }
 .win       { background: var(--color-good);      color: var(--ink); }
-.fair      { background: var(--ink-2); color: var(--bone-dim); border-color: var(--bone-dim); box-shadow: 2px 2px 0 var(--bone-dim); }
+.fair      { background: var(--ink-2); color: var(--bone-dim); border-color: var(--bone-dim); box-shadow: none; }
 .loss      { background: var(--color-bad);      color: var(--ink); }
 .bigLoss   { background: var(--blood); color: var(--bone); }
 
@@ -249,12 +247,12 @@
   flex-direction: column;
   padding: 0.55rem 0.7rem;
   background: var(--ink-2);
-  border-left: 3px solid var(--lime);
+  border-left: 1px solid var(--lime);
 }
 
 .playerName {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   color: var(--bone);
 }
@@ -269,7 +267,7 @@
 
 .noPlayers {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   color: var(--bone-dim);
   font-size: 0.85rem;
 }
@@ -295,7 +293,7 @@
   font-weight: 700;
   margin-top: 0.35rem;
   padding-top: 0.45rem;
-  border-top: 1px dashed var(--bone-dim);
+  border-top: 1px dashed var(--rule);
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -322,9 +320,9 @@
 /* ── Empty state ── */
 .empty {
   text-align: center;
-  padding: 4rem 2rem;
-  background: var(--ink);
-  border: 2px dashed var(--bone-dim);
+  padding: 1.5rem 2rem;
+  background: var(--ink-2);
+  border: 1px dashed var(--rule);
 }
 
 .emptyIcon {
@@ -346,7 +344,7 @@
 
 .emptyText {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-size: 0.95rem;
   max-width: 420px;
   margin: 0 auto;
@@ -355,9 +353,9 @@
 
 /* ── Leaderboard ── */
 .leaderboard {
-  background: var(--ink);
-  border: 2px solid var(--bone);
-  box-shadow: 5px 5px 0 var(--bone);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
+  box-shadow: none;
   padding: 1.4rem 1.5rem 1.5rem;
 }
 
@@ -370,7 +368,7 @@
   color: var(--bone);
   margin-bottom: 1.1rem;
   padding-bottom: 0.6rem;
-  border-bottom: 2px dashed var(--bone-dim);
+  border-bottom: 1px dashed var(--rule);
 }
 .leaderboardTitle::before { content: '★ '; color: var(--lime); }
 
@@ -386,28 +384,28 @@
   gap: 1rem;
   padding: 0.75rem 0.9rem;
   background: var(--ink-2);
-  border-left: 3px solid var(--rule);
+  border-left: 1px solid var(--rule);
   font-family: var(--font-mono);
-  transition: background .15s ease, border-color .15s ease;
+  transition: background 0.1s ease, border-color 0.1s ease;
 }
 .leaderboardItem:hover {
-  background: var(--ink);
+  background: var(--ink-2);
   border-left-color: var(--lime);
 }
 
 .leaderboardItem:nth-child(1) {
-  background: var(--ink);
-  border: 2px solid var(--lime);
+  background: var(--ink-2);
+  border: 1px solid var(--lime);
   border-left-width: 6px;
 }
 .leaderboardItem:nth-child(2) {
-  background: var(--ink);
-  border: 2px solid var(--bone);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   border-left-width: 6px;
 }
 .leaderboardItem:nth-child(3) {
-  background: var(--ink);
-  border: 2px solid var(--accent-bronze);
+  background: var(--ink-2);
+  border: 1px solid var(--accent-bronze);
   border-left-width: 6px;
 }
 
@@ -422,7 +420,7 @@
 .teamNameLb {
   flex: 1;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   color: var(--bone);
   font-size: 1rem;

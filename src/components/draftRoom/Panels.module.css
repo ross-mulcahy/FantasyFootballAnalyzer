@@ -2,8 +2,8 @@
    LeagueNeeds. */
 
 .panel {
-  border: 2px solid var(--bone-dim);
-  background: var(--ink);
+  border: 1px solid var(--rule);
+  background: var(--ink-2);
   padding: 1rem 1.1rem 1.1rem;
   display: flex;
   flex-direction: column;
@@ -21,7 +21,7 @@
 .panelMine {
   border-color: var(--bone);
   border-left: 6px solid var(--lime);
-  box-shadow: 5px 5px 0 var(--bone);
+  box-shadow: none;
 }
 
 .panelTitle {
@@ -79,7 +79,7 @@
 /* A roster slot going from open to filled: the new pick slides in from the
    right and fades, instead of just appearing. See RosterSummary.tsx. */
 .rowIn {
-  animation: pickEntryIn 0.35s cubic-bezier(.2, .8, .2, 1);
+  animation: pickEntryIn 0.1s cubic-bezier(.2, .8, .2, 1);
 }
 
 @keyframes pickEntryIn {
@@ -110,7 +110,7 @@
 .rowName {
   flex: 1;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 0.92rem;
   color: var(--bone);
@@ -129,7 +129,7 @@
    LeagueNeeds.tsx) and pulses so a fill/open swing actually catches the eye. */
 .countPulse {
   display: inline-block;
-  animation: countPulse 0.3s ease;
+  animation: countPulse 0.1s ease;
 }
 
 @keyframes countPulse {
@@ -166,7 +166,7 @@
 
 .rowEmpty {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   color: var(--bone-dim);
   padding: 0.5rem 0;
 }
@@ -269,7 +269,7 @@
 
 .suggestRow:hover {
   background: var(--ink-2);
-  box-shadow: inset 4px 0 0 var(--lime);
+  box-shadow: none;
 }
 
 .suggestMain {
@@ -291,7 +291,7 @@
 .rowOpen {
   flex: 1;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 300;
   font-size: 0.85rem;
   color: var(--bone-dim);

@@ -1,12 +1,12 @@
 /* GRIDIRON · TeamCard */
 
 .card {
-  background: var(--ink);
-  border: 2px solid var(--bone);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   padding: 1.4rem 1.4rem 1.5rem;
   position: relative;
-  transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
-  box-shadow: 5px 5px 0 var(--bone);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+  box-shadow: none;
   overflow: hidden;
 }
 
@@ -18,7 +18,7 @@
   background: var(--lime);
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform .35s cubic-bezier(.2,.8,.2,1);
+  transition: transform 0.1s cubic-bezier(.2,.8,.2,1);
 }
 
 .card[role="button"] { cursor: pointer; }
@@ -26,7 +26,7 @@
 .card:hover,
 .card[role="button"]:hover {
   transform: translate(-3px,-3px);
-  box-shadow: 8px 8px 0 var(--lime);
+  box-shadow: none;
   border-color: var(--lime);
   background: var(--ink-2);
 }
@@ -47,14 +47,14 @@
   width: 48px;
   height: 48px;
   object-fit: cover;
-  border: 2px solid var(--bone);
+  border: 1px solid var(--rule);
 }
 
 .avatarPlaceholder {
   width: 48px;
   height: 48px;
   background: var(--ink-2);
-  border: 2px solid var(--bone-dim);
+  border: 1px solid var(--rule);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -157,7 +157,7 @@
 .barTrack {
   flex: 1;
   height: 8px;
-  background: var(--ink);
+  background: var(--ink-2);
   border: 1px solid var(--rule);
   overflow: hidden;
 }
@@ -242,7 +242,7 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   margin-top: 0.6rem;
-  border: 2px solid currentColor;
+  border: 1px solid currentColor;
 }
 
 .luckBadge.veryLucky   { color: var(--lime); }
@@ -268,7 +268,7 @@
 
 .topScorerName {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 0.88rem;
   color: var(--bone);

@@ -15,9 +15,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  border: 2px solid var(--bone);
-  box-shadow: 4px 4px 0 var(--bone);
-  background: var(--ink);
+  border: 1px solid var(--rule);
+  box-shadow: none;
+  background: var(--ink-2);
   padding: 0.8rem 0.9rem 0.9rem;
 }
 
@@ -56,10 +56,10 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   background: transparent;
-  border: 2px solid var(--bone-dim);
+  border: 1px solid var(--rule);
   color: var(--bone-dim);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color 0.1s ease, border-color 0.1s ease;
 }
 
 .copyBtn:hover,
@@ -72,14 +72,14 @@
   align-self: flex-end;
   border-color: var(--bone);
   color: var(--bone);
-  box-shadow: 4px 4px 0 var(--bone);
-  transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s ease,
-    box-shadow 0.15s ease;
+  box-shadow: none;
+  transition: color 0.1s ease, border-color 0.1s ease, transform 0.1s ease,
+    box-shadow 0.1s ease;
 }
 
 .copyAll:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 var(--lime);
+  box-shadow: none;
 }
 
 .rows {
@@ -127,7 +127,7 @@
 
 .rowName {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 0.92rem;
   color: var(--bone);
@@ -192,7 +192,7 @@
   margin: 0;
   padding: 0.5rem 0 0.3rem;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 300;
   font-size: 0.9rem;
   color: var(--bone-dim);

@@ -17,7 +17,7 @@
    the chip even when the browser skips backgrounds. */
 @media print {
   .logo {
-    background: var(--ink);
+    background: var(--ink-2);
     border-radius: 2px;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;

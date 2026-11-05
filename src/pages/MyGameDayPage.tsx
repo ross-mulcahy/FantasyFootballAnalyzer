@@ -1,4 +1,5 @@
 import { ConnectionHealthBar, ProviderLink } from '@/components/ConnectionHealth';
+import { TacticalLoading } from '@/components/TacticalLoading';
 import { useExperiencePreferences, prioritizeEvents, reconnectHref } from '@/utils/experience';
 import { useKickoffReminders } from '@/hooks/useKickoffReminders';
 import { EventImpactDetails, GameDayRecapRecorder, LineupWarnings } from '@/components/GameDayInsights';
@@ -52,7 +53,7 @@ function LeagueMatchups({ saved, currentLeague, onUpdate, timelines, focus, clos
   return <section className={styles.matchRow} aria-label={`${saved.name} matchups`}>
     <div className={styles.matchRowHeader}><h3><LeagueLink league={{ platform: saved.platform, id: saved.leagueId, season: saved.season }}>{saved.name}</LeagueLink></h3><span>{saved.platform}{snapshot ? ` · Week ${snapshot.week}` : ''}</span></div>
     {error && <p className={styles.hint} role="status">{snapshot ? 'Showing saved scores. ' : ''}Could not refresh this league. <Link to={reconnectHref(saved)}>Reconnect in Settings</Link>.</p>}
-    {!snapshot && !error && <p className={styles.hint}>Loading matchups…</p>}
+    {!snapshot && !error && <p className={styles.hint}><TacticalLoading /></p>}
     {snapshot && !myTeam && <p className={styles.hint}><Link to="/settings">Choose your team in Settings</Link> to show its matchup.</p>}
     {shown.map(match => {
       const mineFirst = match.team1Id === myTeam;

@@ -1,5 +1,5 @@
 // Renders the whole awards case as one shareable PNG, canvas-drawn in the
-// GRIDIRON palette like the draft boards, and copies it to the clipboard
+// Tactical Slate palette like the draft boards, and copies it to the clipboard
 // (downloading instead where the browser can't hold images). One pasteable
 // image for the group chat beats screenshotting a scrolling page.
 
@@ -8,15 +8,15 @@ import { getCategoryDisplayName } from './awards';
 import { loadAwardIcon } from './awardIcons';
 import { logger } from './logger';
 
-const INK = '#0a0a0a';
-const INK2 = '#141412';
-const BONE = '#f1ece1';
-const BONE_DIM = '#948e80';
-const LIME = '#d6ff2e';
+const INK = '#0b0f17';
+const INK2 = '#161f30';
+const BONE = '#f8fafc';
+const BONE_DIM = '#94a3b8';
+const LIME = '#10b981';
 
 const MONO = "'JetBrains Mono', Consolas, monospace";
-const BLACK = "'Bowlby One', 'Arial Black', Arial, sans-serif";
-const SERIF = "Georgia, 'Times New Roman', serif";
+const BLACK = "'Inter Variable', Inter, Arial, sans-serif";
+const SERIF = "'Inter Variable', Inter, Arial, sans-serif";
 
 const MARGIN = 40;
 const GAP = 12;

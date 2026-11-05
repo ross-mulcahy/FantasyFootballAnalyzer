@@ -4,7 +4,7 @@
 
 .banner {
   background: var(--ink-2);
-  border-bottom: 2px solid var(--lime);
+  border-bottom: 1px solid var(--lime);
 }
 
 .inner {
@@ -52,14 +52,14 @@
   cursor: pointer;
   background: var(--blood);
   color: var(--bone);
-  border: 2px solid var(--blood);
-  box-shadow: 3px 3px 0 var(--bone);
-  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
+  border: 1px solid var(--blood);
+  box-shadow: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.1s ease;
 }
 
 .open:hover:not(:disabled) {
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--bone);
+  box-shadow: none;
 }
 
 .open:disabled {

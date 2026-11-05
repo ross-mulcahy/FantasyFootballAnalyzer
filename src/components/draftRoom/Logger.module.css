@@ -5,9 +5,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
-  border: 2px solid var(--bone);
-  background: var(--ink);
-  box-shadow: 5px 5px 0 var(--bone);
+  border: 1px solid var(--rule);
+  background: var(--ink-2);
+  box-shadow: none;
   padding: 1.2rem 1.3rem 1.4rem;
 }
 
@@ -38,8 +38,8 @@
 
 .select {
   padding: 0.6rem 0.8rem;
-  background: var(--ink);
-  border: 2px solid var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   color: var(--bone);
   font-family: var(--font-mono);
   font-size: 0.85rem;
@@ -49,7 +49,7 @@
 .select:focus {
   outline: none;
   border-color: var(--lime);
-  box-shadow: 4px 4px 0 var(--lime);
+  box-shadow: none;
 }
 
 .priceRow {
@@ -61,8 +61,8 @@
 
 .priceInput {
   padding: 0.6rem 0.8rem;
-  background: var(--ink);
-  border: 2px solid var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
   color: var(--bone);
   font-family: var(--font-mono);
   font-size: 1.1rem;
@@ -75,7 +75,7 @@
 .priceInput:focus {
   outline: none;
   border-color: var(--lime);
-  box-shadow: 4px 4px 0 var(--lime);
+  box-shadow: none;
 }
 
 .expected {
@@ -108,13 +108,13 @@
 }
 
 .error {
-  background: var(--ink);
-  border: 2px solid var(--blood);
+  background: var(--ink-2);
+  border: 1px solid var(--blood);
   color: var(--bone);
   padding: 0.7rem 0.9rem;
   font-family: var(--font-mono);
   font-size: 0.75rem;
-  box-shadow: 4px 4px 0 var(--blood);
+  box-shadow: none;
 }
 
 .submit {
@@ -126,15 +126,15 @@
   letter-spacing: 0.15em;
   background: var(--lime);
   color: var(--ink);
-  border: 2px solid var(--lime);
-  box-shadow: 4px 4px 0 var(--ink);
+  border: 1px solid var(--lime);
+  box-shadow: none;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .submit:hover:not(:disabled) {
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 var(--ink);
+  box-shadow: none;
 }
 
 .submit:disabled {
@@ -148,7 +148,7 @@
   flex-direction: column;
   gap: 0.3rem;
   padding: 0.75rem 0.9rem;
-  border: 2px solid var(--bone-dim);
+  border: 1px solid var(--rule);
 }
 
 .clockMine {
@@ -172,7 +172,7 @@
 
 .clockTeam {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 1.05rem;
   color: var(--bone);
@@ -214,7 +214,7 @@
 
 .liveBidder {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   font-size: 1.05rem;
   color: var(--bone);
@@ -260,7 +260,7 @@
   height: 44px;
   object-fit: cover;
   object-position: top;
-  border: 2px solid var(--rule);
+  border: 1px solid var(--rule);
   background: var(--ink-2);
   flex-shrink: 0;
 }

@@ -13,9 +13,9 @@
   gap: 1rem 1.25rem;
   align-items: flex-end;
   padding: 1rem 1.2rem;
-  background: var(--ink);
-  border: 2px solid var(--bone);
-  box-shadow: 4px 4px 0 var(--bone);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
+  box-shadow: none;
 }
 
 .filter {
@@ -66,11 +66,11 @@
 /* ── Table wrapper ── */
 .tableWrapper {
   overflow-x: auto;
-  border: 2px solid var(--bone);
-  box-shadow: 5px 5px 0 var(--bone);
+  border: 1px solid var(--rule);
+  box-shadow: none;
   /* background-color, not the shorthand: the wrapper carries the global
      scroll-x-hint gradient layers on touch screens. */
-  background-color: var(--ink);
+  background-color: var(--ink-2);
 }
 
 .table {
@@ -82,7 +82,7 @@
   user-select: none;
   white-space: nowrap;
   position: relative;
-  transition: color .15s ease;
+  transition: color 0.1s ease;
 }
 .sortable:hover { color: var(--lime); }
 .sortable::after {
@@ -94,7 +94,7 @@
   background: var(--lime);
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 0.2s ease;
+  transition: transform 0.1s ease;
 }
 .sortable:hover::after { transform: scaleX(1); }
 
@@ -104,7 +104,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   color: var(--bone);
 }
@@ -117,7 +117,7 @@
 
 .playerName {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   color: var(--bone);
 }
@@ -150,7 +150,7 @@
   display: inline-block;
   padding: 0.15rem 0.4rem;
   background: var(--ink-2);
-  border: 1px solid var(--bone-dim);
+  border: 1px solid var(--rule);
   font-family: var(--font-mono);
   font-size: 0.7rem;
   color: var(--lime);
@@ -175,9 +175,9 @@
 
 .empty {
   text-align: center;
-  padding: 4rem 2rem;
-  background: var(--ink);
-  border: 2px dashed var(--bone-dim);
+  padding: 1.5rem 2rem;
+  background: var(--ink-2);
+  border: 1px dashed var(--rule);
 }
 
 .emptyIcon {
@@ -199,7 +199,7 @@
 
 .emptyText {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-size: 0.95rem;
   max-width: 420px;
   margin: 0 auto;
@@ -208,9 +208,9 @@
 
 /* ── Leaderboard ── */
 .leaderboard {
-  background: var(--ink);
-  border: 2px solid var(--bone);
-  box-shadow: 5px 5px 0 var(--bone);
+  background: var(--ink-2);
+  border: 1px solid var(--rule);
+  box-shadow: none;
   padding: 1.4rem 1.5rem 1.5rem;
 }
 
@@ -223,7 +223,7 @@
   color: var(--bone);
   margin-bottom: 1.1rem;
   padding-bottom: 0.6rem;
-  border-bottom: 2px dashed var(--bone-dim);
+  border-bottom: 1px dashed var(--rule);
 }
 .leaderboardTitle::before { content: '★ '; color: var(--lime); }
 
@@ -239,17 +239,17 @@
   gap: 1rem;
   padding: 0.75rem 0.9rem;
   background: var(--ink-2);
-  border-left: 3px solid var(--rule);
+  border-left: 1px solid var(--rule);
   font-family: var(--font-mono);
-  transition: background .15s ease, border-color .15s ease;
+  transition: background 0.1s ease, border-color 0.1s ease;
 }
 .leaderboardItem:hover {
-  background: var(--ink);
+  background: var(--ink-2);
   border-left-color: var(--lime);
 }
-.leaderboardItem:nth-child(1) { background: var(--ink); border: 2px solid var(--lime);    border-left-width: 6px; }
-.leaderboardItem:nth-child(2) { background: var(--ink); border: 2px solid var(--bone);    border-left-width: 6px; }
-.leaderboardItem:nth-child(3) { background: var(--ink); border: 2px solid var(--accent-bronze);        border-left-width: 6px; }
+.leaderboardItem:nth-child(1) { background: var(--ink-2); border:  1px solid var(--lime);    border-left-width: 6px; }
+.leaderboardItem:nth-child(2) { background: var(--ink-2); border:  1px solid var(--rule);    border-left-width: 6px; }
+.leaderboardItem:nth-child(3) { background: var(--ink-2); border:  1px solid var(--accent-bronze);        border-left-width: 6px; }
 
 .rank {
   font-family: var(--font-headline);
@@ -262,7 +262,7 @@
 .teamName {
   flex: 1;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 500;
   color: var(--bone);
   font-size: 1rem;

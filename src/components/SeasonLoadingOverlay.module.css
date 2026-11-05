@@ -7,7 +7,7 @@
   align-items: flex-start;
   padding: 18vh 1rem 0;
   background: rgba(10, 10, 10, 0.72);
-  animation: veilIn 0.3s ease;
+  animation: veilIn 0.1s ease;
 }
 
 .panel {
@@ -16,9 +16,9 @@
   gap: 1rem;
   padding: 1rem 1.5rem;
   background: var(--ink-2);
-  border: 1px solid var(--bone);
-  box-shadow: var(--shadow-offset);
-  animation: veilIn 0.3s ease;
+  border: 1px solid var(--rule);
+  box-shadow: none;
+  animation: veilIn 0.1s ease;
 }
 
 @keyframes veilIn {
@@ -47,11 +47,11 @@
   height: 6px;
   margin-top: 0.25rem;
   background: var(--rule);
-  border: 1px solid var(--bone-dim);
+  border: 1px solid var(--rule);
 }
 
 .fill {
   height: 100%;
   background: var(--lime);
-  transition: width 0.4s ease;
+  transition: width 0.1s ease;
 }
