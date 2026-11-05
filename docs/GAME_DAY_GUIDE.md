@@ -141,3 +141,7 @@ writing. Leagues and recap history merge; existing My team choices take preceden
 and preferences come from the backup. Existing logins remain unchanged. On another
 browser, reconnect private leagues and enable notifications there if desired.
 Restoring does not automatically connect accounts or grant browser permissions.
+
+## Hosted Spacefast install
+
+The private hosted install has its own browser storage. Export a backup from local Settings and restore it in hosted Settings, then reconnect private ESPN leagues. Yahoo requires a separate hosted setup. See [Spacefast install](SPACEFAST.md) for the address and update procedure.

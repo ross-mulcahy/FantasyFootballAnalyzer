@@ -64,6 +64,16 @@ for data sources, cadence, route hierarchy, storage and correctness limits.
 ID map; its provenance and terms are in `docs/PLAYER_ID_MAP.md`. It is not part of
 the bot-owned draft pool pipeline.
 
+## Spacefast deployment in this fork
+
+The private Fantasy Game Day Space has a separate static plus Functions build:
+`npm run build:spacefast` writes the SPA and same-origin ESPN proxy to `dist/`.
+See `docs/SPACEFAST.md` for the existing Space ID, source archive and publish
+command. Yahoo's hosted routes return a setup error until the user supplies a
+Yahoo developer app and hosted login service. Local `.env.local` is never
+published. This path does not replace the inherited GitHub Pages or Vercel
+pipelines. A plain `npm run build` will not package the Spacefast proxy.
+
 ## Deployment
 
 GitHub Pages serves the SPA from the `gh-pages` branch. Production is published
@@ -354,6 +364,7 @@ LAST season during draft prep; the Draft Room targets the upcoming season
 
 - `README.md` - project overview and quick start.
 - `docs/FANTASY_FOOTBALL.md` - domain rules, season calendar, format/value math.
+- `docs/SPACEFAST.md` - private hosted build, migration and update procedure.
 - `docs/API_REFERENCE.md` - Sleeper/ESPN/Yahoo endpoint reality, reality-checked.
 - `docs/DESIGN_SYSTEM.md` - the GRIDIRON visual language.
 - `docs/PROJECT_REVIEW_2026-06.md`, `docs/YAHOO_DATA_COMPARISON_2026-06.md` -

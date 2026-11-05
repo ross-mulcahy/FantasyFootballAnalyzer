@@ -1,21 +1,37 @@
 # Spacefast install
 
-This fork can be published privately to Spacefast while keeping league selections and logins in each browser.
+The private **Fantasy Game Day** Space for this fork is at [fantasy-game-day.space.fast](https://fantasy-game-day.space.fast/). It belongs to Ross' Team. Spacefast may ask you to open a private Space through your dashboard; the bare URL is not a public sharing link. The local app remains available at `http://127.0.0.1:5173/`.
 
-## Build and publish
+## What works
 
-Run `npm run build:spacefast`, then publish the `dist` directory with the Spacefast CLI in prebuilt mode and SPA fallback enabled. Use the existing linked Space; do not create another one for updates. `npm run build` continues producing the original static frontend for the inherited Pages pipeline.
+- Sleeper connects directly from the browser. The hosted Game Day matchup, scores, projections, lineups and event timeline have been checked with a real Sleeper league.
+- Private ESPN leagues use a same-origin `/api/espn-proxy` Function. It forwards the browser's ESPN session cookies for each request without storing them on Spacefast. A private ESPN league still needs a current login; the hosted proxy has been checked up to ESPN's expected missing-cookie response.
+- Yahoo login is not configured on Spacefast. Its hosted API routes return a setup error until a Yahoo developer app and hosted login service are configured. Local Yahoo setup is covered in [Yahoo setup](YAHOO_SETUP.md).
 
-The Spacefast build packages the static frontend and a Functions file router. `/api/espn-proxy` adapts the existing validated ESPN handler to standard Request/Response APIs. It preserves repeated view parameters and credential headers, rejects cross-origin browser requests, and returns private/no-store responses. ESPN credentials travel only with the individual provider request and are not stored on Spacefast. Browser cookies may still expire and need reconnecting. The original endpoint validation tests plus the Worker adapter tests cover this path.
+## Bring your leagues across
 
-Sleeper remains a direct browser connection. Yahoo is deliberately unavailable in this hosted build until a hosted Yahoo login service and developer app are configured. Its API routes return a clear setup error. Local `.env.local` Yahoo credentials are never uploaded.
+The local and hosted addresses have separate browser storage. In local **Settings**, choose **Download backup**. In hosted **Settings**, choose the file, inspect its preview and select **Restore this backup**. The backup carries leagues, team choices, recap history and Game Day preferences. It excludes ESPN cookies, Yahoo tokens, app secrets, notification permissions and API snapshots. Reconnect private ESPN leagues and enable browser alerts on the hosted address after restoring. There is no automatic sync between browsers.
 
-The build removes the inherited CNAME, Pages 404 redirect shim, and sitemap from the Spacefast output. Spacefast serves SPA deep links itself. Original source and other deployment files remain in the repository.
+## Publish an update
 
-## Move your leagues
+Use Node.js 24 and the authenticated Spacefast CLI. From the repository root, after the desired source changes are committed:
 
-The localhost and Spacefast addresses have separate browser storage. Download a backup from local Settings, then restore it in Settings at the hosted address. The backup includes saved leagues, team selections, recap history and preferences, but excludes ESPN cookies, Yahoo tokens and notification permission. Reconnect private leagues and enable browser alerts separately on the hosted address. There is no server-side league or login synchronization.
+```sh
+npm ci
+npm run test:run
+npm run lint
+npm run typecheck
+npm run build:spacefast
+mkdir -p dist/source
+git archive --format=zip --output=dist/source/fantasy-game-day-source.zip HEAD
+npx -y spacefast@latest publish dist --prebuilt \
+  --space spc_d26a7ccfeb8840ffb0c01f3c61b89408 \
+  --team 43PDUi8b5DlKP6nYJiLZwLPFn5W7K1S0 \
+  --spa true --api-url https://api.spacefast.com --wait
+```
 
-## Source and updates
+Review tracked files before making the source archive, especially if new configuration files have been added. `git archive HEAD` contains committed files only. The app build also excludes local dotenv files, `.spacefast/` state, dependencies and caches from `dist`. The source archive is a downloadable snapshot of editable code inside the private Space; it is not a live source editor. Rebuild and recreate the archive on every update, because `npm run build:spacefast` replaces `dist`.
 
-The published install retains an editable source archive at `/source/fantasy-game-day-source.zip`, including the original artwork. It excludes dotenv files, Git metadata, dependencies, local state and build caches. The initial Spacefast source-editor import could not be completed because its repository storage was not ready. Automatic builds are disabled for the hosted connection; publishing is explicit. GitHub remains the primary repository. Do not connect or change upstream. Keep `.spacefast/`, dotenv files, dependencies and build caches out of source uploads and commits. The repository link and live Space identity are not authentication credentials.
+The Spacefast build removes the inherited Pages `CNAME`, `404.html` and sitemap, and packages a Functions route for ESPN. It keeps the existing GitHub Pages and Vercel deployment paths separate. Publishing does not push a commit to GitHub: commit and push source changes there as a separate step. Do not publish this project as a new Space; use the Space ID above.
+
+The first Spacefast source-editor import reported `repository_not_ready`, so the initial deployment retained a source archive instead. GitHub is the primary source repository. Automatic builds are not configured for this Space; use the explicit publish command above.

@@ -5,7 +5,7 @@ ESPN, and Yahoo fantasy football leagues. No accounts, no ads, no server-side
 storage: credentials stay in the browser and pass straight through to the
 platform APIs.
 
-This fork adds a local Game Day dashboard across your connected leagues.
+This fork adds a Game Day dashboard across your connected leagues. Run it locally or use the private [Spacefast install](docs/SPACEFAST.md). Each browser keeps its own saved leagues and preferences.
 
 ## License for this fork
 
@@ -174,6 +174,7 @@ npm run test:run     # vitest suite
 npm run lint         # code quality
 npm run typecheck    # TypeScript check
 npm run build        # typecheck + production build
+npm run build:spacefast # Spacefast frontend and same-origin ESPN proxy
 npm run deploy       # publish dist/ to gh-pages
 ```
 
@@ -188,6 +189,7 @@ the full list.
 
 ## Docs
 
+- [Spacefast install](docs/SPACEFAST.md) — private hosted app, updates and league migration
 - [Yahoo setup](docs/YAHOO_SETUP.md) — configure login for this installation
 - [Game Day guide](docs/GAME_DAY_GUIDE.md) — setup, navigation and daily use
 - [Game Day data reference](docs/GAME_DAY_DATA.md) — adapters, polling, caching,
@@ -198,7 +200,3 @@ the full list.
 - [Design system](docs/DESIGN_SYSTEM.md) — GRIDIRON styles and component patterns
 - [API reference](docs/API_REFERENCE.md) — platform endpoint notes
 - `docs/archive/` — superseded and historical documents
-
-## Spacefast hosting
-
-See [Spacefast install](docs/SPACEFAST.md) for the private hosted build, same-origin ESPN proxy, local backup migration and Yahoo setup limitation.
