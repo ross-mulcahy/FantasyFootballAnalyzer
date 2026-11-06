@@ -30,6 +30,7 @@ it('cycles contextual takes and reacts from hazard to sweaty to calm without cla
   const { rerender } = render(<MemoryRouter><StudioAnchorDesk {...props} warnings={warnings} /></MemoryRouter>);
   fireEvent.click(screen.getByRole('button', { name: 'MIC CHECK // NEXT TAKE' }));
   expect(screen.getByRole('status')).toHaveTextContent("Sam's Spudz versus My Kittle Tony");
+  expect(screen.queryByRole('list', { name: 'Lineup hazards grouped by player' })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'MIC CHECK // NEXT TAKE' }));
   expect(screen.getByRole('status')).toHaveTextContent('Puka Nacua');
   rerender(<MemoryRouter><StudioAnchorDesk {...props} warnings={[]} /></MemoryRouter>);

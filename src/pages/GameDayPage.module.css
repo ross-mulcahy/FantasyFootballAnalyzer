@@ -489,3 +489,13 @@
 .sharedSidebar .panelHeader { min-height: 0; padding: 6px 10px; }
 .sharedSidebar .studioPanel :global(.crt-screen) > .panelHeader { padding: 6px 10px; }
 .sharedSidebar .combinedEvents .studioPanel :global(.crt-screen) > div:last-child { max-height: clamp(100px, calc(100dvh - 800px), 220px); }
+
+/* Expanded right-hand monitors reuse their live contents in a full-size studio viewport. */
+.popoutBackdrop { position: fixed; inset: 0; z-index: 2000; background: #020617cc; backdrop-filter: blur(3px); }
+.popoutPanel { position: fixed; z-index: 2001; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(960px, calc(100vw - 32px)); height: min(820px, calc(100dvh - 32px)); max-height: none !important; margin: 0 !important; }
+.popoutPanel :global(.crt-frame) { display: flex; flex-direction: column; height: 100%; }
+.popoutPanel :global(.crt-screen) { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+.popoutPanel :global(.crt-screen) > div:last-child { flex: 1; min-height: 0; max-height: none !important; overflow-y: auto !important; }
+.popoutPanel .panelHeader { flex: none; }
+.popoutPanel .panelToggle { min-width: 36px; }
+@media(max-width:600px) { .popoutPanel { width: calc(100vw - 16px); height: calc(100dvh - 44px); } }

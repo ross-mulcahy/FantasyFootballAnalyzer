@@ -148,7 +148,7 @@ export function SharedPlayersSidebar({ contexts, refreshSignal = 0, onCountChang
   const weeks = [...new Set(contexts.flatMap(context => context.snapshot ? [`${context.snapshot.season}:${context.snapshot.week}`] : []))];
   useEffect(() => { onCountChange?.(groups.length); }, [groups.length, onCountChange]);
   const missing = contexts.filter(context => !context.snapshot || !context.myTeamId).length;
-  return <MatchupPanel studio title="ROOTING CONFLICTS // SHARED STARTERS" panelKey="shared-players" headingId="shared-players-heading" className={styles.panel}>
+  return <MatchupPanel studio popout title="ROOTING CONFLICTS" panelKey="shared-players" headingId="shared-players-heading" className={styles.panel}>
     {mappingFailed && <p className={pageStyles.hint}>Player IDs unavailable. Using unambiguous name, position and team matches.</p>}
     {!!missing && <p className={pageStyles.hint}>{missing} {missing === 1 ? 'league needs' : 'leagues need'} data or a My team selection in Settings.</p>}
     {index === null ? <p className={pageStyles.hint}>Matching players across leagues…</p> : <>

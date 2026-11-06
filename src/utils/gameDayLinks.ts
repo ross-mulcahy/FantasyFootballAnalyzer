@@ -22,3 +22,20 @@ export function rosterHref(teamId: string, league?: Pick<League, 'platform' | 'i
 export function leagueGameDayHref(league: Pick<League, 'platform' | 'id' | 'season'>): string {
   return `/game-day?${new URLSearchParams({ league: `${league.platform}:${league.id}`, year: String(league.season) })}`;
 }
+
+export function leagueContextHref(pathname: string, search: string, league: Pick<League, 'platform' | 'id' | 'season'>): string {
+  const params = new URLSearchParams(search);
+  params.set('league', `${league.platform}:${league.id}`);
+  params.set('year', String(league.season));
+  params.delete('team');
+  params.delete('matchup');
+  params.delete('sync');
+  return `${pathname}?${params}`;
+}
+
+export function studioWallName(screenCount: number): string {
+  if (screenCount <= 4) return 'The Quad-Box';
+  if (screenCount <= 8) return 'The Octo-Box';
+  if (screenCount <= 12) return 'The Duodecuple-Box';
+  return `The ${screenCount}-Box`;
+}

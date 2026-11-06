@@ -62,8 +62,11 @@ export function rememberSavedLeague(league: League): boolean {
     name: league.name,
     teamId, teamName: league.teams.find(team => team.id === teamId)?.name ?? existing?.teamName,
   };
-  const rest = loadSavedLeagues().filter(saved => savedLeagueKey(saved) !== savedLeagueKey(entry));
-  return save([entry, ...rest]);
+  const entries = loadSavedLeagues();
+  const index = entries.findIndex(saved => savedLeagueKey(saved) === savedLeagueKey(entry));
+  if (index < 0) entries.push(entry);
+  else entries[index] = entry;
+  return save(entries);
 }
 
 export function removeSavedLeague(entry: SavedLeague): boolean {

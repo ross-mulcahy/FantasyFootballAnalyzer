@@ -17,7 +17,7 @@ describe('local saved leagues', () => {
     rememberSavedLeague(league('A', 2025));
     rememberSavedLeague({ ...league('A'), name: 'Renamed' });
     expect(loadSavedLeagues().map(l => [l.leagueId, l.season, l.name])).toEqual([
-      ['A', 2026, 'Renamed'], ['A', 2025, 'League A'], ['B', 2026, 'League B'],
+      ['A', 2026, 'Renamed'], ['B', 2026, 'League B'], ['A', 2025, 'League A'],
     ]);
   });
 

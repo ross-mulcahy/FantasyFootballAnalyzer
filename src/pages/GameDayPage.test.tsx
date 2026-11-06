@@ -122,7 +122,7 @@ it('shows weekly points, projections, zero-valued stats, and the timeline', () =
   expect(table.getByText('20.50')).toBeInTheDocument();
   fireEvent.click(table.getByText('Week 10 stats'));
   expect(table.getByText('Pass yards')).toBeInTheDocument();
-  expect(screen.getByRole('heading', { name: 'REDZONE WIRE // MAJOR EVENTS · Week 10' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'REDZONE WIRE' })).toBeInTheDocument();
 });
 
 it('places alerts above lineups and marks a player whose NFL game is live', () => {
@@ -154,7 +154,7 @@ it('places the score above alerts and player breakdowns below, with independent 
   expect(screen.getByRole('table', { name: 'Away Team starting lineup' })).toBeVisible();
   fireEvent.click(screen.getByRole('button', { name: 'Minimise Matchup score' }));
   expect(within(score).queryByText('0.00')).not.toBeVisible();
-  fireEvent.click(screen.getByRole('button', { name: 'Minimise REDZONE WIRE // MAJOR EVENTS · Week 10' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Minimise REDZONE WIRE' }));
   unmount();
   renderAt(matchupHref(snapshot.matchups[0]));
   expect(screen.getByRole('button', { name: 'Expand Latest Alerts' })).toHaveAttribute('aria-expanded', 'false');

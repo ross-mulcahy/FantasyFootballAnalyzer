@@ -31,9 +31,25 @@ it('keeps roster navigation active on canonical team detail links', () => {
 it('shows saved league pills with an honest unknown-data status', () => {
   rememberSavedLeague(league); mount();
   const dock = within(screen.getByRole('navigation', { name: 'League dock' }));
-  expect(dock.getByRole('link', { name: /Test League/ })).toHaveAttribute('href', '/game-day?league=sleeper%3Al1&year=2026');
+  expect(dock.getByRole('link', { name: /Test League/ })).toHaveAttribute('href', '/?league=sleeper%3Al1&year=2026');
   expect(dock.getByLabelText('Awaiting roster data')).toBeInTheDocument();
   expect(dock.getByRole('link', { name: 'All Leagues' })).toBeInTheDocument();
+});
+it('switches league context without leaving the current page or carrying a stale team', () => {
+  rememberSavedLeague(league);
+  mount('/trades?team=old&matchup=old');
+  const dock = within(screen.getByRole('navigation', { name: 'League dock' }));
+  expect(dock.getByRole('link', { name: /Test League/ })).toHaveAttribute('href', '/trades?league=sleeper%3Al1&year=2026');
+});
+it('keeps league buttons alphabetical regardless of saved or selected order', () => {
+  rememberSavedLeague({ ...league, id: 'z', name: 'Zulu League' });
+  rememberSavedLeague({ ...league, id: 'a', name: 'alpha league' });
+  rememberSavedLeague({ ...league, id: 'b', name: 'Bravo League' });
+  mount('/trades?league=sleeper%3Az&year=2026');
+  const dock = within(screen.getByRole('navigation', { name: 'League dock' }));
+  expect(dock.getAllByRole('link').map(link => link.textContent?.split('·')[0].trim())).toEqual([
+    'All Leagues', 'alpha league', 'Bravo League', 'Zulu League',
+  ]);
 });
 it('opens and closes the mobile navigation with an explicit toggle', () => {
   mount();

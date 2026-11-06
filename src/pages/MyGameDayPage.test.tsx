@@ -122,13 +122,13 @@ it('reuses one weekly feed for live alerts and newest-first combined events, the
   vi.mocked(useMatchupTimeline).mockReturnValue({ data, loading: false, error: null, refresh: vi.fn() });
   const { rerender } = mount();
   await screen.findByRole('heading', { name: 'Latest Alerts' });
-  const timeline = screen.getByRole('heading', { name: 'REDZONE WIRE // MAJOR EVENTS · Week 8' }).closest('section')!;
+  const timeline = screen.getByRole('heading', { name: 'REDZONE WIRE' }).closest('section')!;
   expect(within(timeline).getAllByRole('listitem')[0]).toHaveTextContent('Score in quarter 2');
   expect(screen.getByRole('link', { name: /Full timeline/ })).toHaveAttribute('href', '#home-2026:8-timeline-heading');
   vi.mocked(useMatchupTimeline).mockReturnValue({ data: { ...data, games: data.games.map(game => ({ ...game, state: 'post' as const })) }, loading: false, error: null, refresh: vi.fn() });
   rerender(<MemoryRouter><MyGameDayPage /></MemoryRouter>);
   await waitFor(() => expect(screen.queryByRole('heading', { name: 'Latest Alerts' })).not.toBeInTheDocument());
-  expect(screen.getByRole('heading', { name: 'REDZONE WIRE // MAJOR EVENTS · Week 8' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'REDZONE WIRE' })).toBeInTheDocument();
 });
 
 it('sorts and filters close projected matchups while retaining all league feeds and recap entries', async () => {

@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { lineupProjection, statLines } from './playerWeek';
+import { lineupProjection, lineupProjectionCoverage, statLines } from './playerWeek';
 it('keeps zeroes, ignores bench projections, and refuses partial lineup sums', () => {
   const team = { id: '1', name: 'Team', roster: [
     { id: '1', name: 'One', position: 'QB', nflTeam: 'BUF', slot: 'QB', projection: 0 },
@@ -9,5 +9,6 @@ it('keeps zeroes, ignores bench projections, and refuses partial lineup sums', (
   expect(lineupProjection(team)).toBe(12.5);
   team.roster[1].projection = NaN;
   expect(lineupProjection(team)).toBeNull();
+  expect(lineupProjectionCoverage(team)).toEqual({ total: 0, known: 1, missing: 1 });
   expect(statLines({ rec_yd: 0, rec_td: null }, { rec_yd: 'Rec yards', rec_td: 'Rec TD' })).toEqual([{ label: 'Rec yards', value: 0 }]);
 });

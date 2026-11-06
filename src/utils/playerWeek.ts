@@ -10,6 +10,12 @@ export function lineupProjection(team: RosterTeam | undefined): number | null {
   return starters.reduce((total, player) => total + player.projection!, 0);
 }
 
+export function lineupProjectionCoverage(team: RosterTeam | undefined): { total: number; missing: number; known: number } {
+  const starters = team?.roster?.filter(p => p.id !== '0' && isStartingSlot(p.slot)) ?? [];
+  const projected = starters.filter(p => typeof p.projection === 'number' && Number.isFinite(p.projection));
+  return { total: projected.reduce((sum, player) => sum + player.projection!, 0), missing: starters.length - projected.length, known: projected.length };
+}
+
 export function statLines(stats: unknown, labels: Record<string, string>): PlayerStat[] {
   if (!stats || typeof stats !== 'object') return [];
   const source = stats as Record<string, unknown>;

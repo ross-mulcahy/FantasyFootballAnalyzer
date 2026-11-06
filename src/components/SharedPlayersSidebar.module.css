@@ -59,3 +59,13 @@
 .list { margin: 0; }
 
 .panel :global(.crt-screen) > div:last-child { max-height: 210px; }
+
+/* The same player cards get reading-room spacing when their monitor is popped out. */
+.panel[role="dialog"] .list { display: grid; gap: 10px; }
+.panel[role="dialog"] .player { padding: 14px 16px; margin: 0; }
+.panel[role="dialog"] .playerTitle { font-size: 20px; }
+.panel[role="dialog"] .points { font-size: 16px; }
+.panel[role="dialog"] .projection, .panel[role="dialog"] .statusLine, .panel[role="dialog"] .meta, .panel[role="dialog"] .leaguePoints { font-size: 12px; }
+.panel[role="dialog"] .exposure { gap: 7px; margin-top: 7px; }
+.panel[role="dialog"] .owned, .panel[role="dialog"] .opponent, .panel[role="dialog"] .paradox { font-size: 10px; padding: 4px 6px; }
+.panel[role="dialog"] .playerExpanded { padding-top: 10px; }
