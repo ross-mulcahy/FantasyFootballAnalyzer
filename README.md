@@ -17,13 +17,15 @@ ESPN and Yahoo connection controls are paused while their setup is completed. Pr
 
 ## What you get
 
-- **Game Day:** combined matchups, projections, close-game focus, shared players, lineup warnings, live events and browser alerts.
+- **Game Day:** a multi-league CRT monitor wall, Pixel Scott's deduplicated lineup update, close-game focus, rooting conflicts, live events, pop-up detail panels and browser alerts.
 - **Matchups and rosters:** player scores and stats, event timelines, full team rosters and manual refresh.
 - **Recap:** saved weekly results and player highlights. History begins when you use Game Day; earlier weeks are not backfilled.
 - **League analysis:** draft grades, trade and waiver reviews, luck analysis, team pages and league history.
 - **Draft tools:** a draft room, rankings, values and trends. These pages work without connecting a league.
 
 Matchup data refreshes every 60 seconds during live NFL games and every three hours otherwise. Live events are checked more often. Scores follow each league's scoring rules; projections are estimates. See the [Game Day guide](docs/GAME_DAY_GUIDE.md) for the full workflow.
+
+The league dock switches context without leaving the current page; its buttons stay alphabetical. Original, low-volume studio cues mark channel changes, Next Take, newly reported lineup hazards and matchups entering a close projected margin. The sidebar mute control silences them.
 
 ## Your data
 

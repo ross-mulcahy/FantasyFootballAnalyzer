@@ -157,7 +157,10 @@ needed; reconnect errors link to Settings. Opening a homepage card or league-nam
 season, and enters that league’s Game Day overview. From there a matchup opens
 its detailed player breakdown.
 
-The homepage displays only matchups involving the selected team in each league.
+The combined homepage displays only matchups involving the selected team in
+each league. Selecting one league in the header shows every matchup in that
+league; games without the selected team use neutral Team 1 / Team 2 labels,
+while lineup hazards and rooting conflicts remain scoped to the selected team.
 `isMyTeam` identifies the default when available. Settings offers a persistent
 My team choice (`teamId` in `ffa:my-leagues:v1`), and refreshes do not overwrite an
 explicit choice. Unidentified teams link to Settings rather than showing all
@@ -170,13 +173,15 @@ returns to the scoreboard. These preferences and snapshots remain local.
 ### Navigation hierarchy
 
 The combined homepage, Recap and Settings use global navigation:
-Game Day (`/`), Recap (`/recap`) and Settings (`/settings`). The logo always returns to the combined homepage.
-Clicking a homepage matchup or any displayed league-name link enters the
-corresponding league's `/game-day?league=...&year=...` overview. Its full league
-nav is restored, and the Game Day nav link stays in that league. The header's
-All leagues control returns to the combined homepage. Saved-league names in
-Settings and league labels in the header and analysis page subtitles use the
-same link. A new league's deep link waits for its connection before rendering
+Game Day (`/`), Recap (`/recap`) and Settings (`/settings`). The logo returns to
+the combined homepage. The header league dock sorts saved leagues
+alphabetically by display name. Selecting one keeps the current route and
+switches its league/season context; route-specific team and matchup parameters
+are cleared so they cannot refer to the previous league. On `/`, the selection
+switches the Hub's monitor wall to every matchup in that league. **All Leagues** returns to the
+combined homepage. A matchup's own league link still opens the corresponding
+`/game-day?league=...&year=...` overview, where a matchup opens its player
+breakdown. New league deep links wait for the connection before rendering
 content, avoiding a flash of the previously selected league's page.
 
 
@@ -189,6 +194,19 @@ refreshing. The combined Last updated time uses the oldest visible snapshot so
 a failed refresh cannot make stale league data appear newly updated. Individual
 connection errors remain on their cards; automatic polling continues unchanged.
 
+
+### Studio sound events
+
+`StudioAudioEvents` compares successive visible snapshots by league/week. Its
+first snapshot and a new week establish a silent baseline. A newly reported
+starter warning can trigger a short stinger; a projected matchup margin crossing
+into the ≤10-point range can trigger a double pulse. Identical polling results
+cannot replay either event, and the warning and close-game cues have 30- and
+60-second cooldowns. Hidden tabs update the baseline without playing sounds.
+Channel changes and the anchor's Next Take button use short, original Web Audio
+clicks. The persisted sidebar audio preference mutes every cue; browser audio
+may remain suspended until the first user gesture. No recorded broadcast audio
+is used.
 
 ### Shared Players sidebar
 
@@ -217,10 +235,14 @@ and scrollable on desktop, with a sticky heading and compact expandable player
 rows. Below 1100px, Matchups / Shared Players tabs default to Matchups and keep
 both panels mounted so polling continues. Tabs support arrow, Home and End keys.
 
-The compact homepage uses one matchup per row, always placing the selected own
-team on the left with its correctly mapped score and projection. Remaining/live
-player counts reuse the same weekly NFL feed, covering all relevant starters
-even when none are shared. Minimising the sidebar preserves its event watchers.
+The compact homepage uses a two-column CRT wall on wide screens, with the
+selected team's turf-green scorebug above the opponent's indigo scorebug in
+each channel. Its title follows the active screen count: Quad-Box, Octo-Box,
+Duodecuple-Box, then a numeric box name. Odd counts can show a spare channel
+with a league-management or All Leagues action. Remaining/live player counts
+reuse the same weekly NFL feed, covering all relevant starters even when none
+are shared. The Rooting Conflicts and RedZone Wire monitors can open in larger
+pop-up views; minimising them preserves their event watchers.
 
 Shared-player rows show current fantasy points without expansion, preserving
 zero scores. Different league scoring produces a min–max range, never a sum;

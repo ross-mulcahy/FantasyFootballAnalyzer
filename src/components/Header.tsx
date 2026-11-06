@@ -63,8 +63,11 @@ export function Header({ league, isGuest, onRefresh, isRefreshing, yearSelector 
   ];
   const active = (href: string) => href === '/' ? location.pathname === '/' : href.startsWith('/game-day') ? location.pathname === '/game-day' : href === '/rosters' ? location.pathname === '/rosters' || (location.pathname === '/teams' && new URLSearchParams(location.search).has('team')) : location.pathname === href && !(href === '/teams' && new URLSearchParams(location.search).has('team'));
   const times = saved.map(row => loadGameDayCache({ platform: row.platform, id: row.leagueId, season: row.season })?.fetchedAt ?? null);
-  const screenCount = saved.reduce((count, row) => {
+  const dockParams = new URLSearchParams(location.search);
+  const selectedHubLeague = location.pathname === '/' ? saved.find(row => dockParams.get('league') === `${row.platform}:${row.leagueId}` && dockParams.get('year') === String(row.season)) : undefined;
+  const screenCount = (selectedHubLeague ? [selectedHubLeague] : saved).reduce((count, row) => {
     const snapshot = loadGameDayCache({ platform: row.platform, id: row.leagueId, season: row.season });
+    if (selectedHubLeague) return count + Math.max(1, snapshot?.matchups.length ?? 0);
     const teamId = row.teamId ?? loadCachedLeague(row.platform, row.leagueId, row.season)?.teams.find(team => team.isMyTeam)?.id;
     return count + Math.max(1, snapshot?.matchups.filter(match => teamId && [match.team1Id, match.team2Id].includes(teamId)).length ?? 0);
   }, 0);

@@ -45,6 +45,36 @@ it('combines only my matchups across platforms and includes the league and seaso
   expect(screen.getAllByRole('button', { name: 'Refresh all' })).toHaveLength(1);
   expect(screen.queryByText(/Matchups update every/)).not.toBeInTheDocument();
 });
+it('shows every matchup in a selected league without labelling other teams as mine', () => {
+  for (const league of [a, b]) { cacheLeague(league); rememberSavedLeague(league); }
+  render(<MemoryRouter initialEntries={['/?league=espn:A&year=2026']}><MyGameDayPage /></MemoryRouter>);
+  const links = screen.getAllByRole('link', { name: /View matchup:/ });
+  expect(links).toHaveLength(2);
+  expect(links[0]).toHaveAccessibleName('View matchup: My ESPN team vs Opponent A');
+  expect(links[1]).toHaveAccessibleName('View matchup: Other A vs Other B');
+  expect(links[1]).toHaveTextContent('Team 1');
+  expect(links[1]).toHaveTextContent('Team 2');
+  expect(within(links[1]).queryByText('Your team')).not.toBeInTheDocument();
+  expect(screen.getAllByText('CH 01')).toHaveLength(1);
+  expect(screen.getAllByText('CH 02')).toHaveLength(1);
+  expect(screen.queryByText('Opponent B')).not.toBeInTheDocument();
+});
+it('shows a selected league wall before the user identifies their team', () => {
+  const unidentified = { ...a, teams: a.teams.map(team => ({ ...team, isMyTeam: false })) };
+  cacheLeague(unidentified); rememberSavedLeague(unidentified);
+  render(<MemoryRouter initialEntries={['/?league=espn:A&year=2026']}><MyGameDayPage /></MemoryRouter>);
+  expect(screen.getAllByRole('link', { name: /View matchup:/ })).toHaveLength(2);
+  expect(screen.getByRole('link', { name: 'Choose your team in Settings' })).toBeInTheDocument();
+  expect(screen.queryByText('Your team')).not.toBeInTheDocument();
+});
+it('applies the close-matchup filter to every selected-league game', () => {
+  cacheLeague(a); rememberSavedLeague(a);
+  vi.mocked(useGameDayState).mockReturnValue({ ...state(a), snapshot: { ...snapshot(a), matchups: snapshot(a).matchups.map((match, index) => ({ ...match, team1Projection: 100, team2Projection: index === 0 ? 130 : 105 })) } });
+  render(<MemoryRouter initialEntries={['/?league=espn:A&year=2026']}><MyGameDayPage /></MemoryRouter>);
+  fireEvent.click(screen.getByLabelText('Witching Hour margins only (≤10 pts)'));
+  expect(screen.getAllByRole('link', { name: /View matchup:/ })).toHaveLength(1);
+  expect(screen.getByRole('link', { name: 'View matchup: Other A vs Other B' })).toBeInTheDocument();
+});
 it('asks for an unknown team in Settings instead of showing every matchup, then reflects the saved choice', () => {
   const unidentified = { ...a, teams: a.teams.map(team => ({ ...team, isMyTeam: false })) };
   cacheLeague(unidentified); rememberSavedLeague(unidentified);

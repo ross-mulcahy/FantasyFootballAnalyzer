@@ -3,21 +3,35 @@
 ## Connect your leagues once
 
 1. Start the app and open the same browser profile and address each time.
-2. Go to **Settings** and connect your Yahoo, ESPN or Sleeper leagues.
+2. Go to **Settings** and connect a Sleeper league. ESPN and Yahoo connection
+   controls are currently paused; previously saved leagues remain available on
+   this device.
 3. Select **My team** for each league. This identifies which matchups belong
    on the combined scoreboard and which players are yours or your opponents'.
 4. Return to **Game Day**. Connections and team selections are saved locally.
 
-Private leagues may need reconnecting when their sessions expire. ESPN's
-optional **Remember ESPN login on this device** keeps the connection across
-browser sessions; otherwise its login remains session-only. Yahoo uses OAuth.
+Private leagues may need reconnecting when their sessions expire. For saved
+ESPN connections, the optional **Remember ESPN login on this device** keeps the
+connection across browser sessions; otherwise its login remains session-only.
+Yahoo uses OAuth when connection setup is available.
 Local browser data is not committed or synced to GitHub.
 
 ## Read the combined scoreboard
 
-Your team is always on the left. Each row shows the league, current matchup
-score, available projection and player progress. A live indicator refers to the
-NFL game's status, not whether the player is currently on the field.
+The Game Day Hub is a wall of broadcast monitors. Each channel shows your team
+in the green upper scorebug, your opponent in the indigo lower scorebug, live
+scores, weekly projections and players left. A live indicator refers to the
+NFL game's status, not whether a player is currently on the field. The wall
+title scales from Quad-Box to Octo-Box and beyond as active matchup screens
+increase. A spare channel offers a link to add a league, or to return to all
+leagues when the wall is filtered to one.
+
+The header league buttons are alphabetised by league name. Selecting one keeps
+you on the current route: on the Hub it shows every matchup in that league,
+including games without your team; on a roster, trade or other analysis page
+it changes the loaded league there. The
+**All Leagues** button returns to the combined Hub. Opening a league from a
+matchup monitor still enters its detailed Game Day page.
 
 **Refresh all** refreshes every visible league and the shared NFL feed.
 **Last updated** represents the oldest league snapshot. If a league cannot
@@ -29,6 +43,12 @@ order selected, the filter uses projected margins. Unknown margins are excluded;
 unstarted 0–0 contests are excluded from current-margin focus. Filtering leaves
 all leagues connected and updating.
 
+The scorebug uses the provider's complete matchup projection when available.
+If one or more starters lack a provider estimate, it shows the sum of known
+starters marked **partial**; if none have estimates it says **pending**. The
+studio line and segmented projection-share bar require complete comparable
+totals. Neither the line nor the bar represents a betting line or win probability.
+
 Click a league name or matchup row to enter the league's Game Day page. There,
 open a specific matchup for its score, starting lineups, stats and projections.
 **Rosters** opens the full roster view with a team selector, including bench and
@@ -36,7 +56,7 @@ reserve slots. Browser Back returns through these views.
 
 ## Follow shared players
 
-The sidebar includes starters and defenses appearing across two or more of your
+**Rooting Conflicts** includes starters and defenses appearing across two or more of your
 matchups. **Yours** and **Against** count leagues separately, so a player can
 appear on both sides of your week.
 
@@ -45,14 +65,23 @@ That projection is displayed beneath current fantasy points. Missing estimates
 sort last; zero estimates remain valid. When current points differ by league,
 a range is shown. Points are never added across leagues with different scoring.
 Expand a player for the exact per-league figures, NFL stats and reported events.
+Use the panel's pop-up control to read the full list in a larger monitor. The
+**RedZone Wire** panel has the same pop-up control for its event timeline;
+closing either pop-up returns to the Hub without changing its data.
 
 On phones and smaller screens, switch between **Matchups** and **Shared Players**.
 The page opens on Matchups and keeps both feeds mounted while you switch.
 
 ## Act on lineup warnings
 
-Warnings identify your empty starting slots, provider injury flags and byes or
-missing scheduled games. **View roster** opens that league's selected team.
+Pixel Scott's **RedZone Update** identifies empty starting slots, provider
+injury flags and byes or missing scheduled games. Repeated warnings for one
+player appear in one triage row with a fix link for each affected league. The
+triage links and hazard count appear on the lineup-hazard take only. **Next Take**
+cycles through the closest matchup, a rooting conflict and a coaching
+excuse; it does not change lineups. The fix links open the provider's league
+team page when available.
+
 Warnings mark saved data and started games. Refresh before making lineup decisions;
 actual changes still happen in the league provider's app, under its lock rules.
 Finished-game injury flags are suppressed. Bench/reserve slots do not trigger
@@ -73,6 +102,18 @@ To enable browser notifications, open a matchup and click the bell beside
 **Refresh rosters & scores**. Allow the browser prompt. Keep the app open;
 background notifications depend on browser support and throttling. Enabling
 alerts does not replay older events. Use the same control to turn them off.
+
+### Studio sounds
+
+The sidebar **Audio alerts** control mutes all app sounds. The Game Day studio
+uses four original, low-volume cues: a relay click when you change leagues, a
+fader click on **Next Take**, a short stinger for a newly reported lineup
+hazard and a pulse when a matchup crosses into a projected margin of 10 points
+or less. The initial snapshot is silent. Repeated polls and renders do not
+replay the same alert; hazard and close-game cues have 30- and 60-second
+cooldowns respectively. Hidden tabs update their baseline without sounding.
+Browser audio may wait for your first click or key press. These cues are
+generated in the app and contain no NFL broadcast recordings.
 
 ## Review your weekly recap
 
@@ -100,12 +141,15 @@ Player identity attribution and regeneration are in [PLAYER_ID_MAP.md](PLAYER_ID
 
 ## Connection health and quick provider links
 
-Game Day shows a connection summary. Settings shows each league's last successful
+Settings shows each league's last successful
 refresh, reconnect requirement or setup problem. A cached snapshot alone is not
 labelled as a verified live connection. Offline status uses saved data. Select
 Reconnect to open the matching platform, league and season in Settings; your
-saved My team selection is kept, and a failed connection bypasses metadata cache
-when submitted again. Reconnecting Yahoo does not fall back to a different season.
+saved My team selection is kept. ESPN and Yahoo reconnection controls are
+currently paused, so Settings identifies these saved connections without
+submitting a new login. When connection setup is available, a failed connection
+bypasses metadata cache on resubmission, and Yahoo does not fall back to a
+different season.
 
 Open ESPN/Yahoo links include available league and team identifiers. Sleeper
 opens the league's team tab, which uses the team associated with your provider
