@@ -29,6 +29,8 @@ import { loadCachedLeague } from '@/utils/leagueCache';
 import { savedLeagueKey, type SavedLeague } from '@/utils/savedLeagues';
 import { LeagueLink } from '@/components/LeagueLink';
 import { leagueGameDayHref, matchupKey, studioWallName } from '@/utils/gameDayLinks';
+import { StudioAudioEvents } from '@/utils/studioAudioEvents';
+import { useSounds } from '@/hooks/useSounds';
 import styles from './GameDayPage.module.css';
 
 type LeagueUpdate = { snapshot: GameDaySnapshot | null; myTeamId?: string; error: string | null; updatedAt: number | null; refreshing: boolean; refresh: () => Promise<void> };
@@ -98,6 +100,8 @@ function LeagueMatchups({ saved, currentLeague, onUpdate, timelines, focus, clos
 }
 
 export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League | null }) {
+  const { playHazardStinger, playCloseGamePulse } = useSounds();
+  const studioAudio = useRef(new StudioAudioEvents());
   const saved = useSavedLeagues();
   const [shellParams, setShellParams] = useSearchParams();
   const syncRequested = useRef(false);
@@ -180,6 +184,12 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
     return margin !== null && sides.own && sides.opponent ? [{ league: context.saved.name, own: sides.own.name, opponent: sides.opponent.name, margin }] : [];
   })).sort((a, b) => Math.abs(a.margin) - Math.abs(b.margin))[0] ?? null;
   const warnings = lineupWarnings(contexts, timelines, now);
+  useEffect(() => {
+    const cue = studioAudio.current.observe(contexts, timelines, warnings, Date.now());
+    if (document.visibilityState === 'hidden') return;
+    if (cue === 'hazard') playHazardStinger();
+    else if (cue === 'close') playCloseGamePulse();
+  }, [contexts, timelines, warnings, playHazardStinger, playCloseGamePulse]);
   const missingRosters = contexts.filter(context => !context.snapshot?.teams.find(team => team.id === context.myTeamId)?.roster).length;
   const experience = useExperiencePreferences();
   const refreshLeague = useCallback(async (key: string) => { setEventRefreshSignal(value => value + 1); await updates[key]?.refresh(); }, [updates]);

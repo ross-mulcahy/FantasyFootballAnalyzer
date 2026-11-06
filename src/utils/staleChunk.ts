@@ -163,9 +163,7 @@ export function reloadOnceForStaleChunk(): boolean {
 // main.tsx's vite:preloadError handler starts the one-shot reload and
 // swallows Vite's rethrow — after which Vite resolves the import to
 // `undefined` rather than rejecting. Callers that destructure the module
-// then crash on their own ("Cannot destructure property 'exportLeagueReport'
-// of 'undefined'", Sentry 2026-08-31, from the header's PDF button on stale
-// tabs) while the reload is already on its way. Hand back a never-settling
+// then crash on their own while the reload is already on its way. Hand back a never-settling
 // promise in that case so the caller stays quiet until the navigation lands;
 // throw only when a reload was already tried and the deploy itself is broken.
 export async function importChunk<M>(

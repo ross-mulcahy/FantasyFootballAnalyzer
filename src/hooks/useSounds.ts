@@ -48,6 +48,10 @@ export function useSounds() {
   const playFilter = useCallback(() => sounds.playFilter(), []);
   const playSort = useCallback(() => sounds.playSort(), []);
   const playPageTransition = useCallback(() => sounds.playPageTransition(), []);
+  const playChannelSwitch = useCallback(() => sounds.playChannelSwitch(), []);
+  const playNextTake = useCallback(() => sounds.playNextTake(), []);
+  const playHazardStinger = useCallback(() => sounds.playHazardStinger(), []);
+  const playCloseGamePulse = useCallback(() => sounds.playCloseGamePulse(), []);
   const playLoadComplete = useCallback(() => sounds.playLoadComplete(), []);
   const playExport = useCallback(() => sounds.playExport(), []);
   const playOnTheClock = useCallback(() => sounds.playOnTheClock(), []);
@@ -79,6 +83,10 @@ export function useSounds() {
     playFilter,
     playSort,
     playPageTransition,
+    playChannelSwitch,
+    playNextTake,
+    playHazardStinger,
+    playCloseGamePulse,
     playLoadComplete,
     playExport,
     playOnTheClock,

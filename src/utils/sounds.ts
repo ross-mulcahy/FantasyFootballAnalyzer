@@ -191,6 +191,37 @@ export function playPageTransition(): void {
   ]);
 }
 
+// Original control-room cues, synthesized here rather than sampled from a broadcast.
+export function playChannelSwitch(): void {
+  playPhrase([
+    { freq: 660, dur: 0.055, type: 'square', pluck: true, level: 0.32, release: 0.025 },
+    { freq: 330, at: 0.065, dur: 0.09, type: 'triangle', pluck: true, level: 0.44, release: 0.045 },
+  ]);
+}
+
+export function playNextTake(): void {
+  playPhrase([
+    { freq: 740, dur: 0.045, type: 'triangle', pluck: true, level: 0.32, release: 0.02 },
+    { freq: 520, at: 0.07, dur: 0.065, type: 'triangle', pluck: true, level: 0.4, release: 0.03 },
+  ]);
+}
+
+export function playHazardStinger(): void {
+  playPhrase([
+    { freq: 220, dur: 0.24, type: 'triangle', level: 0.45, attack: 0.015, release: 0.13 },
+    { freq: 440, at: 0.045, dur: 0.13, type: 'square', level: 0.35, attack: 0.012, release: 0.075 },
+    { freq: 554, at: 0.19, dur: 0.23, type: 'square', level: 0.38, attack: 0.012, release: 0.13 },
+  ]);
+}
+
+export function playCloseGamePulse(): void {
+  playPhrase([
+    { freq: 110, dur: 0.14, type: 'triangle', pluck: true, level: 0.62, release: 0.09 },
+    { freq: 110, at: 0.17, dur: 0.2, type: 'triangle', pluck: true, level: 0.66, release: 0.13 },
+    { freq: 440, at: 0.24, dur: 0.12, type: 'sine', pluck: true, level: 0.2, release: 0.08 },
+  ]);
+}
+
 // Load complete - calm three-note arpeggio (C5, E5, G5)
 export function playLoadComplete(): void {
   playPhrase([

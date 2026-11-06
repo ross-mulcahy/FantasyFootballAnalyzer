@@ -146,6 +146,19 @@ describe('sounds', () => {
     }
   });
 
+  it('keeps the four studio cues short and on the shared low-volume audio chain', () => {
+    for (const play of [sounds.playChannelSwitch, sounds.playNextTake, sounds.playHazardStinger, sounds.playCloseGamePulse]) {
+      play();
+    }
+    const c = ctx();
+    expect(c.filters).toHaveLength(1);
+    expect(c.gains[0].gain.value).toBeLessThanOrEqual(0.08);
+    expect(c.oscillators).toHaveLength(10);
+    for (const oscillator of c.oscillators) {
+      expect(oscillator.stoppedAt! - c.currentTime).toBeLessThan(0.5);
+    }
+  });
+
   it('plays nothing while muted and resumes when unmuted', () => {
     sounds.setMuted(true);
     sounds.playClick();

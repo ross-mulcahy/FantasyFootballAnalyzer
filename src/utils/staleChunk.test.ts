@@ -166,8 +166,8 @@ describe('importChunk', () => {
   });
 
   it('passes a loaded module straight through', async () => {
-    const mod = { exportLeagueReport: () => {} };
-    await expect(importChunk(async () => mod, 'PDF export')).resolves.toBe(mod);
+    const mod = { calculateReport: () => {} };
+    await expect(importChunk(async () => mod, 'analysis module')).resolves.toBe(mod);
     expect(runtime.reload).not.toHaveBeenCalled();
   });
 

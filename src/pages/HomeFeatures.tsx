@@ -187,22 +187,6 @@ export function HomeFeatures() {
         </p>
       </StudioMonitorFrame>
 
-      <StudioMonitorFrame as="div" padded className={styles.feature}>
-        <div className={styles.featureIcon}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            <polyline points="14 2 14 8 20 8" />
-            <line x1="12" y1="18" x2="12" y2="12" />
-            <line x1="9" y1="15" x2="12" y2="18" />
-            <line x1="15" y1="15" x2="12" y2="18" />
-          </svg>
-        </div>
-        <h3 className={styles.featureTitle}>PDF Export</h3>
-        <p className={styles.featureDesc}>
-          Full league report as a shareable PDF.
-          Draft grades, awards, and analysis.
-        </p>
-      </StudioMonitorFrame>
     </div>
   );
 }

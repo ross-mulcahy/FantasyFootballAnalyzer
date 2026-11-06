@@ -30,7 +30,6 @@ import { lazyPage } from '@/utils/staleChunk';
 // lazy) so a stale tab whose import resolves against a mixed build — chunk
 // loads, named export missing — self-heals with the one-shot reload instead
 // of dying in the route error boundary.
-const PdfExportPage = lazyPage(() => import('@/pages/PdfExportPage'), 'PdfExportPage');
 const DraftPage = lazyPage(() => import('@/pages/DraftPage'), 'DraftPage');
 const DraftRoomPage = lazyPage(() => import('@/pages/DraftRoomPage'), 'DraftRoomPage');
 const RankingsPage = lazyPage(() => import('@/pages/RankingsPage'), 'RankingsPage');
@@ -108,7 +107,6 @@ function RankingsVariantRoute({
 const PAGE_TITLES: Record<string, string> = {
   '/': 'Game Day',
   '/settings': 'Settings',
-  '/export': 'PDF Export',
   '/recap': 'Game Day Recap',
   '/draft': 'Draft Analysis',
   '/draft-room': 'Draft Room',
@@ -764,7 +762,6 @@ function App() {
           <Route path="/draft-grades" element={<ToolLanding content={TOOL_LANDINGS['draft-grades']} />} />
 
           {/* Data pages need a real connection; guests get bounced to Rankings. */}
-          <Route path="/export" element={dataRoute(l => <PdfExportPage league={l} />)} />
           <Route path="/draft" element={dataRoute(l => <DraftPage league={l} />)} />
           <Route path="/trades" element={dataRoute(l => <TradesPage league={l} />)} />
           <Route path="/waivers" element={dataRoute(l => <WaiversPage league={l} />)} />
