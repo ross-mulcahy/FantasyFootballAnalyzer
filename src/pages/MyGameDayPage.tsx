@@ -1,4 +1,4 @@
-import { CrtMonitorFrame } from '@/components/CrtMonitorFrame';
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import { StudioAnchorDesk } from '@/components/StudioAnchorDesk';
 import type { StudioConflict, StudioMatchup } from '@/utils/studioAnchor';
 import { CortisolMeter } from '@/components/CortisolMeter';
@@ -82,13 +82,13 @@ function LeagueMatchups({ saved, currentLeague, onUpdate, timelines, focus, clos
       const hazards = lineupWarnings([context], { [`${snapshot?.season}:${snapshot?.week}`]: timeline ?? { data: null, error: null } }, Date.now());
       const byes = hazards.filter(w => /Bye/i.test(w.message)).length;
       const outs = hazards.filter(w => /Out|IR|Injured reserve|Inactive/i.test(w.message)).length;
-      return <article className={`${styles.monitorBay} ${sweat ? styles.sweat : ''}`} key={matchupKey(match)}><CrtMonitorFrame>
+      return <article className={`${styles.monitorBay} ${sweat ? styles.sweat : ''}`} key={matchupKey(match)}><StudioMonitorFrame>
         <div className={styles.channelBezel}><i className={`${styles.channelLed} ${hazards.length ? styles.hazardLed : sweat ? styles.sweatLed : ''}`} aria-hidden="true" /><h3><LeagueLink league={{ platform: saved.platform, id: saved.leagueId, season: saved.season }}><span className={styles.channelBadge}>CH {String(channel).padStart(2, '0')}</span> {saved.name}</LeagueLink></h3><span className={styles.studioLine} title="Projection-derived studio line. Entertainment, not sportsbook odds.">{difference === null ? 'LINE: OFF' : Math.abs(difference) < 1 ? 'TOSS-UP' : `LINE: ${-difference > 0 ? '+' : ''}${(-difference).toFixed(1)}`}</span></div>
         <div className={styles.monitorStatus}><span>{saved.platform.toUpperCase()} // WEEK {snapshot?.week ?? '—'}</span>{sweat && <b>WITCHING HOUR SWEAT</b>}</div>
         <Link to={leagueGameDayHref({ platform: saved.platform, id: saved.leagueId, season: saved.season })} className={styles.monitorCanvas} aria-label={`View matchup: ${name(own.id)} vs ${name(opponent.id)}`}>
           {teamInfo(own, true)}{teamInfo(opponent, false)}
         </Link><div className={styles.splitTelemetry}><div className={styles.hazardTags}>{byes > 0 && <span>{byes} ON BYE</span>}{outs > 0 && <span>{outs} OUT / IR</span>}{hazards.length > byes + outs && <span>{hazards.length - byes - outs} HAZARD{hazards.length - byes - outs === 1 ? '' : 'S'}</span>}</div><div className={styles.monitorActions}><ProviderLink compact league={saved} teamId={myTeam} /><MatchupPresser own={name(own.id)} opponent={name(opponent.id)} /></div></div><ProjectionBar own={sides.ownProjection} opponent={sides.opponentProjection} />
-      </CrtMonitorFrame>
+      </StudioMonitorFrame>
       </article>;
     })}
     {snapshot && myTeam && !matches.length && <p className={styles.hint}>No matchup scheduled for your team this week.</p>}

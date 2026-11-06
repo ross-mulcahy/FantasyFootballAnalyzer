@@ -1,3 +1,4 @@
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import { ProjectionBar } from '@/components/ProjectionBar';
 import { ProviderLink } from '@/components/ConnectionHealth';
 import { LeagueLink } from '@/components/LeagueLink';
@@ -30,7 +31,7 @@ function RosterTable({ team, week, timeline, statusStale, startersOnly = false }
     ? team.roster.filter(p => isStartingSlot(p.slot))
     : team.roster;
   if (!players.length) return <p className={styles.empty}>{startersOnly ? 'No starting lineup was returned.' : 'This roster is empty.'}</p>;
-  return <div className={styles.tableWrapper}><table className={styles.table}>
+  return <StudioMonitorFrame as="div" padded className={styles.tableWrapper}><table className={styles.table}>
     <caption className="visually-hidden">{team.name} {startersOnly ? 'starting lineup' : 'roster'}</caption>
     <thead><tr><th scope="col">Player / Stats</th><th scope="col">Slot</th><th scope="col">W{week} pts</th><th scope="col">Proj.</th></tr></thead>
     <tbody>{players.map((p, i) => {
@@ -46,7 +47,7 @@ function RosterTable({ team, week, timeline, statusStale, startersOnly = false }
       {empty ? <span className={styles.playerMeta}>No player selected</span> : p.stats?.length ? <details className={styles.playerStats}><summary>Week {week} stats</summary><dl>{p.stats.map((stat, statIndex) => <div key={`${stat.label}-${statIndex}`}><dt>{stat.label}</dt><dd>{stat.value}</dd></div>)}</dl></details> : noGame ? null : <span className={styles.playerMeta}>Stats not returned</span>}
     </td><td className={styles.slotCell}>{p.slot}</td><td className={styles.numeric}>{typeof p.points === 'number' ? p.points.toFixed(2) : '—'}</td><td className={styles.numeric}>{typeof p.projection === 'number' ? p.projection.toFixed(2) : '—'}</td></tr>;
     })}</tbody>
-  </table></div>;
+  </table></StudioMonitorFrame>;
 }
 
 export function GameDayPage(props: Props) {
@@ -111,7 +112,7 @@ function GameDayView({ league, credentials }: Props) {
           })}
         </div>
         {!snapshot.matchups.length && <p className={styles.empty}>No matchups were returned for this period. <Link to="/rosters">View rosters</Link>.</p>}
-      </MatchupPanel><aside className={`${styles.card} ${styles.section} ${styles.leagueContext}`} aria-label="League board"><h2 className={styles.sectionTitle}>League board</h2><dl><div><dt>Week</dt><dd>{snapshot.week}</dd></div><div><dt>Matchups</dt><dd>{snapshot.matchups.length}</dd></div><div><dt>Teams</dt><dd>{snapshot.teams.length}</dd></div></dl><Link className={styles.rosterLink} to="/rosters">View rosters →</Link></aside></div>}
+      </MatchupPanel><StudioMonitorFrame as="aside" padded className={`${styles.card} ${styles.section} ${styles.leagueContext}`} aria-label="League board"><h2 className={styles.sectionTitle}>League board</h2><dl><div><dt>Week</dt><dd>{snapshot.week}</dd></div><div><dt>Matchups</dt><dd>{snapshot.matchups.length}</dd></div><div><dt>Teams</dt><dd>{snapshot.teams.length}</dd></div></dl><Link className={styles.rosterLink} to="/rosters">View rosters →</Link></StudioMonitorFrame></div>}
       {snapshot?.detailWarnings?.map(warning => <p key={warning} role="status" className={styles.hint}>{warning}</p>)}
       {snapshot && selectedMatchup && (matchup ? <MatchupDetail snapshot={snapshot} matchup={matchup} league={league} now={now} events={events} /> : <p className={styles.empty}>This matchup is not in the current snapshot. <Link to="/game-day">Back to all matchups</Link>.</p>)}
     </div></div>

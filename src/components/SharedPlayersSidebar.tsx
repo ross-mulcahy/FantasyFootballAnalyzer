@@ -92,11 +92,11 @@ function SharedWeek({ players, contexts, season, week, refreshSignal, onTimeline
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fingerprint, stale]);
   return <>
-    <p className={pageStyles.hint}>Week {week}{entries.some(entry => entry.game?.state === 'in') && !stale ? ' · Live updates every 15 seconds' : ''}</p>
+
     {events.error && <p className={pageStyles.hint} role="status">Live updates unavailable. Showing saved details.</p>}
     {!!events.data?.warnings.length && <p className={pageStyles.hint}>Some NFL updates are unavailable.</p>}
     {notifications.problem && <p className={pageStyles.hint} role="status">{notifications.problem}</p>}
-    <ul className={styles.list}>{entries.map(({ player, game, latest, stats }) => <li key={player.key} className={`${styles.player} ${changed.has(player.key) ? styles.changed : ''}`}>
+    <ul className={styles.list} aria-label={`Shared starters · ${season} week ${week}`}>{entries.map(({ player, game, latest, stats }) => <li key={player.key} className={`${styles.player} ${changed.has(player.key) ? styles.changed : ''}`}>
       <details className={styles.playerDetails}>
         <summary className={styles.playerSummary} aria-label={`${player.name}: ${pointsFor(player)}; ${player.owned} leagues on your team, ${player.opposing} against you. Show details.`}>
           <span className={styles.playerHeading}><span role="heading" aria-level={3} className={styles.playerTitle}>{player.name}</span><span className={styles.playerTotals}><span className={styles.points} aria-label={`${player.name} current fantasy points`}>{pointsFor(player)}</span><span className={styles.projection} aria-label={`${player.name} highest league projection`} title="Highest available league projection">Proj. {projectionFor(player)?.toFixed(2) ?? '—'}</span></span><span className={styles.expandMark} aria-hidden="true" /></span>
@@ -149,7 +149,6 @@ export function SharedPlayersSidebar({ contexts, refreshSignal = 0, onCountChang
   useEffect(() => { onCountChange?.(groups.length); }, [groups.length, onCountChange]);
   const missing = contexts.filter(context => !context.snapshot || !context.myTeamId).length;
   return <MatchupPanel studio title="ROOTING CONFLICTS // SHARED STARTERS" panelKey="shared-players" headingId="shared-players-heading" className={styles.panel}>
-    <p className={pageStyles.hint}>Starters shared across 2+ matchups. Highest league projection first.</p>
     {mappingFailed && <p className={pageStyles.hint}>Player IDs unavailable. Using unambiguous name, position and team matches.</p>}
     {!!missing && <p className={pageStyles.hint}>{missing} {missing === 1 ? 'league needs' : 'leagues need'} data or a My team selection in Settings.</p>}
     {index === null ? <p className={pageStyles.hint}>Matching players across leagues…</p> : <>

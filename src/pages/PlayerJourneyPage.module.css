@@ -472,3 +472,4 @@ button.moreResults:hover {
 .playerSelect { background: none; border: 0; color: var(--bone); text-align: left; font: 600 12px var(--font-body); min-height: 36px; cursor: pointer; }
 tr[aria-selected="true"] td:first-child { background: var(--ink-3); }
 @media(max-width:1000px) { .content { grid-template-columns: 1fr; } }
+.statCard :global(.crt-screen) > div { display: flex; flex-direction: column; gap: 5px; }

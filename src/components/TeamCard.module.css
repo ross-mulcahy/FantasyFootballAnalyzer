@@ -25,3 +25,15 @@
 .topScorers strong { font: 600 12px var(--font-mono); }
 .section p { font-size: 11px; color: var(--bone-dim); }
 .luck { display: flex; flex-wrap: wrap; gap: 8px; border-top: 1px solid var(--ink-3); margin-top: 10px; padding-top: 10px; font: 10px var(--font-mono); color: var(--bone-dim); }
+
+.card { padding: 6px 6px 0; border: 0; }
+.header { margin: 0; padding: 12px; background: linear-gradient(#063824 0 55%, #17153b 55%); border-bottom: 2px solid #334155; }
+.stats { gap: 5px; padding: 10px; background: #081024; border: 0; }
+.stats > div { padding: 8px; background: #050b14; border: 1px solid #1e3264; }
+.stats dt { font: 8px var(--font-arcade); }
+.section { margin: 0; padding: 9px 12px; border: 0; background: transparent; }
+.position .segments { height: 10px; display: grid; grid-template-columns: repeat(10,minmax(0,1fr)); gap: 2px; background: transparent; }
+.segments i { height: 100%; background: #172554; border: 1px solid #2a3f7a; }
+.segments i[data-lit="true"] { background: #10b981; border-color: #4ade80; }
+.returns { padding: 8px 12px; color: #94a3b8; font: 8px/1.6 var(--font-mono); }
+.luck { margin: 0; padding: 10px 12px; }

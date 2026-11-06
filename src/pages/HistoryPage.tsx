@@ -1,3 +1,5 @@
+import { StudioTeleprompterBar } from '@/components/StudioTeleprompterBar';
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import { LeagueLink } from '@/components/LeagueLink';
 import { useState, useEffect, useMemo } from 'react';
 import type { League, SeasonSummary, HeadToHeadRecord } from '@/types';
@@ -208,6 +210,7 @@ export function HistoryPage({ league }: HistoryPageProps) {
           <div className={styles.header}>
             <h1 className={styles.title}>League History</h1>
           </div>
+          <StudioTeleprompterBar league={league} view="history" />
           <div className={styles.notice}>
             League history is built for Sleeper, ESPN, and Yahoo leagues.
           </div>
@@ -225,6 +228,8 @@ export function HistoryPage({ league }: HistoryPageProps) {
             {history.length} seasons of <LeagueLink league={league}>{league.name}</LeagueLink>
           </p>
         </div>
+
+        <StudioTeleprompterBar league={league} view="history" takes={[`${history.length} loaded seasons of ${league.name}. The archive remembers every championship parade.`, `Current league: ${league.season}, ${league.teams.length} franchises. Historical results stay tied to the returned seasons.`]} />
 
         {isLoading && (
           <div className={styles.loading} role="status" aria-label="Loading historical data">
@@ -248,7 +253,7 @@ export function HistoryPage({ league }: HistoryPageProps) {
           <>
             {/* Champions wall: a trophy per finished season, newest first */}
             {history.some(s => s.championTeamId) && (
-              <section className={styles.section}>
+              <StudioMonitorFrame as="section" padded className={styles.section}>
                 <h2 className={styles.sectionTitle}>Champions</h2>
                 <div className={styles.championsWall}>
                   {history
@@ -256,7 +261,7 @@ export function HistoryPage({ league }: HistoryPageProps) {
                     .map(s => {
                       const champ = s.teams.find(t => t.id === s.championTeamId);
                       return (
-                        <div key={`${s.leagueId}-${s.season}`} className={styles.championCard}>
+                        <StudioMonitorFrame as="div" padded key={`${s.leagueId}-${s.season}`} className={styles.championCard}>
                           <span className={styles.championYear}>{s.season}</span>
                           <span className={styles.championTrophy}>
                             <span aria-label="Champion"><BroadcastIcon kind="award" /></span>
@@ -268,15 +273,15 @@ export function HistoryPage({ league }: HistoryPageProps) {
                               {champ.ties ? `-${champ.ties}` : ''}
                             </span>
                           )}
-                        </div>
+                        </StudioMonitorFrame>
                       );
                     })}
                 </div>
-              </section>
+              </StudioMonitorFrame>
             )}
 
             {/* Head-to-Head Rivalries */}
-            <section className={styles.section}>
+            <StudioMonitorFrame as="section" padded className={styles.section}>
               <h2 className={styles.sectionTitle}>Head-to-Head Rivalries</h2>
               <p className={styles.sectionDescription}>
                 Select a team to see their all-time record against each opponent.
@@ -332,17 +337,17 @@ export function HistoryPage({ league }: HistoryPageProps) {
                   No head-to-head records found for this team.
                 </div>
               )}
-            </section>
+            </StudioMonitorFrame>
 
             {/* All-Time Leaderboard */}
-            <section className={styles.section}>
+            <StudioMonitorFrame as="section" padded className={styles.section}>
               <h2 className={styles.sectionTitle}>
                 Leaderboard{' '}
                 <span className={styles.sectionQualifier}>
                   last {history.length} season{history.length === 1 ? '' : 's'}
                 </span>
               </h2>
-              <div className={`${styles.tableWrapper} scroll-x-hint`}>
+              <StudioMonitorFrame as="div" padded className={`${styles.tableWrapper} scroll-x-hint`}>
                 <table className={`table ${styles.historyTable}`}>
                   <thead>
                     <tr>
@@ -392,18 +397,18 @@ export function HistoryPage({ league }: HistoryPageProps) {
                     })}
                   </tbody>
                 </table>
-              </div>
-            </section>
+              </StudioMonitorFrame>
+            </StudioMonitorFrame>
 
             {/* Season by Season */}
-            <section className={styles.section}>
+            <StudioMonitorFrame as="section" padded className={styles.section}>
               <h2 className={styles.sectionTitle}>Season History</h2>
               <div className={styles.seasons}>
                 {history.map(season => {
                   const championId = season.championTeamId;
                   const showInProgress = season.isComplete === false;
                   return (
-                    <div key={season.leagueId + '-' + season.season} className={styles.seasonCard}>
+                    <StudioMonitorFrame as="div" padded key={season.leagueId + '-' + season.season} className={styles.seasonCard}>
                       <div className={styles.seasonHeader}>
                         <h3 className={styles.seasonYear}>
                           {season.season}
@@ -441,11 +446,11 @@ export function HistoryPage({ league }: HistoryPageProps) {
                           </div>
                         )}
                       </div>
-                    </div>
+                    </StudioMonitorFrame>
                   );
                 })}
               </div>
-            </section>
+            </StudioMonitorFrame>
           </>
         )}
 

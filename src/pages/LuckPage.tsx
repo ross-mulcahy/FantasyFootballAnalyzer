@@ -1,3 +1,5 @@
+import { StudioTeleprompterBar } from '@/components/StudioTeleprompterBar';
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import { outlierHeatmap } from '@/utils/outlierHeatmap';
 import { LeagueLink } from '@/components/LeagueLink';
 import { useMemo } from 'react';
@@ -58,6 +60,7 @@ export function LuckPage({ league }: LuckPageProps) {
       <div className={styles.luckPage}>
         <div className="container">
           <Header league={league} />
+        <StudioTeleprompterBar league={league} view="luck" />
           <p className={styles.empty}>
             Luck needs results. Come back after the first week of games is final.
           </p>
@@ -88,6 +91,7 @@ export function LuckPage({ league }: LuckPageProps) {
     <div className={styles.luckPage}>
       <div className="container">
         <Header league={league} weeks={weeks.length} />
+        <StudioTeleprompterBar league={league} view="luck" />
 
         {league.hasMedianMatchup && (
           <p className={styles.note}>
@@ -141,7 +145,7 @@ export function LuckPage({ league }: LuckPageProps) {
           )}
         </div>
 
-        <section className={styles.section}>
+        <StudioMonitorFrame as="section" padded className={styles.section}>
           <h2 className={styles.sectionTitle}>Luck Table</h2>
           <p className={styles.note}>
             Expected wins: one for every week you outscored the league median.
@@ -207,9 +211,9 @@ export function LuckPage({ league }: LuckPageProps) {
               </tbody>
             </table>
           </div>
-        </section>
+        </StudioMonitorFrame>
 
-        <section className={styles.section}>
+        <StudioMonitorFrame as="section" padded className={styles.section}>
           <h2 className={styles.sectionTitle}>Points Against</h2>
           <p className={styles.note}>
             What your opponents put up. "Above norm" is how much better they
@@ -274,10 +278,10 @@ export function LuckPage({ league }: LuckPageProps) {
               </tbody>
             </table>
           </div>
-        </section>
+        </StudioMonitorFrame>
 
         {showSwap && (
-          <section className={styles.section}>
+          <StudioMonitorFrame as="section" padded className={styles.section}>
             <h2 className={styles.sectionTitle}>Schedule Swap</h2>
             <p className={styles.note}>
               Your weekly scores, replayed against every other team's
@@ -371,11 +375,11 @@ export function LuckPage({ league }: LuckPageProps) {
                 </table>
               </div>
             </details>
-          </section>
+          </StudioMonitorFrame>
         )}
 
         {showInjuries && (
-          <section className={styles.section}>
+          <StudioMonitorFrame as="section" padded className={styles.section}>
             <h2 className={styles.sectionTitle}>Injury Luck</h2>
             <p className={styles.note}>
               Weeks a drafted player sat out (byes excluded) while still on the
@@ -428,7 +432,7 @@ export function LuckPage({ league }: LuckPageProps) {
                 </tbody>
               </table>
             </div>
-          </section>
+          </StudioMonitorFrame>
         )}
 
         <p className={styles.note}>
@@ -462,7 +466,7 @@ function Headline({ label, teamId, name, teams, value, detail }: {
 )) {
   const list = teams ?? [{ teamId: teamId!, name: name! }];
   return (
-    <div className={styles.headline}>
+    <StudioMonitorFrame as="div" padded className={styles.headline}>
       <span className={styles.headlineLabel}>{label}</span>
       <span className={styles.headlineTeam}>
         {list.map((t, i) => (
@@ -474,7 +478,7 @@ function Headline({ label, teamId, name, teams, value, detail }: {
       </span>
       <span className={styles.headlineValue}>{value}</span>
       <span className={styles.headlineDetail}>{detail}</span>
-    </div>
+    </StudioMonitorFrame>
   );
 }
 

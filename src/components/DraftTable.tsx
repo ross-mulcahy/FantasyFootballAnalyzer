@@ -1,7 +1,8 @@
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import { outlierHeatmap } from '@/utils/outlierHeatmap';
 import { useState, useMemo, type CSSProperties } from 'react';
 import type { League, RosterSlots, ScoringType, Team } from '@/types';
-import { gradeAllPicks, isGraded, getGradeDisplayText, formatValueOverExpected, auctionBadgeWord, explainGrade, describeGradeBasis } from '@/utils/grading';
+import { gradeAllPicks, isGraded, formatValueOverExpected, auctionBadgeWord, explainGrade, describeGradeBasis } from '@/utils/grading';
 import {
   BOARD_MATCH_FLOOR,
   consensusBoardCoverage,
@@ -31,7 +32,7 @@ import { POOL } from '@/data/draftPool';
 import { WEEKLY_SHAPE } from '@/data/weeklyShape';
 import { leagueOutlooks } from '@/utils/seasonOutlook';
 import { useSounds } from '@/hooks/useSounds';
-import { NflTeamLabel } from './NflTeamLabel';
+import { NflTeamChip } from './NflTeamChip';
 import { PosBadge } from './PosBadge';
 import { TeamLink } from './TeamLink';
 import { isPlaceholderPlayer } from '@/utils/placeholders';
@@ -548,7 +549,7 @@ export function DraftTable({
       )}
 
       {leaderboard.length > 1 && (
-        <div className={styles.leaderboard}>
+        <StudioMonitorFrame as="div" padded className={styles.leaderboard}>
           <h3 className={styles.leaderboardTitle}>
             {hasResults ? 'Whose draft won?' : 'Whose roster projects best?'}
           </h3>
@@ -617,11 +618,11 @@ export function DraftTable({
               </button>
             ))}
           </div>
-        </div>
+        </StudioMonitorFrame>
       )}
 
       {nominationBoard && nominationBoard.length > 1 && (
-        <div className={styles.leaderboard}>
+        <StudioMonitorFrame as="div" padded className={styles.leaderboard}>
           <h3 className={styles.leaderboardTitle}>The nomination game</h3>
           <p className={styles.gradeBasis}>
             ESPN logs who put each player on the block. A high own-win rate means a team nominated
@@ -666,7 +667,7 @@ export function DraftTable({
               </button>
             ))}
           </div>
-        </div>
+        </StudioMonitorFrame>
       )}
 
       <KeeperValuePanel rows={keeperRows} />
@@ -794,7 +795,7 @@ export function DraftTable({
         </div>
       </div>
 
-      <div className={`${styles.tableWrapper} scroll-x-hint`}>
+      <StudioMonitorFrame as="div" padded className={`${styles.tableWrapper} scroll-x-hint`}>
         <table className={`table ${styles.table}`}>
           <thead>
             <tr>
@@ -870,7 +871,7 @@ export function DraftTable({
                         </span>
                       )}
                     </span>
-                    <NflTeamLabel team={pick.player.team} />
+                    <NflTeamChip team={pick.player.team} />
                   </div>
                 </td>
                 <td className={styles.colPos}>
@@ -938,7 +939,7 @@ export function DraftTable({
                     >
                       {valuesInDollars
                         ? auctionBadgeWord(pick.auctionValueGrade, pick.grade).word
-                        : getGradeDisplayText(pick.grade)}
+                        : ({ great: 'DRAFT STEAL', good: 'SOLID PICK', bad: 'REACH', terrible: 'TOTAL BUST' }[pick.grade])}
                     </span>
                   )}
                 </td>
@@ -946,7 +947,7 @@ export function DraftTable({
             ))}
           </tbody>
         </table>
-      </div>
+      </StudioMonitorFrame>
 
       {displayPicks.length === 0 && (
         <div className={styles.empty}>

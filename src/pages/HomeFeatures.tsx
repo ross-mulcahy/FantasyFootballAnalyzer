@@ -1,3 +1,4 @@
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import styles from './HomePage.module.css';
 
 // Static feature grid. Pure (no hooks or browser APIs) so it server-renders
@@ -11,7 +12,7 @@ export function HomeFeatures() {
   const base = import.meta.env.BASE_URL;
   return (
     <div className={styles.features}>
-      <a className={styles.feature} href={`${base}draft-grades`}>
+      <StudioMonitorFrame as="a" padded className={styles.feature} href={`${base}draft-grades`}>
         <div className={styles.featureIcon}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 2L2 7l10 5 10-5-10-5z" />
@@ -24,9 +25,9 @@ export function HomeFeatures() {
           Grade every pick based on actual season production.
           See who got value and who reached.
         </p>
-      </a>
+      </StudioMonitorFrame>
 
-      <a className={styles.feature} href={`${base}draft-room`}>
+      <StudioMonitorFrame as="a" padded className={styles.feature} href={`${base}draft-room`}>
         <div className={styles.featureIcon}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="4" y="4" width="16" height="16" rx="2" />
@@ -46,9 +47,9 @@ export function HomeFeatures() {
           Practice snake or auction drafts against AI opponents
           with their own tendencies, at your own pace.
         </p>
-      </a>
+      </StudioMonitorFrame>
 
-      <a className={styles.feature} href={`${base}draft-room`}>
+      <StudioMonitorFrame as="a" padded className={styles.feature} href={`${base}draft-room`}>
         <div className={styles.featureIcon}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="10" />
@@ -63,9 +64,9 @@ export function HomeFeatures() {
           Track your snake or auction draft as it happens.
           Budget inflation, pick suggestions, and survival odds.
         </p>
-      </a>
+      </StudioMonitorFrame>
 
-      <a className={styles.feature} href={`${base}rankings`}>
+      <StudioMonitorFrame as="a" padded className={styles.feature} href={`${base}rankings`}>
         <div className={styles.featureIcon}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="8" y1="6" x2="21" y2="6" />
@@ -81,9 +82,9 @@ export function HomeFeatures() {
           FantasyPros, ESPN, Sleeper, and Yahoo boards side by side.
           Sort by ADP or dollar value.
         </p>
-      </a>
+      </StudioMonitorFrame>
 
-      <a className={styles.feature} href={`${base}trade-analyzer`}>
+      <StudioMonitorFrame as="a" padded className={styles.feature} href={`${base}trade-analyzer`}>
         <div className={styles.featureIcon}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M7 16l-4-4 4-4M17 8l4 4-4 4M3 12h18" />
@@ -94,9 +95,9 @@ export function HomeFeatures() {
           Grade each side of every trade by the points
           scored after the deal, and name the winner.
         </p>
-      </a>
+      </StudioMonitorFrame>
 
-      <div className={styles.feature}>
+      <StudioMonitorFrame as="div" padded className={styles.feature}>
         <div className={styles.featureIcon}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -110,9 +111,9 @@ export function HomeFeatures() {
           Track every pickup and free agent add.
           See total points generated in started games.
         </p>
-      </div>
+      </StudioMonitorFrame>
 
-      <div className={styles.feature}>
+      <StudioMonitorFrame as="div" padded className={styles.feature}>
         <div className={styles.featureIcon}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -126,9 +127,9 @@ export function HomeFeatures() {
           Side-by-side team cards with draft grades,
           waiver ROI, and season stats.
         </p>
-      </div>
+      </StudioMonitorFrame>
 
-      <div className={styles.feature}>
+      <StudioMonitorFrame as="div" padded className={styles.feature}>
         <div className={styles.featureIcon}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="8" r="7" />
@@ -140,9 +141,9 @@ export function HomeFeatures() {
           Trophies for highest scorer,
           best draft, trade heist, and bench warmer.
         </p>
-      </div>
+      </StudioMonitorFrame>
 
-      <div className={styles.feature}>
+      <StudioMonitorFrame as="div" padded className={styles.feature}>
         <div className={styles.featureIcon}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M4 4h16v16H4z" />
@@ -157,9 +158,9 @@ export function HomeFeatures() {
           Expected wins vs actual wins. All-play records,
           close game rates, and a luck score for every team.
         </p>
-      </div>
+      </StudioMonitorFrame>
 
-      <div className={styles.feature}>
+      <StudioMonitorFrame as="div" padded className={styles.feature}>
         <div className={styles.featureIcon}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
@@ -170,9 +171,9 @@ export function HomeFeatures() {
           Full transaction timeline for any player: drafted,
           traded, added, dropped.
         </p>
-      </div>
+      </StudioMonitorFrame>
 
-      <div className={styles.feature}>
+      <StudioMonitorFrame as="div" padded className={styles.feature}>
         <div className={styles.featureIcon}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 8V4H8" />
@@ -184,9 +185,9 @@ export function HomeFeatures() {
           All-time standings, past champions, and head-to-head
           records across every season in the league.
         </p>
-      </div>
+      </StudioMonitorFrame>
 
-      <div className={styles.feature}>
+      <StudioMonitorFrame as="div" padded className={styles.feature}>
         <div className={styles.featureIcon}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -201,7 +202,7 @@ export function HomeFeatures() {
           Full league report as a shareable PDF.
           Draft grades, awards, and analysis.
         </p>
-      </div>
+      </StudioMonitorFrame>
     </div>
   );
 }

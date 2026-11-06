@@ -1,3 +1,5 @@
+import { StudioTeleprompterBar } from '@/components/StudioTeleprompterBar';
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import { BroadcastIcon } from '@/components/BroadcastIcon';
 import { useDeferredValue, useMemo, useState } from 'react';
 import { POOL } from '@/data/draftPool';
@@ -212,7 +214,7 @@ export function ValuesPage({ league, onUpdateGuest }: ValuesPageProps) {
 
   return (
     <div className={styles.page}>
-      <div className="container">
+      <div className="container"><StudioTeleprompterBar takes={["Site values desk open. The disagreement between these boards is the story.", "Compare the same scoring format before declaring a bargain."]} />
         <div className={styles.header}>
           <h1 className={styles.title}>Site Values</h1>
           <p className={styles.subtitle}>
@@ -297,7 +299,7 @@ export function ValuesPage({ league, onUpdateGuest }: ValuesPageProps) {
 
         <div className={styles.cards}>
           {cards.map(({ site, rows: top }) => (
-            <div key={site} className={styles.card}>
+            <StudioMonitorFrame as="div" padded key={site} className={styles.card}>
               <h2 className={styles.cardTitle}>
                 {SITE_LABEL[site]}
                 <span className={styles.cardTag}>
@@ -339,7 +341,7 @@ export function ValuesPage({ league, onUpdateGuest }: ValuesPageProps) {
                   ))}
                 </ol>
               )}
-            </div>
+            </StudioMonitorFrame>
           ))}
         </div>
 
@@ -358,7 +360,7 @@ export function ValuesPage({ league, onUpdateGuest }: ValuesPageProps) {
           )}
         </div>
 
-        <div className={`${styles.tableWrapper} scroll-x-hint`}>
+        <StudioMonitorFrame as="div" padded className={`${styles.tableWrapper} scroll-x-hint`}>
           <table className={styles.table}>
             <thead>
               <tr>
@@ -463,7 +465,7 @@ export function ValuesPage({ league, onUpdateGuest }: ValuesPageProps) {
               Showing the top {MAX_ROWS}. Search or filter by position for the rest.
             </div>
           )}
-        </div>
+        </StudioMonitorFrame>
 
         <p className={styles.footnote}>
           Consensus blends the FantasyPros expert rank with each site's draft

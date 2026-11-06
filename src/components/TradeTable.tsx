@@ -1,6 +1,8 @@
+import { outlierHeatmap } from '@/utils/outlierHeatmap';
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import { useState, useMemo } from 'react';
 import type { Trade, Team } from '@/types';
-import { NflTeamLabel } from './NflTeamLabel';
+import { NflTeamChip } from './NflTeamChip';
 import { PosBadge } from './PosBadge';
 import { TeamLink } from './TeamLink';
 import styles from './TradeTable.module.css';
@@ -51,6 +53,8 @@ export function TradeTable({ trades, teams }: TradeTableProps) {
 
     return stats;
   }, [trades]);
+
+  const netHeat = outlierHeatmap(trades.flatMap(trade => trade.teams.map(side => side.netPAR ?? side.netValue)));
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString('en-US', {
@@ -111,7 +115,7 @@ export function TradeTable({ trades, teams }: TradeTableProps) {
           {displayTrades.map((trade) => {
             const isIncomplete = (trade as any).isIncomplete;
             return (
-            <div key={trade.id} className={`${styles.tradeCard} ${isIncomplete ? styles.incomplete : ''}`}>
+            <StudioMonitorFrame as="div" padded key={trade.id} className={`${styles.tradeCard} ${isIncomplete ? styles.incomplete : ''}`}>
               <div className={styles.tradeHeader}>
                 <span className={styles.tradeWeek}>Week {trade.week}</span>
                 <span className={styles.tradeDate}>{formatDate(trade.timestamp)}</span>
@@ -156,7 +160,7 @@ export function TradeTable({ trades, teams }: TradeTableProps) {
                             <div key={player.id} className={styles.player}>
                               <span className={styles.playerName}>{player.name}</span>
                               <span className={styles.playerMeta}>
-                                <PosBadge pos={player.position} /> <NflTeamLabel team={player.team} />
+                                <PosBadge pos={player.position} /> <NflTeamChip team={player.team} />
                               </span>
                             </div>
                           ))}
@@ -189,7 +193,7 @@ export function TradeTable({ trades, teams }: TradeTableProps) {
                             <div key={player.id} className={styles.player}>
                               <span className={styles.playerName}>{player.name}</span>
                               <span className={styles.playerMeta}>
-                                <PosBadge pos={player.position} /> <NflTeamLabel team={player.team} />
+                                <PosBadge pos={player.position} /> <NflTeamChip team={player.team} />
                               </span>
                             </div>
                           ))}
@@ -225,7 +229,7 @@ export function TradeTable({ trades, teams }: TradeTableProps) {
                         <span>PAR Lost:</span>
                         <span className={styles.negative}>-{(teamSide.parLost ?? teamSide.pointsLost).toFixed(1)}</span>
                       </div>
-                      <div className={`${styles.pointItem} ${styles.netValue}`}>
+                      <div className={`${styles.pointItem} ${styles.netValue} ${netHeat(teamSide.netPAR ?? teamSide.netValue)}`}>
                         <span>Net PAR:</span>
                         <span className={(teamSide.netPAR ?? teamSide.netValue) >= 0 ? styles.positive : styles.negative}>
                           {(teamSide.netPAR ?? teamSide.netValue) >= 0 ? '+' : ''}{(teamSide.netPAR ?? teamSide.netValue).toFixed(1)}
@@ -243,7 +247,7 @@ export function TradeTable({ trades, teams }: TradeTableProps) {
                   </div>
                 ))}
               </div>
-            </div>
+            </StudioMonitorFrame>
           );
           })}
         </div>
@@ -262,7 +266,7 @@ export function TradeTable({ trades, teams }: TradeTableProps) {
       )}
 
       {teams.length > 0 && trades.length > 0 && (
-        <div className={styles.leaderboard}>
+        <StudioMonitorFrame as="div" padded className={styles.leaderboard}>
           <h3 className={styles.leaderboardTitle}>Trade Performance Leaderboard (PAR)</h3>
           <div className={styles.leaderboardList}>
             {Array.from(teamStats.entries())
@@ -288,7 +292,7 @@ export function TradeTable({ trades, teams }: TradeTableProps) {
                 );
               })}
           </div>
-        </div>
+        </StudioMonitorFrame>
       )}
     </div>
   );

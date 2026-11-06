@@ -1,4 +1,5 @@
-import { PageTeleprompter } from '@/components/PageTeleprompter';
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
+import { StudioTeleprompterBar } from '@/components/StudioTeleprompterBar';
 import { LeagueLink } from '@/components/LeagueLink';
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -135,10 +136,10 @@ export function TeamsPage({ league }: TeamsPageProps) {
           )}
         </div>
 
-        <PageTeleprompter message={`Franchise dossiers for ${league.name}. I've got every front office on the studio wall.`} />
+        <StudioTeleprompterBar league={league} view="teams" />
 
         {scores.length > 0 && (
-          <section className={styles.skillSection}>
+          <StudioMonitorFrame as="section" padded className={styles.skillSection}>
             <h2 className={styles.sectionTitle}>Manager Skill Score</h2>
             <p className={styles.sectionHint}>
               {scores[0].components.trades === null
@@ -164,7 +165,7 @@ export function TeamsPage({ league }: TeamsPageProps) {
                 </div>
               ))}
             </div>
-          </section>
+          </StudioMonitorFrame>
         )}
 
         <div className={styles.grid}>
@@ -180,10 +181,10 @@ export function TeamsPage({ league }: TeamsPageProps) {
         </div>
 
         {h2h.size > 1 && (
-          <section className={styles.matrixSection}>
+          <StudioMonitorFrame as="section" padded className={styles.matrixSection}>
             <h2 className={styles.sectionTitle}>Head-to-Head Grid</h2>
             <p className={styles.sectionHint}>Season records, row vs column.</p>
-            <div className={`${styles.matrixWrapper} scroll-x-hint`}>
+            <StudioMonitorFrame as="div" padded className={`${styles.matrixWrapper} scroll-x-hint`}>
               <table className={styles.matrix}>
                 <thead>
                   <tr>
@@ -222,8 +223,8 @@ export function TeamsPage({ league }: TeamsPageProps) {
                   ))}
                 </tbody>
               </table>
-            </div>
-          </section>
+            </StudioMonitorFrame>
+          </StudioMonitorFrame>
         )}
       </div>
     </div>

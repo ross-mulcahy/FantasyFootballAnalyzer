@@ -253,3 +253,8 @@
 
 .page { padding: 0; }
 .header { margin-bottom: 20px; padding-bottom: 0; border: 0; }
+.headline:nth-child(n) .headlineLabel, .headline:nth-child(n) .headlineDetail { color: #94a3b8; }
+.headline:nth-child(n) .headlineTeam, .headline:nth-child(n) .headlineTeam a { color: #f8fafc; }
+.headline:nth-child(n) .headlineValue { color: #ffdc80; }
+.headline :global(.crt-screen) { background: #0d1836; }
+.headline :global(.crt-screen) > div { display: flex; flex-direction: column; gap: 5px; }

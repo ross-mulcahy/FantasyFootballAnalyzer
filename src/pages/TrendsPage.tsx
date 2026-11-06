@@ -1,3 +1,6 @@
+import { NflTeamChip } from '@/components/NflTeamChip';
+import { StudioTeleprompterBar } from '@/components/StudioTeleprompterBar';
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import { useMemo, useState } from 'react';
 import { POOL } from '@/data/draftPool';
 import { formatBuildDate } from '@/utils/formatBuildDate';
@@ -49,6 +52,7 @@ const fmtDate = (iso: string) =>
 function PlayerFace({ player }: { player: PoolPlayer }) {
   const [imgFailed, setImgFailed] = useState(false);
   const headshot = playerHeadshotUrl(player.sleeperId);
+  if (player.pos === 'DST') return <NflTeamChip team={player.team} />;
   if (headshot && !imgFailed) {
     return (
       <img
@@ -156,7 +160,7 @@ export function TrendsPage({ league }: TrendsPageProps) {
 
   return (
     <div className={styles.page}>
-      <div className="container">
+      <div className="container"><StudioTeleprompterBar takes={["ADP tape rolling. Movement on the loaded market board, with receipts.", "A rising price is not a completed touchdown."]} />
         <div className={styles.header}>
           <h1 className={styles.title}>ADP Trends</h1>
           <p className={styles.subtitle}>
@@ -200,14 +204,14 @@ export function TrendsPage({ league }: TrendsPageProps) {
 
         {windows.map(w =>
           !w.trends ? (
-            <section key={w.days} className={styles.window}>
+            <StudioMonitorFrame as="section" padded key={w.days} className={styles.window}>
               <h2 className={styles.windowTitle}>{w.label}</h2>
               <p className={styles.empty}>
                 Movement shows up after the next daily rankings update.
               </p>
-            </section>
+            </StudioMonitorFrame>
           ) : (
-            <section key={w.days} className={styles.window}>
+            <StudioMonitorFrame as="section" padded key={w.days} className={styles.window}>
               <h2 className={styles.windowTitle}>
                 {w.label}
                 <span className={styles.windowTag}>
@@ -216,7 +220,7 @@ export function TrendsPage({ league }: TrendsPageProps) {
               </h2>
               <div className={styles.cards}>
                 {w.columns.map(col => (
-                  <div key={col.key} className={styles.card}>
+                  <StudioMonitorFrame as="div" padded key={col.key} className={styles.card}>
                     <h3 className={col.rising ? styles.cardTitleUp : styles.cardTitleDown}>
                       {col.title}
                     </h3>
@@ -238,10 +242,10 @@ export function TrendsPage({ league }: TrendsPageProps) {
                         ))}
                       </ol>
                     )}
-                  </div>
+                  </StudioMonitorFrame>
                 ))}
               </div>
-            </section>
+            </StudioMonitorFrame>
           ),
         )}
 

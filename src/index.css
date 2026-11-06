@@ -711,8 +711,8 @@ table tbody tr:hover td:first-child { background-color: var(--ink-3); }
 .projection-bar { height: 4px; background: #64748b; overflow: hidden; }
 .projection-bar span { display: block; height: 100%; background: var(--lime); }
 .projection-bar.unavailable { background: var(--rule); }
-.outlier-high { background: #10b9811f !important; }
-.outlier-low { background: #ef44441f !important; }
+.outlier-high { background: #10b98126 !important; }
+.outlier-low { background: #e11d4826 !important; }
 .grade-badge { font-size: 9px; white-space: nowrap; }
 .grade-badge.great { color: var(--lime); background: #10b98126; border-color: #10b9814d; }
 .grade-badge.good { color: #6cba9b; background: #6cba9b26; border-color: #6cba9b4d; }

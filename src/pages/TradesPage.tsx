@@ -1,4 +1,5 @@
-import { PageTeleprompter } from '@/components/PageTeleprompter';
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
+import { StudioTeleprompterBar } from '@/components/StudioTeleprompterBar';
 import { TradeTable } from '@/components/TradeTable';
 import type { League } from '@/types';
 import { verdictBasisSummary } from '@/utils/tradeVerdict';
@@ -25,18 +26,18 @@ export function TradesPage({ league }: TradesPageProps) {
           </p>
         </div>
 
-        <PageTeleprompter message={`Opening the trade desk for ${league.name}. Every blockbuster gets the tape-room treatment.`} />
+        <StudioTeleprompterBar league={league} view="trades" />
 
         {hasTrades ? (
           <TradeTable trades={league.trades || []} teams={league.teams} />
         ) : (
-          <div className={styles.empty}>
+          <StudioMonitorFrame as="div" padded className={styles.empty}>
             <h2>No Trades Found</h2>
             <p>
               No trades have been made in this league this season, or trade data
               could not be loaded.
             </p>
-          </div>
+          </StudioMonitorFrame>
         )}
       </div>
     </div>

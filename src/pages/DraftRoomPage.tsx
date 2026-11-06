@@ -1,3 +1,5 @@
+import { StudioTeleprompterBar } from '@/components/StudioTeleprompterBar';
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import { BroadcastIcon } from '@/components/BroadcastIcon';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -54,7 +56,7 @@ function PickTimer({ lastEventTs }: { lastEventTs: number | null }) {
   const ss = String(secs % 60).padStart(2, '0');
   return (
     <span title="Time since the last logged pick">
-      ⏱ {mm}:{ss}
+      <BroadcastIcon kind="activity" /> {mm}:{ss}
     </span>
   );
 }
@@ -606,6 +608,7 @@ export function DraftRoomPage({ league, justConnected }: DraftRoomPageProps) {
       }
     >
       <div className={phase === 'setup' ? 'container' : `container ${styles.wide}`}>
+        {!phoneSheet && <StudioTeleprompterBar league={league} takes={["Draft control room open. The live log and mock controls are on this console.", "The next pick is a decision. The group chat is background noise."]} />}
         {/* The masthead is orientation, and mid-draft on a phone you are
             already oriented - it cost a screenful above the board. The same
             config line reappears at the top of the settings pane, which is
@@ -632,7 +635,7 @@ export function DraftRoomPage({ league, justConnected }: DraftRoomPageProps) {
                 analysis rather than opening straight onto a setup screen for
                 a draft that already happened; mocks stay available below. */}
             {alreadyDrafted && (
-              <div className={styles.draftDonePanel}>
+              <StudioMonitorFrame as="div" padded className={styles.draftDonePanel}>
                 <h2 className={styles.draftDoneTitle}>This league already drafted</h2>
                 <p className={styles.draftDoneCopy}>
                   {league.name} finished its {POOL.season} draft, so there is nothing left to run
@@ -646,7 +649,7 @@ export function DraftRoomPage({ league, justConnected }: DraftRoomPageProps) {
                 <p className={styles.draftDoneAside}>
                   Setting up below still runs a mock against the {POOL.season} board.
                 </p>
-              </div>
+              </StudioMonitorFrame>
             )}
             <DraftSetup room={room} league={league} />
           </>
@@ -1062,11 +1065,11 @@ export function DraftRoomPage({ league, justConnected }: DraftRoomPageProps) {
                   </div>
                 </div>
 
-                <div className={styles.teamsSection}>
+                <StudioMonitorFrame as="div" padded className={styles.teamsSection}>
                   {/* Post-draft every row reads FULL; the panel is noise. */}
                   {phase !== 'complete' && <LeagueNeeds room={room} layout="row" />}
                   <TeamBoard room={room} />
-                </div>
+                </StudioMonitorFrame>
               </>
             )}
           </>

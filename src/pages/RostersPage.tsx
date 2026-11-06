@@ -1,3 +1,5 @@
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
+import { StudioTeleprompterBar } from '@/components/StudioTeleprompterBar';
 import { WorkspaceControls } from '@/components/WorkspaceControls';
 import { LeagueLink } from '@/components/LeagueLink';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -20,6 +22,6 @@ export function RostersPage({ league, credentials }: { league: League; credentia
       next.set('team', event.target.value);
       return next;
     })}>{league.teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label></WorkspaceControls>
-    {team ? <TeamRosterView league={league} team={team} credentials={credentials} onBack={() => navigate('/teams')} /> : <p className={styles.empty}>No teams were returned for this league.</p>}
+    {team ? <TeamRosterView league={league} team={team} credentials={credentials} onBack={() => navigate('/teams')} /> : <StudioMonitorFrame padded><StudioTeleprompterBar league={league} view="rosters" /><p className={styles.empty}>No teams were returned for this league.</p></StudioMonitorFrame>}
   </div></div>;
 }

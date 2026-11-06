@@ -480,3 +480,12 @@
 @media(max-width:650px) { :global(#main-content) .dashboardHeading h1 { font-size: 23px; } }
 .monitorCanvas .ownTeam, .monitorCanvas .opponentTeam { min-height: 64px; padding-block: 8px; }
 @media(max-width:650px) { .dashboardHeading { flex: 1 0 100%; } .dashboardHeader > div[aria-label^="Cortisol telemetry"] { flex: 1 1 220px; min-width: 0; } }
+
+/* Compact monitor chrome and remove the event card's legacy top margin. */
+:global(#main-content) .sharedSidebar .panelHeader h2 { font-size: 14px; line-height: 1.25; }
+.sharedSidebar .combinedEvents { max-height: none; overflow: visible; }
+.combinedEvents > .studioPanel { margin-top: 0; }
+.sharedSidebar .combinedEvents .studioPanel :global(.crt-screen) > div:last-child { max-height: clamp(110px, calc(100dvh - 790px), 220px); overflow-y: auto; }
+.sharedSidebar .panelHeader { min-height: 0; padding: 6px 10px; }
+.sharedSidebar .studioPanel :global(.crt-screen) > .panelHeader { padding: 6px 10px; }
+.sharedSidebar .combinedEvents .studioPanel :global(.crt-screen) > div:last-child { max-height: clamp(100px, calc(100dvh - 800px), 220px); }

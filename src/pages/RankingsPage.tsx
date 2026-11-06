@@ -1,3 +1,5 @@
+import { StudioTeleprompterBar } from '@/components/StudioTeleprompterBar';
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import { BroadcastIcon } from '@/components/BroadcastIcon';
 import { Fragment, useDeferredValue, useMemo, useState } from 'react';
 import { POOL } from '@/data/draftPool';
@@ -259,7 +261,7 @@ export function RankingsPage({ league, onUpdateGuest, initialPos }: RankingsPage
 
   return (
     <div className={styles.page}>
-      <div className="container">
+      <div className="container"><StudioTeleprompterBar takes={["Rankings feed open. Filter the loaded board; the scouting desk is taking notes.", "Ranking bands are estimates, not a promise of Sunday points."]} />
         <div className={styles.header}>
           <h1 className={styles.title}>
             {posFilter !== 'ALL' ? `${labelForPos(posFilter)} Rankings` : 'Rankings'}
@@ -403,7 +405,7 @@ export function RankingsPage({ league, onUpdateGuest, initialPos }: RankingsPage
           </div>
         </div>
 
-        <div className={`${styles.tableWrapper} scroll-x-hint`}>
+        <StudioMonitorFrame as="div" padded className={`${styles.tableWrapper} scroll-x-hint`}>
           <table className={styles.table}>
             <thead>
               <tr>
@@ -595,7 +597,7 @@ export function RankingsPage({ league, onUpdateGuest, initialPos }: RankingsPage
               Showing {MAX_ROWS} of {rows.length}. Search or filter to narrow.
             </div>
           )}
-        </div>
+        </StudioMonitorFrame>
       </div>
     </div>
   );

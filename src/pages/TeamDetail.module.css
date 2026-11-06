@@ -58,3 +58,10 @@
 .recBad { color: #f87171; }
 @media(max-width:1100px) { .consoles { grid-template-columns: 1fr; } }
 @media(max-width:600px) { .telemetryExtras { grid-template-columns: 1fr; } .rosterRow { gap: 5px; padding: 7px; } .playerName { font-size: 14px; } .rosterNumbers strong { font-size: 15px; } .slot { width: 22px; font-size: 8px; } .rosterRow > span[class*="badge"] { font-size: 11px; min-width: 24px; } .stamp { font-size: 9px; padding: 4px; } .teamHeader h2 { font-size: 20px; } }
+
+.consoles { grid-template-columns: repeat(12,minmax(0,1fr)); }
+.lineupConsole, .tapeConsole { grid-column: span 6; }
+.playerIdentity { display: flex; flex: 1; min-width: 0; align-items: center; flex-wrap: wrap; gap: 5px; }
+.playerIdentity .playerName { flex: 0 1 auto; }
+.benchDivider { background: repeating-linear-gradient(-45deg,#eab308,#eab308 12px,#091326 12px,#091326 24px); color: #f8fafc; text-shadow: 1px 1px #000; }
+@media(max-width:1100px) { .lineupConsole, .tapeConsole { grid-column: 1 / -1; } }

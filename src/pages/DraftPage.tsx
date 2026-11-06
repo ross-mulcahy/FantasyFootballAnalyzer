@@ -1,4 +1,5 @@
-import { PageTeleprompter } from '@/components/PageTeleprompter';
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
+import { StudioTeleprompterBar } from '@/components/StudioTeleprompterBar';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { DraftTable } from '@/components/DraftTable';
@@ -72,7 +73,7 @@ export function DraftPage({ league }: DraftPageProps) {
           </p>
         </div>
 
-        <PageTeleprompter message={`Draft audit for ${league.name}. Let's see who found a steal and who drafted a press conference.`} />
+        <StudioTeleprompterBar league={league} view="draft" />
 
         {showToggle && (
           <div className={styles.sourceToggle} role="group" aria-label="Draft data source">
@@ -132,7 +133,7 @@ export function DraftPage({ league }: DraftPageProps) {
             />
           )
         ) : (
-          <div className={styles.empty}>
+          <StudioMonitorFrame as="div" padded className={styles.empty}>
             <h2>No Draft Data Available</h2>
             <p>
               Draft data could not be loaded for this league.
@@ -156,7 +157,7 @@ export function DraftPage({ league }: DraftPageProps) {
                 </Link>
               </div>
             )}
-          </div>
+          </StudioMonitorFrame>
         )}
       </div>
     </div>

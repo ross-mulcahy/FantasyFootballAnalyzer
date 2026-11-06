@@ -19,3 +19,6 @@ export { PosBadge } from './PosBadge';
 export { NflTeamChip } from './NflTeamChip';
 export { TeamLink } from './TeamLink';
 export { LuckIcon } from './LuckIcon';
+
+export { StudioMonitorFrame } from './StudioMonitorFrame';
+export { StudioTeleprompterBar } from './StudioTeleprompterBar';

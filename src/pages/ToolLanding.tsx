@@ -1,3 +1,4 @@
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import type { ToolLandingContent } from './toolLandings';
 import styles from './ToolLanding.module.css';
 
@@ -33,10 +34,10 @@ export function ToolLanding({ content }: { content: ToolLandingContent }) {
 
         <ul className={styles.points}>
           {content.points.map(pt => (
-            <li key={pt.h} className={styles.point}>
+            <StudioMonitorFrame as="li" padded key={pt.h} className={styles.point}>
               <h2 className={styles.pointTitle}>{pt.h}</h2>
               <p className={styles.pointBody}>{pt.p}</p>
-            </li>
+            </StudioMonitorFrame>
           ))}
         </ul>
       </div>

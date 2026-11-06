@@ -84,7 +84,7 @@ describe('DraftTable keeper handling', () => {
     renderTable();
     const row = rowFor(KEPT_LATE.name);
     expect(within(row).getByText('Keeper')).toBeInTheDocument();
-    expect(within(row).queryByText(/LEAGUE WINNER|SOLID VALUE|REACH|ROSTER CLOGGER/)).not.toBeInTheDocument();
+    expect(within(row).queryByText(/DRAFT STEAL|SOLID PICK|REACH|TOTAL BUST/)).not.toBeInTheDocument();
     // The value column reads as "no judgment", not as a large positive edge.
     expect(within(row).getByText('—')).toBeInTheDocument();
   });
@@ -93,7 +93,7 @@ describe('DraftTable keeper handling', () => {
     renderTable();
     const row = rowFor(DRAFTED_EARLY.name);
     expect(within(row).queryByText('Keeper')).not.toBeInTheDocument();
-    expect(within(row).getByText(/LEAGUE WINNER|SOLID VALUE|REACH|ROSTER CLOGGER/)).toBeInTheDocument();
+    expect(within(row).getByText(/DRAFT STEAL|SOLID PICK|REACH|TOTAL BUST/)).toBeInTheDocument();
   });
 
   it('leaves the keeper out of the grade tally', () => {

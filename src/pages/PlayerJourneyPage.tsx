@@ -1,3 +1,5 @@
+import { StudioTeleprompterBar } from '@/components/StudioTeleprompterBar';
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import { LeagueLink } from '@/components/LeagueLink';
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -364,9 +366,10 @@ export function PlayerJourneyPage({ league }: PlayerJourneyPageProps) {
           </select>
         </div>
 
+        <StudioTeleprompterBar league={league} view="players" />
         <div className={styles.content}>
           {/* Player List */}
-          <div className={styles.playerList}>
+          <StudioMonitorFrame as="div" padded className={styles.playerList}>
             <div className={styles.listHeader}>
               <span className={styles.listTitle}>
                 {filteredPlayers.length} Players
@@ -390,10 +393,10 @@ export function PlayerJourneyPage({ league }: PlayerJourneyPageProps) {
                 </div>
               )}
             </div>
-          </div>
+          </StudioMonitorFrame>
 
           {/* Player Detail */}
-          <div className={styles.playerDetail}>
+          <StudioMonitorFrame as="div" padded className={styles.playerDetail}>
             {selectedPlayer ? (
               <>
                 <div
@@ -422,7 +425,7 @@ export function PlayerJourneyPage({ league }: PlayerJourneyPageProps) {
                 {/* Stats Summary */}
                 <div className={styles.statsSummary}>
                   {selectedPlayer.draftPick && (
-                    <div className={styles.statCard}>
+                    <StudioMonitorFrame as="div" padded className={styles.statCard}>
                       <span className={styles.statValue}>
                         {selectedPlayer.draftPick.auctionValue
                           ? `$${selectedPlayer.draftPick.auctionValue}`
@@ -433,18 +436,18 @@ export function PlayerJourneyPage({ league }: PlayerJourneyPageProps) {
                       <span className={styles.statLabel}>
                         {selectedPlayer.draftPick.auctionValue ? 'Auction Price' : 'Draft Pick'}
                       </span>
-                    </div>
+                    </StudioMonitorFrame>
                   )}
-                  <div className={styles.statCard}>
+                  <StudioMonitorFrame as="div" padded className={styles.statCard}>
                     <span className={styles.statValue}>
                       {selectedPlayer.totalSeasonPoints?.toFixed(1) || '-'}
                     </span>
                     <span className={styles.statLabel}>Season Pts</span>
-                  </div>
-                  <div className={styles.statCard}>
+                  </StudioMonitorFrame>
+                  <StudioMonitorFrame as="div" padded className={styles.statCard}>
                     <span className={styles.statValue}>{selectedPlayer.events.length}</span>
                     <span className={styles.statLabel}>Transactions</span>
-                  </div>
+                  </StudioMonitorFrame>
                 </div>
 
                 {stints.length > 0 && (
@@ -507,7 +510,7 @@ export function PlayerJourneyPage({ league }: PlayerJourneyPageProps) {
                 <p>Select a player to view their journey</p>
               </div>
             )}
-          </div>
+          </StudioMonitorFrame>
         </div>
       </div>
     </div>

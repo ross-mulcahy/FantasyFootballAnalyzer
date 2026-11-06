@@ -93,3 +93,15 @@ The App shell is a locked 100dvh flex column. Its upper command area contains th
 Each split monitor now uses two horizontal scorebug rows: truncated 20px franchise name and projection at left, 32px tabular score at right. Full names remain in title tooltips and link labels. VS is anchored to the green row's bottom seam; hazards, provider link and presser share one compact footer. The desktop title, week/leagues, cortisol and refresh occupy a 40px row; narrow layouts wrap.
 
 The desk uses a 176px silver portrait with a naturally sized cream dialogue and bottom-right mic-check button. Scott's face has warm-peach skin, orange jaw shading, exactly two navy eyes with white catchlights, golden-brown eyebrows and a clean white grin. The headset runs around the outside of his cheek, clear of his nose and smile.
+
+## Shared studio primitives and route migration
+
+StudioMonitorFrame is the canonical hardware surface for route cards, tables and consoles. It owns the 6px silver casing, inset CRT, scanline overlay, rivets and status LEDs; title, channelCode (or channel), badge, controls and optional onMinimise configure its top bezel. Semantic as tags, HTML attributes and keyboard handlers pass through. The padded option migrates old cards while retaining their layout classes; CrtMonitorFrame is a compatibility re-export, not a second implementation.
+
+StudioTeleprompterBar uses a 64×64 SVG portrait and cream 3px-black dialogue. NEXT TAKE cycles commentary; changing the loaded data resets the take. studioPageTakes uses the existing draft grades, post-trade/full-season verdict metadata, completed weekly results and waiver PAR. Missing data, pending picks and keepers stay explicit. Front-office, player, history and award routes use contextual briefings, while public tool and setup pages use page-specific orientation. PageTeleprompter remains a compatibility export.
+
+Rosters use a 12-column layout with six columns per console, LINEUP 01 / TAPE 02 labels, adjacent NFL chips and a yellow/black bench divider. Best pickups join the weekly scope and draft stamps in the tape room; unknown pickup PAR remains pending. Team cartridges use a split turf/indigo header, recessed PF/PA/All-Play/Moves grid and ten-segment position bars. Position strength compares known roster season points against that team's strongest position; missing points stay unavailable.
+
+Draft, trade, waiver, luck, award, history, player and ancillary route surfaces use the shared frame. Statistical tail highlights use existing strict outlierHeatmap measurements with 15% emerald/crimson fills. Standard draft labels are DRAFT STEAL / SOLID PICK / REACH / TOTAL BUST; auction Fair semantics, keeper and pending states remain unchanged. PixelStudioIcon supplies integer-grid SVG studio symbols; NflTeamChip remains the NFL identity surface.
+
+Final hub adjustments: content-sized dialogue aligns at the top beside the broad-shouldered anchor, mic check sits in the dialogue header, shared-player viewport caps at 210px, and Scott has a four-pixel light broadcast smile outlined in navy. The reserved satire footer track remains outside workspace scrolling.

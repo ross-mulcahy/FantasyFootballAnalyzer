@@ -1,7 +1,8 @@
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import { outlierHeatmap } from '@/utils/outlierHeatmap';
 import { useState, useMemo } from 'react';
 import type { Team, Transaction } from '@/types';
-import { NflTeamLabel } from './NflTeamLabel';
+import { NflTeamChip } from './NflTeamChip';
 import { PosBadge } from './PosBadge';
 import { TeamLink } from './TeamLink';
 import styles from './WaiverTable.module.css';
@@ -333,7 +334,7 @@ export function WaiverTable({ teams, pointsBasis }: WaiverTableProps) {
       </div>
 
       <aside className={styles.telemetry}><h2>WAIVER DESK // LEAGUE RETURNS</h2><p>Season PAR from all rostered pickups</p><ul>{[...teamTotals.entries()].sort((a, b) => b[1].par - a[1].par).map(([id, total]) => <li key={id}><span>{teams.find(t => t.id === id)?.name ?? id}</span><strong className={total.par >= 0 ? 'grade-great' : 'grade-terrible'}>{total.par >= 0 ? '+' : ''}{total.par.toFixed(1)} PAR</strong></li>)}</ul></aside>
-      <div className={`${styles.tableWrapper} scroll-x-hint`}>
+      <StudioMonitorFrame as="div" padded className={`${styles.tableWrapper} scroll-x-hint`}>
         <table className={`table ${styles.table}`}>
           <thead>
             <tr>
@@ -385,7 +386,7 @@ export function WaiverTable({ teams, pointsBasis }: WaiverTableProps) {
                       )}
                     </span>
                     <span className={styles.playerMeta}>
-                      <PosBadge pos={pickup.position} /> <NflTeamLabel team={pickup.nflTeam} />
+                      <PosBadge pos={pickup.position} /> <NflTeamChip team={pickup.nflTeam} />
                     </span>
                   </div>
                 </td>
@@ -415,7 +416,7 @@ export function WaiverTable({ teams, pointsBasis }: WaiverTableProps) {
             ))}
           </tbody>
         </table>
-      </div>
+      </StudioMonitorFrame>
 
       {unstartedCount > 0 && (
         <button type="button" className={styles.unstartedToggle} onClick={() => setShowUnstarted(v => !v)}>
@@ -443,7 +444,7 @@ export function WaiverTable({ teams, pointsBasis }: WaiverTableProps) {
       )}
 
       {selectedTeam === 'all' && teams.length > 0 && (
-        <div className={styles.leaderboard}>
+        <StudioMonitorFrame as="div" padded className={styles.leaderboard}>
           <h3 className={styles.leaderboardTitle}>Team Waiver Leaderboard (PAR)</h3>
           <div className={styles.leaderboardList}>
             {Array.from(teamTotals.entries())
@@ -469,7 +470,7 @@ export function WaiverTable({ teams, pointsBasis }: WaiverTableProps) {
                 );
               })}
           </div>
-        </div>
+        </StudioMonitorFrame>
       )}
     </div>
   );

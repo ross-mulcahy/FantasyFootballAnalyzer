@@ -2,7 +2,7 @@ import { CrtMonitorFrame } from './CrtMonitorFrame';
 import { useId, useState, type ReactNode } from 'react';
 import styles from '@/pages/GameDayPage.module.css';
 
-export function MatchupPanel({ title, panelKey, headingId, className = styles.card, children, studio = false }: {
+export function MatchupPanel({ title, panelKey, headingId, className = styles.card, children, studio = true }: {
   title: string; panelKey: string; headingId?: string; className?: string; children: ReactNode; studio?: boolean;
 }) {
   const id = useId();

@@ -340,3 +340,12 @@
 
 .page { padding: 0; }
 .header { margin-bottom: 20px; padding-bottom: 0; border: 0; }
+/* Hardware supplies its own two rows; legacy six-row subgrid no longer applies. */
+.awardsGrid { align-items: start; gap: 14px; }
+.awardCard { display: block; grid-row: auto; grid-template-rows: none; animation: none; }
+.awardCard:nth-child(n) .awardName, .awardCard:nth-child(n) .awardWinner { color: #f8fafc; }
+.awardCard:nth-child(n) .awardValue { color: #ffdc80; }
+.awardCard:nth-child(n) .awardDetail, .awardCard:nth-child(n) .awardDescription { color: #94a3b8; opacity: 1; }
+.awardCard :global(.crt-screen) { min-height: 220px; }
+
+.awardCard :global(.crt-screen) { background: #0d1836; }

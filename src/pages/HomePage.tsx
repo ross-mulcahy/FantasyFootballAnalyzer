@@ -1,3 +1,4 @@
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import { BroadcastIcon } from '@/components/BroadcastIcon';
 import { useState } from 'react';
 import { LeagueForm } from '@/components/LeagueForm';
@@ -58,7 +59,7 @@ export function HomePage({ onLoadLeague, onGuest, isLoading, error, progress }: 
       <HomeHero />
 
       <div className={styles.formContainer}>
-        <div className="card">
+        <StudioMonitorFrame as="div" padded className="card">
           <h2 className={styles.formTitle}>Connect Your League</h2>
           <LeagueForm
             onSubmit={onLoadLeague}
@@ -93,7 +94,7 @@ export function HomePage({ onLoadLeague, onGuest, isLoading, error, progress }: 
               {error}
             </div>
           )}
-        </div>
+        </StudioMonitorFrame>
       </div>
 
       <GuestEntry onStart={onGuest} />

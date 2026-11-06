@@ -1,4 +1,6 @@
-import { BroadcastIcon } from '@/components/BroadcastIcon';
+import { StudioTeleprompterBar } from '@/components/StudioTeleprompterBar';
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
+import { PixelStudioIcon } from '@/components/PixelStudioIcon';
 import { LeagueLink } from '@/components/LeagueLink';
 import { useMemo, useState } from 'react';
 import type { League } from '@/types';
@@ -142,6 +144,8 @@ export function AwardsPage({ league }: AwardsPageProps) {
           )}
         </div>
 
+        <StudioTeleprompterBar league={league} view="awards" />
+
         {awards.length === 0 && (
           <p className={styles.empty}>
             No awards data available. Make sure your league has completed at least one week of play.
@@ -185,13 +189,13 @@ export function AwardsPage({ league }: AwardsPageProps) {
             <h2 className={styles.categoryTitle}>Season Records</h2>
             <div className={styles.recordsGrid}>
               {records.map(record => (
-                <div key={record.label} className={styles.recordCard}>
+                <StudioMonitorFrame as="div" padded key={record.label} className={styles.recordCard}>
                   <span className={styles.recordLabel}>{record.label}</span>
                   <span className={styles.recordHolder}>{record.holder}</span>
                   <span className={styles.recordDetail}>
                     {record.detail} · Week {record.week}
                   </span>
-                </div>
+                </StudioMonitorFrame>
               ))}
             </div>
           </section>
@@ -219,9 +223,9 @@ export function AwardsPage({ league }: AwardsPageProps) {
 
 function AwardCard({ award }: { award: Award }) {
   return (
-    <div className={styles.awardCard} style={{ borderLeftColor: /worst|bust|loser|low|infirmary|ghost|clogger/i.test(award.id) ? 'var(--blood)' : 'var(--gold)' }}>
+    <StudioMonitorFrame as="div" padded className={styles.awardCard} style={{ borderLeftColor: /worst|bust|loser|low|infirmary|ghost|clogger/i.test(award.id) ? 'var(--blood)' : 'var(--gold)' }}>
       <div className={styles.awardIcon}>
-        <BroadcastIcon kind="award" />
+        <PixelStudioIcon kind="award" />
       </div>
       <h3 className={styles.awardName}>{award.name}</h3>
       <div className={styles.awardWinner}>
@@ -232,6 +236,6 @@ function AwardCard({ award }: { award: Award }) {
         <div className={styles.awardDetail}>{award.detail}</div>
       )}
       <div className={styles.awardDescription}>{award.description}</div>
-    </div>
+    </StudioMonitorFrame>
   );
 }

@@ -1,3 +1,4 @@
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import { useState } from 'react';
 import {
   DEFAULT_GUEST_SETTINGS,
@@ -45,7 +46,7 @@ export function GuestEntry({ onStart }: GuestEntryProps) {
   };
 
   return (
-    <section className={styles.guest} aria-label="Try without logging in">
+    <StudioMonitorFrame as="section" padded className={styles.guest} aria-label="Try without logging in">
       <span className={styles.kicker}>▌ NO LOGIN · GUEST MODE</span>
       <h2 className={styles.title}>Just exploring?</h2>
       <p className={styles.blurb}>
@@ -132,6 +133,6 @@ export function GuestEntry({ onStart }: GuestEntryProps) {
           Start mock draft
         </button>
       </div>
-    </section>
+    </StudioMonitorFrame>
   );
 }

@@ -1,4 +1,5 @@
-import { PageTeleprompter } from '@/components/PageTeleprompter';
+import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
+import { StudioTeleprompterBar } from '@/components/StudioTeleprompterBar';
 import { WaiverTable } from '@/components';
 import type { League } from '@/types';
 import styles from './WaiversPage.module.css';
@@ -22,7 +23,7 @@ export function WaiversPage({ league }: WaiversPageProps) {
           </p>
         </div>
 
-        <PageTeleprompter message={`Scanning the waiver wire for ${league.name}. One team's cast-off is another team's entire personality.`} />
+        <StudioTeleprompterBar league={league} view="waivers" />
 
         {hasTransactions ? (
           <WaiverTable
@@ -30,7 +31,7 @@ export function WaiversPage({ league }: WaiversPageProps) {
             pointsBasis={league.waiverPointsBasis}
           />
         ) : (
-          <div className={styles.empty}>
+          <StudioMonitorFrame as="div" padded className={styles.empty}>
             <h2>No Transaction Data Available</h2>
             <p>
               Transaction data could not be loaded for this league.
@@ -40,7 +41,7 @@ export function WaiversPage({ league }: WaiversPageProps) {
               <li>No waiver claims or free agent pickups have been made yet</li>
               <li>This is a new league with no activity</li>
             </ul>
-          </div>
+          </StudioMonitorFrame>
         )}
       </div>
     </div>
