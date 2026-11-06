@@ -421,3 +421,62 @@
 .studioPanel .panelToggle { flex: none; padding: 2px 5px; min-width: 30px; min-height: 24px; background: #081024; border: 1px solid #3b5284; box-shadow: 1px 1px 0 #000; color: #ffb800; font: 10px var(--font-mono); }
 .studioPanel > div:last-child { padding: 10px; }
 .sharedSidebar > section:first-child { max-height: 410px; }
+/* Silver physical casings enclose full-bleed split broadcast screens. */
+.monitorBay, .monitorBay.sweat { padding: 0; border: 0; box-shadow: none; background: transparent; overflow: visible; border-radius: 0; }
+.channelBezel { padding: 7px 10px; border-bottom: 2px solid #020617; background: #1e293b; }
+.monitorStatus { min-height: 24px; padding: 5px 10px; background: #050b14; }
+.monitorCanvas { display: grid; grid-template-columns: 1fr; grid-template-rows: repeat(2,minmax(128px,1fr)); position: relative; gap: 0; padding: 0; min-height: 0; background: #050b14; box-shadow: none; }
+.monitorCanvas .ownTeam, .monitorCanvas .opponentTeam { display: flex; align-items: center; justify-content: center; flex-direction: column; grid-column: 1; grid-row: auto; gap: 4px; padding: 12px; min-width: 0; text-align: center; background: linear-gradient(#063824,#042417); border: 0; }
+.monitorCanvas .ownTeam { border-bottom: 2px solid #334155; }
+.monitorCanvas .opponentTeam { background: linear-gradient(#17153b,#0d0b26); }
+.monitorCanvas .teamRole { color: #c4d0d6; font-size: 7px; }
+.monitorCanvas .rowTeamName { width: 100%; white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; font: 800 24px/1.15 var(--font-display); color: #f8fafc; text-shadow: 2px 2px 0 #000; text-transform: uppercase; }
+.monitorCanvas .ownTeam .rowTeamName { color: #4ade80; }
+.zoneScore { display: block; margin-top: 3px; font: 800 32px/1.15 var(--font-mono); font-variant-numeric: tabular-nums; color: #4ade80; text-shadow: 2px 2px 0 #000,0 0 8px #4ade8044; }
+.opponentTeam .zoneScore { color: #f8fafc; text-shadow: 2px 2px 0 #000,0 0 8px #c4b5fd33; }
+.splitVs { position: absolute; z-index: 2; left: 50%; top: 50%; transform: translate(-50%,-50%); padding: 3px 8px; background: #1e293b; border: 2px solid #64748b; box-shadow: 2px 2px 0 #000; color: #f8fafc; font: 10px var(--font-mono); }
+.splitTelemetry { padding: 8px 10px 0; background: #050b14; }
+.projectionPair { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 10px; font: 9px/1.6 var(--font-mono); color: #94a3b8; }
+.projectionPair > span:last-child { text-align: right; }
+.splitTelemetry .hazardTags { padding: 5px 0; }
+.splitTelemetry .hazardTags:empty { display: none; }
+.splitTelemetry .monitorActions { padding: 6px 0; background: transparent; border-color: #1e293b; min-height: 36px; }
+.studioPanel { background: transparent; border: 0; box-shadow: none; padding: 0; overflow: visible; }
+.studioPanel :global(.crt-screen) > .panelHeader { display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; background: #162752; border-bottom: 2px solid #334155; margin: 0; padding: 8px 12px; }
+.studioPanel :global(.crt-screen) > .panelHeader::before { content: ''; width: 6px; height: 6px; flex: none; background: #ffb800; }
+.studioPanel :global(.crt-screen) > div:last-child { padding: 10px; }
+.sharedSidebar > section:first-child { max-height: none; overflow: visible; }
+@media(max-width:600px) { .monitorCanvas .rowTeamName { font-size: 22px; } .projectionPair { font-size: 8px; } }
+
+/* Two horizontal scorebugs per channel, with VS anchored to the turf seam. */
+.monitorCanvas { display: flex; flex-direction: column; gap: 0; }
+.monitorCanvas .ownTeam, .monitorCanvas .opponentTeam { position: relative; flex-direction: row; align-items: center; justify-content: space-between; gap: 0; padding: 10px 12px; min-height: 76px; text-align: left; }
+.zoneIdentity { flex: 1; min-width: 0; padding-right: 10px; }
+.monitorCanvas .teamRole { display: block; font: 9px/1.2 var(--font-mono); text-transform: uppercase; letter-spacing: .1em; opacity: .75; }
+.monitorCanvas .rowTeamName { display: block; font: 800 20px/1.2 var(--font-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
+.zoneProjection { color: #cbd5e1; font: 8px/1.4 var(--font-mono); margin-top: 3px; }
+.zoneScore { flex: none; margin: 0; font: 800 32px/1 var(--font-mono); font-variant-numeric: tabular-nums; }
+.splitVs { top: 100%; z-index: 10; padding: 1px 6px; font-size: 8px; }
+.splitTelemetry { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 5px 10px; }
+.splitTelemetry .hazardTags { display: flex; flex-wrap: wrap; gap: 3px; padding: 0; font: 8px var(--font-mono); }
+.splitTelemetry .monitorActions { display: contents; }
+.splitTelemetry .monitorActions > a { margin-left: auto; font-size: 9px; }
+.splitTelemetry .monitorActions button { padding: 3px 5px; min-height: 24px; font-size: 8px; }
+.monitorStatus { min-height: 20px; padding-block: 3px; }
+.channelBezel { padding: 5px 8px; }
+.standbyMonitor { min-height: 0; }
+.dashboardHeader { min-height: 40px; margin-bottom: 8px; gap: 10px; flex-wrap: nowrap; }
+.dashboardHeading { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+.dashboardPage .dashboardHeading h1 { font-size: 26px; white-space: nowrap; }
+.dashboardHeading p { margin: 0; white-space: nowrap; font-size: 9px; }
+.dashboardTools { width: auto; gap: 8px; flex: none; }
+.dashboardTools > p { display: none; }
+.dashboardTools button { min-height: 30px; padding: 4px 8px; font-size: 10px; }
+@media(max-width:1250px) { .dashboardHeading { display: block; } .dashboardHeading p { margin-top: 3px; } }
+@media(max-width:650px) { .dashboardHeader { flex-wrap: wrap; } .dashboardHeading { margin-right: 0; flex: 1; } .dashboardPage .dashboardHeading h1 { font-size: 23px; } .dashboardTools { margin-left: auto; } .monitorCanvas .rowTeamName { font-size: 18px; } .zoneScore { font-size: 28px; } }
+.monitorCanvas { align-items: stretch; }
+.monitorCanvas .ownTeam, .monitorCanvas .opponentTeam { width: 100%; }
+:global(#main-content) .dashboardHeading h1 { font-size: 26px; }
+@media(max-width:650px) { :global(#main-content) .dashboardHeading h1 { font-size: 23px; } }
+.monitorCanvas .ownTeam, .monitorCanvas .opponentTeam { min-height: 64px; padding-block: 8px; }
+@media(max-width:650px) { .dashboardHeading { flex: 1 0 100%; } .dashboardHeader > div[aria-label^="Cortisol telemetry"] { flex: 1 1 220px; min-width: 0; } }

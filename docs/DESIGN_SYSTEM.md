@@ -75,3 +75,21 @@ Matchup monitor interiors have three independent bands: compact metadata/hazards
 Pixel Scott uses one-unit pixel details on a 64×48 SVG grid: swept hair in #FDE047/#EAB308/#A16207, face and jaw shading, wrap-around headset, double-breasted #1E3A8A/#172554 suit, tablet and mug. The stage and dialogue are compact; cortisol telemetry sits inline with THE QUAD-BOX title. No duplicate Your Matchups heading.
 
 Rooting Conflicts and RedZone Wire share royal-blue 2px monitor chrome, a #162752 bezel, square gold LED and accessible [−]/[+] collapse controls. Player cards are recessed #081024 with #1E3264 rules. Sidebar canvas is #080E20 with a 2px #1E3264 edge; the latched active key uses #162752, a 4px gold left indicator and a restrained inset highlight.
+
+## Physical CRT broadcast studio
+
+This current treatment supersedes earlier flat blue monitor and side-by-side score layouts. CrtMonitorFrame supplies thick #334155 hardware, light #64748B top/left bevels, dark #0F172A bottom/right bevels, 6px black shadow, corner rivets and lower green/red LEDs. The recessed #050B14 screen has a pointer-transparent scanline overlay. Shared-player and RedZone panels use this same frame.
+
+Quad-Box cards split full-width screens vertically: turf-green user team above studio-indigo opponent, centered full franchise names in 24px Chakra Petch and scores in 32px JetBrains Mono. VS sits on the divider. Provider links, projections, hazards and the presser remain in a compact footer. The segmented meter shows projection share, never an invented win probability.
+
+Pixel Scott uses a native 64×64 crispEdges SVG with three reactive poses, shaded blond hair, headset, suit, red tie, studio desk and stadium turf behind his shoulders. StudioAnchorDesk places his stage in a silver frame beside a cream #F8FAFC comic dialogue panel with black border, stepped tail and dark deduplicated triage strip. Hazard priority, unknown-data handling and reduced-motion support remain unchanged.
+
+PageTeleprompter introduces Rosters, Teams Dossier, Draft Grades, Trades and Waivers with a square silver portrait and white context strip. TeamDetail uses equal-width roster/tape-room consoles, recessed player slots, a diagonal gold bench divider and a green-grid weekly-score oscilloscope. Tape-room minimise/expand and close/restore controls affect presentation only. Draft audit stamps map existing grades to DRAFT STEAL, SOLID PICK, REACH and TOTAL BUST; underlying grading is unchanged.
+
+## Compact studio layout
+
+The App shell is a locked 100dvh flex column. Its upper command area contains the sidebar and dock; workspace-scroll owns vertical scrolling with 32px bottom padding. The 28px satire wire occupies its own non-shrinking footer track, outside the scrollport. Source attribution stays inside the workspace, and print restores normal document flow. Page navigation resets workspace scroll.
+
+Each split monitor now uses two horizontal scorebug rows: truncated 20px franchise name and projection at left, 32px tabular score at right. Full names remain in title tooltips and link labels. VS is anchored to the green row's bottom seam; hazards, provider link and presser share one compact footer. The desktop title, week/leagues, cortisol and refresh occupy a 40px row; narrow layouts wrap.
+
+The desk uses a 176px silver portrait with a naturally sized cream dialogue and bottom-right mic-check button. Scott's face has warm-peach skin, orange jaw shading, exactly two navy eyes with white catchlights, golden-brown eyebrows and a clean white grin. The headset runs around the outside of his cheek, clear of his nose and smile.

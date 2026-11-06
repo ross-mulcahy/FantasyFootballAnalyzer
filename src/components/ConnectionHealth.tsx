@@ -5,9 +5,9 @@ import { savedLeagueKey, type SavedLeague } from '@/utils/savedLeagues';
 import { leagueConnectorEnabled } from '@/utils/leagueConnectors';
 import type { SharedLeagueContext } from '@/utils/sharedPlayers';
 import styles from '@/pages/GameDayPage.module.css';
-export function ProviderLink({ league, teamId }: { league: Pick<SavedLeague, 'platform' | 'leagueId' | 'season'>; teamId?: string }) {
+export function ProviderLink({ league, teamId, compact = false }: { compact?: boolean; league: Pick<SavedLeague, 'platform' | 'leagueId' | 'season'>; teamId?: string }) {
   const url = providerTeamUrl(league, teamId);
-  return url ? <a className={styles.providerLink} href={url} target="_blank" rel="noopener noreferrer">Open {league.platform === 'espn' ? 'ESPN' : league.platform === 'yahoo' ? 'Yahoo' : 'Sleeper league'} ↗</a> : null;
+  return url ? <a className={styles.providerLink} href={url} target="_blank" rel="noopener noreferrer">Open {league.platform === 'espn' ? 'ESPN' : league.platform === 'yahoo' ? 'Yahoo' : compact ? 'Sleeper' : 'Sleeper league'} ↗</a> : null;
 }
 export function LeagueConnectionHealth({ league }: { league: SavedLeague }) {
   const { states, online } = useConnectionHealth(), health = states[savedLeagueKey(league)];

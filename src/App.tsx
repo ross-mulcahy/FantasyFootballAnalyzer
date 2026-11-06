@@ -146,6 +146,10 @@ function routerPathToUrl(pathname: string): string {
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
+  const workspaceRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (workspaceRef.current) workspaceRef.current.scrollTop = 0;
+  }, [location.pathname]);
   const [searchParams] = useSearchParams();
   const {
     league, credentials, isLoading, error, progress, load, refresh, clear, enterGuest, updateGuest,
@@ -631,7 +635,8 @@ function App() {
 
   return (
     <GameDayContext.Provider value={gameDay}>
-    <div className="command-shell" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div className="command-shell">
+    <div className="command-area">
       <a href="#main-content" className="skip-nav">Skip to main content</a>
       <Header
         leagueName={league && !league.isGuest && !globalPage ? league.name : undefined}
@@ -675,7 +680,8 @@ function App() {
         <SeasonFallbackNotice message={incompleteNotice} onDismiss={() => setDismissedIncomplete(incompleteNotice)} />
       )}
 
-      <main id="main-content" style={{ flex: 1, position: 'relative' }}>
+      <div className="workspace-scroll" ref={workspaceRef}>
+      <main id="main-content" style={{ position: 'relative' }}>
         {isLoading && league && (
           <SeasonLoadingOverlay
             season={
@@ -777,7 +783,6 @@ function App() {
         </RouteErrorBoundary>
       </main>
 
-      <StudioChyronTicker league={league} />
       <footer className="site-footer">
         <div className="container">
           <p>
@@ -797,6 +802,9 @@ function App() {
           <span className="footer-version">v{import.meta.env.VITE_BUILD_TIME}</span>
         )}
       </footer>
+      </div>
+    </div>
+    <StudioChyronTicker league={league} />
     </div>
     </GameDayContext.Provider>
   );

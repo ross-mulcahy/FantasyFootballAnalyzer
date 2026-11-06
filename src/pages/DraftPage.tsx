@@ -1,3 +1,4 @@
+import { PageTeleprompter } from '@/components/PageTeleprompter';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { DraftTable } from '@/components/DraftTable';
@@ -70,6 +71,8 @@ export function DraftPage({ league }: DraftPageProps) {
             {active === 'live' && ' · logged live'}
           </p>
         </div>
+
+        <PageTeleprompter message={`Draft audit for ${league.name}. Let's see who found a steal and who drafted a press conference.`} />
 
         {showToggle && (
           <div className={styles.sourceToggle} role="group" aria-label="Draft data source">

@@ -1,3 +1,4 @@
+import { PageTeleprompter } from '@/components/PageTeleprompter';
 import { WaiverTable } from '@/components';
 import type { League } from '@/types';
 import styles from './WaiversPage.module.css';
@@ -20,6 +21,8 @@ export function WaiversPage({ league }: WaiversPageProps) {
             {league.season} pickups and free agent adds
           </p>
         </div>
+
+        <PageTeleprompter message={`Scanning the waiver wire for ${league.name}. One team's cast-off is another team's entire personality.`} />
 
         {hasTransactions ? (
           <WaiverTable

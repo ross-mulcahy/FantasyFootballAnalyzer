@@ -1,3 +1,4 @@
+import { PageTeleprompter } from '@/components/PageTeleprompter';
 import { ProviderLink } from '@/components/ConnectionHealth';
 import type { League, LeagueCredentials, Team } from '@/types';
 import { useGameDay } from '@/hooks/useGameDay';
@@ -14,6 +15,7 @@ export function TeamRosterView({ league, team, credentials = null, onBack }: {
 }) {
   const { snapshot, isRefreshing, error, cacheWarning, refresh, polling } = useGameDay(league, credentials);
   return <>
+    <PageTeleprompter message={`Checking the depth chart for ${team.name} — let's see who is riding the pine!`} />
     <div className={styles.toolbar}>
       <div role="status" aria-live="polite">
         {snapshot ? <p>Roster week {snapshot.week} · <time dateTime={new Date(snapshot.fetchedAt).toISOString()}>Updated {new Date(snapshot.fetchedAt).toLocaleString()}</time></p> : <p>{isRefreshing ? 'Loading current roster…' : 'No current roster snapshot yet.'}</p>}

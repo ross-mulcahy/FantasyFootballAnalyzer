@@ -747,3 +747,13 @@ table tbody tr:hover td:first-child { background-color: var(--ink-3); }
 .projection-bar span { background: #10b981; }
 .projection-bar.unavailable { background: #233047; }
 .projection-bar.unavailable::after { opacity: .5; }
+
+/* A reserved footer track keeps the wire outside the workspace scrollport. */
+html, body, #root { height: 100%; }
+.command-shell { height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; padding: 0; }
+.command-area { position: relative; display: flex; flex: 1; flex-direction: column; min-height: 0; min-width: 0; overflow: hidden; padding-left: 220px; }
+.workspace-scroll { flex: 1; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; padding-bottom: 32px; scrollbar-gutter: stable; }
+#main-content { padding-top: 12px; }
+.site-footer { padding-bottom: 0; }
+@media(max-width:760px) { .command-area { padding-left: 0; } #main-content { padding-top: 12px; } }
+@media print { .command-shell, .command-area, .workspace-scroll { height: auto; overflow: visible; display: block; padding: 0; } }

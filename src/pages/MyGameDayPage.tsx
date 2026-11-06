@@ -1,3 +1,4 @@
+import { CrtMonitorFrame } from '@/components/CrtMonitorFrame';
 import { StudioAnchorDesk } from '@/components/StudioAnchorDesk';
 import type { StudioConflict, StudioMatchup } from '@/utils/studioAnchor';
 import { CortisolMeter } from '@/components/CortisolMeter';
@@ -68,27 +69,26 @@ function LeagueMatchups({ saved, currentLeague, onUpdate, timelines, focus, clos
       const opponent = { id: mineFirst ? match.team2Id : match.team1Id, points: mineFirst ? match.team2Points : match.team1Points, projection: mineFirst ? match.team2Projection : match.team1Projection };
       const timeline = timelines[`${snapshot!.season}:${snapshot!.week}`];
       const stale = liveStatusIsStale(timeline?.data ?? null, timeline?.error ?? null, Date.now());
-      const teamInfo = (side: typeof opponent, yours: boolean) => {
+      const telemetry = (side: typeof opponent) => {
         const team = snapshot?.teams.find(team => team.id === side.id);
         const projection = typeof side.projection === 'number' ? side.projection : lineupProjection(team);
         const progress = lineupProgress(team, timeline?.data ?? null);
-        return <div className={yours ? styles.ownTeam : styles.opponentTeam}>
-          <div className={styles.monitorTeamIdentity}><span className={styles.teamRole}>{yours ? 'Your team' : 'Opponent'}</span><span className={styles.rowTeamName} title={name(side.id)}>{name(side.id).length > 22 ? `${name(side.id).slice(0, 21)}…` : name(side.id)}</span></div>
-          {side.id !== null && <span className={styles.rowMeta}>Proj. {score(projection)}{progress && !progress.unknown && <> · {progress.toPlay} to play{!stale && progress.inPlay > 0 && <span className={styles.rowLive}> · {progress.inPlay} live</span>}{progress.unscheduled > 0 && ` · ${progress.unscheduled} bye`}</>}</span>}
-        </div>;
+        return <span>Proj. {score(projection)}{progress && !progress.unknown && <> · {progress.toPlay} left{!stale && progress.inPlay > 0 && <span className={styles.rowLive}> · {progress.inPlay} live</span>}{progress.unscheduled > 0 && ` · ${progress.unscheduled} bye`}</>}</span>;
       };
+      const teamInfo = (side: typeof opponent, yours: boolean) => <div className={yours ? styles.ownTeam : styles.opponentTeam}><div className={styles.zoneIdentity}><span className={styles.teamRole}>{yours ? 'Your team' : 'Opponent'}</span><span className={styles.rowTeamName} title={name(side.id)}>{name(side.id)}</span><div className={styles.zoneProjection}>{telemetry(side)}</div></div><strong className={styles.zoneScore}>{score(side.points)}</strong>{yours && <span className={styles.splitVs}>VS</span>}</div>;
       const difference = matchupMargin(context, match, 'projected', data);
       const sweat = difference !== null && Math.abs(difference) <= 10;
       const sides = matchupSides(context, match);
       const hazards = lineupWarnings([context], { [`${snapshot?.season}:${snapshot?.week}`]: timeline ?? { data: null, error: null } }, Date.now());
       const byes = hazards.filter(w => /Bye/i.test(w.message)).length;
       const outs = hazards.filter(w => /Out|IR|Injured reserve|Inactive/i.test(w.message)).length;
-      return <article className={`${styles.scorebug} ${styles.monitorBay} ${sweat ? styles.sweat : ''}`} key={matchupKey(match)}>
+      return <article className={`${styles.monitorBay} ${sweat ? styles.sweat : ''}`} key={matchupKey(match)}><CrtMonitorFrame>
         <div className={styles.channelBezel}><i className={`${styles.channelLed} ${hazards.length ? styles.hazardLed : sweat ? styles.sweatLed : ''}`} aria-hidden="true" /><h3><LeagueLink league={{ platform: saved.platform, id: saved.leagueId, season: saved.season }}><span className={styles.channelBadge}>CH {String(channel).padStart(2, '0')}</span> {saved.name}</LeagueLink></h3><span className={styles.studioLine} title="Projection-derived studio line. Entertainment, not sportsbook odds.">{difference === null ? 'LINE: OFF' : Math.abs(difference) < 1 ? 'TOSS-UP' : `LINE: ${-difference > 0 ? '+' : ''}${(-difference).toFixed(1)}`}</span></div>
-        <div className={styles.monitorStatus}><div className={styles.monitorMetaLeft}><span>{saved.platform.toUpperCase()} // WEEK {snapshot?.week ?? '—'}</span>{byes > 0 && <span className={styles.metaHazard}>{byes} ON BYE</span>}{outs > 0 && <span className={styles.metaHazard}>{outs} OUT / IR</span>}{hazards.length > byes + outs && <span className={styles.metaHazard}>{hazards.length - byes - outs} HAZARD{hazards.length - byes - outs === 1 ? '' : 'S'}</span>}</div>{sweat && <b>WITCHING HOUR SWEAT</b>}</div>
+        <div className={styles.monitorStatus}><span>{saved.platform.toUpperCase()} // WEEK {snapshot?.week ?? '—'}</span>{sweat && <b>WITCHING HOUR SWEAT</b>}</div>
         <Link to={leagueGameDayHref({ platform: saved.platform, id: saved.leagueId, season: saved.season })} className={styles.monitorCanvas} aria-label={`View matchup: ${name(own.id)} vs ${name(opponent.id)}`}>
-          {teamInfo(own, true)}<div className={styles.arcadeCenter}><span className={styles.vsBadge}>VS</span><div className={styles.arcadeScoreboard}><strong>{score(own.points)}</strong><span aria-hidden="true">:</span><strong>{score(opponent.points)}</strong></div></div>{teamInfo(opponent, false)}
-        </Link><div className={styles.monitorActions}><ProviderLink league={saved} teamId={myTeam} /><MatchupPresser own={name(own.id)} opponent={name(opponent.id)} /></div><ProjectionBar own={sides.ownProjection} opponent={sides.opponentProjection} />
+          {teamInfo(own, true)}{teamInfo(opponent, false)}
+        </Link><div className={styles.splitTelemetry}><div className={styles.hazardTags}>{byes > 0 && <span>{byes} ON BYE</span>}{outs > 0 && <span>{outs} OUT / IR</span>}{hazards.length > byes + outs && <span>{hazards.length - byes - outs} HAZARD{hazards.length - byes - outs === 1 ? '' : 'S'}</span>}</div><div className={styles.monitorActions}><ProviderLink compact league={saved} teamId={myTeam} /><MatchupPresser own={name(own.id)} opponent={name(opponent.id)} /></div></div><ProjectionBar own={sides.ownProjection} opponent={sides.opponentProjection} />
+      </CrtMonitorFrame>
       </article>;
     })}
     {snapshot && myTeam && !matches.length && <p className={styles.hint}>No matchup scheduled for your team this week.</p>}

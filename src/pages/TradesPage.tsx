@@ -1,3 +1,4 @@
+import { PageTeleprompter } from '@/components/PageTeleprompter';
 import { TradeTable } from '@/components/TradeTable';
 import type { League } from '@/types';
 import { verdictBasisSummary } from '@/utils/tradeVerdict';
@@ -23,6 +24,8 @@ export function TradesPage({ league }: TradesPageProps) {
             {basisNote && ` · ${basisNote}`}
           </p>
         </div>
+
+        <PageTeleprompter message={`Opening the trade desk for ${league.name}. Every blockbuster gets the tape-room treatment.`} />
 
         {hasTrades ? (
           <TradeTable trades={league.trades || []} teams={league.teams} />

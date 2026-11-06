@@ -15,7 +15,7 @@
 .quote > span { color: var(--gold); font: 700 9px var(--font-mono); }
 .quote p { font: 12px/1.6 var(--font-body); margin-top: 6px; }
 .quote button { position: absolute; right: 4px; top: 5px; width: 26px; height: 26px; color: var(--bone-dim); background: none; border: 0; cursor: pointer; }
-.chyron { position: fixed; inset: auto 0 0; height: 28px; z-index: 70; display: flex; align-items: stretch; background: #0b0f17; border-top: 1px solid #334155; box-shadow: 0 -2px 6px #02061780; font: 600 10px var(--font-mono); }
+.chyron { position: relative; flex: 0 0 28px; min-width: 0; overflow: hidden; height: 28px; z-index: 70; display: flex; align-items: stretch; background: #0b0f17; border-top: 1px solid #334155; box-shadow: 0 -2px 6px #02061780; font: 600 10px var(--font-mono); }
 .chyronBadge { display: flex; align-items: center; flex: none; background: var(--broadcast); color: #f8fafc; padding: 0 10px; font: 700 11px var(--font-display); letter-spacing: .08em; }
 .marqueeWindow { overflow: hidden; min-width: 0; flex: 1; }
 .marquee { display: flex; width: max-content; height: 100%; animation: studioCrawl 220s linear infinite; }
@@ -25,7 +25,7 @@
 @keyframes studioCrawl { to { transform: translateX(-50%); } }
 .marqueeWindow:hover .marquee, .marqueeWindow:focus-within .marquee, .paused .marquee { animation-play-state: paused; }
 .tickerButton { flex: none; padding: 0 10px; background: #1e293b; border: 0; border-left: 1px solid #334155; color: var(--bone); font: 700 9px var(--font-mono); cursor: pointer; }
-.chyronCollapsed { left: auto; }
+.chyronCollapsed { justify-content: flex-end; }
 @media(max-width:600px) { .ecg { width: 60px; } .cortisol { width: 100%; } .chyronBadge { font-size: 9px; padding-inline: 6px; } .tickerButton { padding: 0 7px; } }
 @media(prefers-reduced-motion:reduce) { .ecg path, .marquee { animation: none; } .marqueeWindow { overflow-x: auto; } .storyStrip[aria-hidden] { display: none; } }
 @media print { .chyron, .presser { display: none; } }

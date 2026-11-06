@@ -92,9 +92,9 @@ it('keeps my team on the left and maps its score correctly when it is the second
   cacheLeague(b); rememberSavedLeague(b); mount();
   const link = screen.getByRole('link', { name: 'View matchup: My Sleeper team vs Opponent B' });
   expect(link.children[0]).toHaveTextContent('My Sleeper team');
-  expect(link.children[1].querySelectorAll('strong')[0]).toHaveTextContent('10.00');
-  expect(link.children[1].querySelectorAll('strong')[1]).toHaveTextContent('8.80');
-  expect(link.children[2]).toHaveTextContent('Opponent B');
+  expect(link.children[0].querySelector('strong')).toHaveTextContent('10.00');
+  expect(link.children[1].querySelector('strong')).toHaveTextContent('8.80');
+  expect(link.children[1]).toHaveTextContent('Opponent B');
 });
 it('defaults mobile to matchups and supports keyboard navigation between mounted panels', async () => {
   vi.mocked(useMediaQuery).mockReturnValue(true);

@@ -1,3 +1,4 @@
+import { PageTeleprompter } from '@/components/PageTeleprompter';
 import { LeagueLink } from '@/components/LeagueLink';
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -133,6 +134,8 @@ export function TeamsPage({ league }: TeamsPageProps) {
             </p>
           )}
         </div>
+
+        <PageTeleprompter message={`Franchise dossiers for ${league.name}. I've got every front office on the studio wall.`} />
 
         {scores.length > 0 && (
           <section className={styles.skillSection}>
