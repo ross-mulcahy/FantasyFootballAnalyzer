@@ -6,7 +6,11 @@ The private **Fantasy Game Day** Space for this fork is at [fantasy-game-day.spa
 
 - Sleeper connects directly from the browser. The hosted Game Day matchup, scores, projections, lineups and event timeline have been checked with a real Sleeper league.
 - ESPN and Yahoo connection controls are paused. Previously saved leagues remain in browser storage, but cannot be reconnected from Settings while the connectors are paused.
-- The same-origin `/api/espn-proxy` Function is packaged for future ESPN use. Yahoo's hosted API routes return a setup error until a developer app and hosted login service are configured. See [Yahoo setup](YAHOO_SETUP.md).
+- The same-origin `/api/espn-proxy` and `/api/nfl-highlights` Functions are packaged. The highlights Function reads `YOUTUBE_API_KEY` from the Space's runtime Variables; it never sends the key to browsers. Yahoo's hosted API routes return a setup error until a developer app and hosted login service are configured. See [Yahoo setup](YAHOO_SETUP.md).
+
+## NFL highlight metadata
+
+For automatic @NFL title matching, open the **Fantasy Game Day** Space in the Spacefast dashboard, go to **Variables**, and add `YOUTUBE_API_KEY` as a **Secret**. The key must have YouTube Data API v3 enabled and be restricted to that API. Spacefast's Functions runtime supplies the secret to `/api/nfl-highlights`; the Vite build points the hosted Watch Mode at that same-origin route. Without a working key, Watch Mode still offers searches on the official NFL channel. Never add the secret to `VITE_*`, Git, or the build command.
 
 ## Bring your leagues across
 
@@ -25,4 +29,4 @@ npm run build:spacefast
 git push origin master
 ```
 
-Check the Spacefast build result and live version after pushing. The build removes inherited Pages `CNAME`, `404.html` and sitemap files and packages the same-origin ESPN Function. Yahoo still needs its separate hosted setup. Keep the existing Space and GitHub connection; do not create a new Space.
+Check the Spacefast build result and live version after pushing. The build removes inherited Pages `CNAME`, `404.html` and sitemap files and packages the same-origin ESPN and NFL highlights Functions. Yahoo still needs its separate hosted setup. Keep the existing Space and GitHub connection; do not create a new Space.

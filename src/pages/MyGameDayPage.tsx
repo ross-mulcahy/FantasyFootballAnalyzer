@@ -1,5 +1,6 @@
 import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import { StudioAnchorDesk } from '@/components/StudioAnchorDesk';
+import { LeagueWatchMode } from '@/components/LeagueWatchMode';
 import type { StudioConflict, StudioMatchup } from '@/utils/studioAnchor';
 import { CortisolMeter } from '@/components/CortisolMeter';
 import { MatchupPresser } from '@/components/MatchupPresser';
@@ -136,6 +137,10 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
   const [updates, setUpdates] = useState<Record<string, LeagueUpdate>>({});
   const [scoreTape, setScoreTape] = useState(loadScoreTape);
   const [cuePrefs, setCuePrefs] = useState<CuePreferences>(() => { try { const value = JSON.parse(safeLocalStorage.getItem('ffa:studio-cues:v1') ?? '{}'); return { lead: value.lead === true, swing: value.swing === true }; } catch { return { lead: false, swing: false }; } });
+  const [watchMode, setWatchMode] = useState(false);
+  const watchButton = useRef<HTMLButtonElement>(null);
+  const closeWatch = useCallback(() => { setWatchMode(false); window.requestAnimationFrame(() => watchButton.current?.focus()); }, []);
+  useEffect(() => { if (!selectedLeague && watchMode) setWatchMode(false); }, [selectedLeague, watchMode]);
   const lastSoundedChange = useRef(scoreTape.changes[0]?.id ?? '');
   const [refreshingAll, setRefreshingAll] = useState(false);
   const busy = useRef(false);
@@ -180,6 +185,8 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
   useEffect(() => { setScoreTape(previous => captureScoreTape(previous, broadcastContexts)); }, [broadcastContexts]);
   useEffect(() => { saveScoreTape(scoreTape); }, [scoreTape]);
   const scoreChanges = currentScoreChanges(scoreTape, contexts, !!selectedLeague);
+  const watchSnapshot = selectedLeague ? updates[savedLeagueKey(selectedLeague)]?.snapshot ?? null : null;
+  const watchTimeline = watchSnapshot ? timelines[`${watchSnapshot.season}:${watchSnapshot.week}`]?.data ?? null : null;
   const playEvents = Object.entries(timelines).filter(([key]) => key.startsWith(`${season}:`) && weeks.includes(Number(key.split(':')[1]))).flatMap(([, feed]) => (feed.data?.events ?? []).map(event => ({ event, data: feed.data }))).sort((a, b) => (Date.parse(b.event.occurredAt ?? '') || 0) - (Date.parse(a.event.occurredAt ?? '') || 0));
   const cue = directorCue(scoreChanges, playEvents, broadcastContexts, now);
   const comebackRows = comebackWatch(broadcastContexts, timelines);
@@ -229,6 +236,7 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
       <CortisolMeter compact lineupHazards={warnings.length} rootingConflicts={rootingConflicts} />
       <div className={styles.dashboardTools}>
         {!!leagues.length && <p role="status">{updatedAt !== null ? <>Last updated <time title={`Oldest league update: ${new Date(updatedAt).toLocaleString()}`} dateTime={new Date(updatedAt).toISOString()}>{new Date(updatedAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</time></> : 'Waiting for league updates'}</p>}
+        {selectedLeague && <button ref={watchButton} className="btn studio-key" type="button" aria-haspopup="dialog" onClick={() => setWatchMode(true)} disabled={!watchSnapshot?.matchups.length}>WATCH MODE ↗</button>}
         {!!leagues.length && <button className="btn studio-key" onClick={() => void refreshAll()} disabled={!ready || refreshing} aria-busy={refreshing}>{refreshing ? 'Refreshing…' : 'Refresh all'}</button>}
       </div>
     </div>
@@ -257,5 +265,6 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
           <GameDayRecapRecorder contexts={contexts} feeds={timelines} now={now} />
         </div></div>}
     {!!leagues.length && <StudioBroadcastDesk leagueMode={!!selectedLeague} changes={scoreChanges} comebacks={comebackRows} events={playEvents} contexts={broadcastContexts} show={show} cues={cuePrefs} onCuesChange={updateCuePrefs} />}
+    {watchMode && selectedLeague && watchSnapshot && <LeagueWatchMode saved={selectedLeague} snapshot={watchSnapshot} data={watchTimeline} changes={scoreChanges} hazards={warnings.length} now={now} onClose={closeWatch} />}
   </div></div>;
 }

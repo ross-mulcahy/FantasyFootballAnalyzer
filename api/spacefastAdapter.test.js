@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { serveEspn } from './spacefastAdapter.js';
+import { serveEspn, serveHighlights } from './spacefastAdapter.js';
 import handler from './espn-proxy.js';
+import highlightsHandler from './nfl-highlights.js';
 afterEach(() => vi.unstubAllGlobals());
 describe('Spacefast ESPN adapter', () => {
   it('preserves repeated views and private credential headers, with no caching', async () => {
@@ -36,5 +37,20 @@ describe('Spacefast ESPN adapter', () => {
     vi.stubGlobal('process', undefined);
     const response = await serveEspn(new Request('https://game-day.space.fast/api/espn-proxy'), handler);
     expect(response.status).toBe(400);
+  });
+});
+describe('Spacefast NFL highlights adapter', () => {
+  it('uses the Space secret without a Node process global or browser-visible key', async () => {
+    const fetch = vi.fn().mockResolvedValueOnce(Response.json({ items: [{ contentDetails: { relatedPlaylists: { uploads: 'official-uploads' } } }] }))
+      .mockResolvedValueOnce(Response.json({ items: [{ contentDetails: { videoId: 'AAAAAAAAAAA', videoPublishedAt: '2026-11-08T20:00:00Z' }, snippet: { title: 'Rams vs 49ers Highlights' } }] }));
+    vi.stubGlobal('fetch', fetch);
+    vi.stubGlobal('process', undefined);
+    const response = await serveHighlights(new Request('https://fantasy-game-day.space.fast/api/nfl-highlights'), { YOUTUBE_API_KEY: 'spacefast-secret' }, highlightsHandler);
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body).toMatchObject({ configured: true, videos: [{ id: 'AAAAAAAAAAA' }] });
+    expect(JSON.stringify(body)).not.toContain('spacefast-secret');
+    expect(String(fetch.mock.calls[0][0])).not.toContain('spacefast-secret');
+    expect(fetch.mock.calls[0][1].headers['x-goog-api-key']).toBe('spacefast-secret');
   });
 });

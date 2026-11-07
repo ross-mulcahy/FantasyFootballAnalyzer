@@ -1,7 +1,7 @@
 import { loadEnv, type Plugin, type ViteDevServer } from 'vite';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-const routes = new Set(['yahoo-auth', 'yahoo-callback', 'yahoo-refresh', 'yahoo-api']);
+const routes = new Set(['yahoo-auth', 'yahoo-callback', 'yahoo-refresh', 'yahoo-api', 'nfl-highlights']);
 type ApiRequest = IncomingMessage & { query: Record<string, string>; body?: unknown };
 type ApiResponse = ServerResponse & {
   status: (code: number) => ApiResponse;
@@ -15,22 +15,22 @@ export function localYahooApi(): Plugin {
     configureServer(server: ViteDevServer) {
       // These are server-only settings; never expose a Yahoo secret via VITE_*.
       const env = loadEnv(server.config.mode, server.config.root, '');
-      for (const name of ['YAHOO_CLIENT_ID', 'YAHOO_CLIENT_SECRET', 'YAHOO_REDIRECT_URI', 'FRONTEND_URL']) {
+      for (const name of ['YAHOO_CLIENT_ID', 'YAHOO_CLIENT_SECRET', 'YAHOO_REDIRECT_URI', 'FRONTEND_URL', 'YOUTUBE_API_KEY']) {
         if (env[name]) process.env[name] = env[name];
       }
       process.env.FRONTEND_URL ||= 'http://127.0.0.1:5173';
       process.env.ALLOW_DEV_OAUTH = '1';
       server.middlewares.use(async (request, response, next) => {
         const path = request.url?.split('?')[0] ?? '';
-        if (!path.startsWith('/api/yahoo-')) return next();
+        if (!path.startsWith('/api/yahoo-') && path !== '/api/nfl-highlights') return next();
         response.setHeader('Cache-Control', 'no-store');
         const reply = (code: number, error: string) => { response.statusCode = code; response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify({ error })); };
         const host = request.headers.host ?? '';
         const peer = request.socket.remoteAddress ?? '';
         // Local credential handlers are never available to LAN clients or an
         // unrelated web origin, even if Vite is started with --host.
-        if (!/^(localhost|127\.0\.0\.1):(5173|4173)$/.test(host) || !/^(127\.|::1$|::ffff:127\.)/.test(peer)) return reply(403, 'The local Yahoo service is available only on this computer.');
-        if (request.headers.origin && !/^https?:\/\/(localhost|127\.0\.0\.1):(5173|4173)$/.test(request.headers.origin)) return reply(403, 'Yahoo request origin is not allowed.');
+        if (!/^(localhost|127\.0\.0\.1):(5173|4173)$/.test(host) || !/^(127\.|::1$|::ffff:127\.)/.test(peer)) return reply(403, 'The local API is available only on this computer.');
+        if (request.headers.origin && !/^https?:\/\/(localhost|127\.0\.0\.1):(5173|4173)$/.test(request.headers.origin)) return reply(403, 'Local API request origin is not allowed.');
         const route = path.slice('/api/'.length);
         if (!routes.has(route)) return reply(404, 'Unknown Yahoo endpoint.');
         try {

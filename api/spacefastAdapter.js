@@ -27,3 +27,9 @@ export async function serveEspn(request, handler) {
   await handler({ method: request.method, query, headers: Object.fromEntries(request.headers) }, res);
   return response || Response.json({ error: 'Provider response unavailable.' }, { status: 502 });
 }
+
+// Spacefast file-router modules receive secrets on context.env, while the
+// Vercel handler reads process.env. Keep the key server-side in both hosts.
+export function serveHighlights(request, env, handler) {
+  return serveEspn(request, (req, res) => handler(req, res, { apiKey: env?.YOUTUBE_API_KEY }));
+}

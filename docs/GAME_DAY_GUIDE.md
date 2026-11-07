@@ -41,6 +41,45 @@ Comeback Watch and show card cover every matchup; its lead labels are neutral
 team names. All Leagues returns those tools to your own matchups and
 cross-league conflicts.
 
+Use **Watch Mode** on a selected league to put one game on a full-screen studio
+monitor. **Auto Director** starts with the most consequential available channel,
+then rotates every 18 seconds while the tab is visible. Fresh fantasy score
+changes or NFL plays in a game involving starters can take priority and hold
+the channel for 30 seconds before the next automatic cut. Select a
+channel or an alert to hold that game manually; **Go Live** resumes automatic
+cuts, **Next Game** moves one channel forward, and Escape closes the view.
+The on-air story takes most of the screen, with a score change shown as a
+before-and-after score tape or an NFL play shown with its source time. Older
+events are labeled as the last verified update; they are never presented as
+breaking. Select an item in **The Wire** to take that exact story and channel.
+The smaller scorebug stays visible underneath. **Matchup Intel** expands to
+show projected point share and leading starters when you want detail.
+The wire separates confirmed fantasy score changes from NFL play reports;
+the latter do not establish the exact fantasy points earned. Scores and
+projections remain tied to the league provider's latest loaded snapshot.
+NFL game status describes the game, not whether that player is on the field;
+unavailable roster details are marked as such. Fantasy and NFL feed sync times
+are shown under Matchup Intel.
+
+Play reports offer an **@NFL** search link. When the optional official NFL
+video metadata feed is configured, Watch Mode may also show **Watch likely
+clip** for a title/date/player/yardage match. This is a suggested clip, not a
+verified play-to-video association; check the video itself. Select **NFL
+Highlights** for game recaps related to the current matchup, or to search the
+official channel when no reliable title match is found. Video playback opens
+only when selected and uses YouTube's privacy-enhanced embed. YouTube may
+restrict embedding for some uploads; **Open on YouTube** remains available.
+
+For automatic title matching on Spacefast, add `YOUTUBE_API_KEY` as a Secret in
+the **Fantasy Game Day** Space's Variables. For local Vite development use
+`.env.local`; for the separate Vercel API use its server environment. Enable
+YouTube Data API v3 on that key. The server reads only the official `@NFL`
+channel's recent uploads and returns titles, IDs and publish times; the key
+never enters the browser bundle. If the key is absent or the metadata service
+is unavailable, channel searches still work. The Spacefast build uses its
+same-origin `/api/nfl-highlights` Function. A separately hosted metadata
+service can be selected with `VITE_NFL_HIGHLIGHTS_URL` at build time.
+
 **Refresh all** refreshes every visible league and the shared NFL feed.
 **Last updated** represents the oldest league snapshot. If a league cannot
 refresh, its saved scores remain visible with a reconnect link.
@@ -56,6 +95,11 @@ If one or more starters lack a provider estimate, it shows the sum of known
 starters marked **partial**; if none have estimates it says **pending**. The
 studio line and segmented projection-share bar require complete comparable
 totals. Neither the line nor the bar represents a betting line or win probability.
+
+The playful Sweat BPM meter is a fantasy stress index, not a heart-rate reading.
+It starts at 72, adds 10 per lineup hazard, then 10 for the first rooting
+conflict and 4 for each additional conflict. This keeps a busy multi-league
+board energetic without treating every repeated conflict as a full new crisis.
 
 Click a league name or matchup row to enter the league's Game Day page. There,
 open a specific matchup for its score, starting lineups, stats and projections.

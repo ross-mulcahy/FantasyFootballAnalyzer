@@ -43,6 +43,7 @@ it('combines only my matchups across platforms and includes the league and seaso
   expect(screen.getAllByRole('link', { name: /CH .*ESPN League/ })[0]).toHaveAttribute('href', url.pathname + url.search);
   expect(screen.getAllByText('Your team')).toHaveLength(2);
   expect(screen.getAllByRole('button', { name: 'Refresh all' })).toHaveLength(1);
+  expect(screen.queryByRole('button', { name: 'WATCH MODE ↗' })).not.toBeInTheDocument();
   expect(screen.queryByText(/Matchups update every/)).not.toBeInTheDocument();
 });
 it('shows every matchup in a selected league without labelling other teams as mine', () => {
@@ -63,6 +64,9 @@ it('shows every matchup in a selected league without labelling other teams as mi
   expect(pulse.querySelector('strong')).toHaveTextContent('2');
   const desk = screen.getByRole('heading', { name: 'SUNDAY PRODUCTION DESK' }).closest('section')!;
   expect(within(desk).getByText('Other A vs Other B')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'WATCH MODE ↗' }));
+  const watch = screen.getByRole('dialog', { name: 'ESPN League watch mode' });
+  expect(within(watch).getByRole('navigation', { name: 'League game channels' }).querySelectorAll('button')).toHaveLength(2);
 });
 it('shows a selected league wall before the user identifies their team', () => {
   const unidentified = { ...a, teams: a.teams.map(team => ({ ...team, isMyTeam: false })) };

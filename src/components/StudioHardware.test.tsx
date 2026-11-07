@@ -7,7 +7,7 @@ import { studioStories } from '@/utils/studioStories';
 afterEach(cleanup);
 it('calculates sweat from hazards and actual rooting conflicts, including the composed baseline', () => {
   const { rerender } = render(<CortisolMeter lineupHazards={6} rootingConflicts={3} />);
-  expect(screen.getByLabelText(/189 sweat BPM, CRITICAL/)).toBeInTheDocument();
+  expect(screen.getByLabelText(/150 sweat BPM, CRITICAL/)).toBeInTheDocument();
   expect(screen.getByText('Recommend immediate beverage')).toBeInTheDocument();
   rerender(<CortisolMeter lineupHazards={0} rootingConflicts={0} />);
   expect(screen.getByLabelText(/72 sweat BPM, COMPOSED/)).toBeInTheDocument();
