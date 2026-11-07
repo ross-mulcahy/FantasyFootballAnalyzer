@@ -16,7 +16,7 @@ const league = {
 it('shows newly saved leagues, reconnects with metadata only, and removes them', () => {
   const onConnect = vi.fn();
   render(<SavedLeagues onConnect={onConnect} isLoading={false} />);
-  expect(screen.getByText(/No saved leagues/)).toBeInTheDocument();
+  expect(screen.queryByRole('heading', { name: 'Saved leagues' })).not.toBeInTheDocument();
   // Act through a rerender to model a connection followed by a fresh visit.
   cleanup();
   rememberSavedLeague(league);
@@ -24,7 +24,7 @@ it('shows newly saved leagues, reconnects with metadata only, and removes them',
   fireEvent.click(screen.getByRole('button', { name: /Connect Sunday League/ }));
   expect(onConnect).toHaveBeenCalledWith({ platform: 'sleeper', leagueId: '123', season: 2026, name: 'Sunday League' });
   fireEvent.click(screen.getByRole('button', { name: /Remove Sunday League/ }));
-  expect(screen.getByText(/No saved leagues/)).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /Connect Sunday League/ })).not.toBeInTheDocument();
   expect(screen.getByRole('status')).toHaveTextContent(/removed/);
 });
 

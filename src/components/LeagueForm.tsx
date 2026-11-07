@@ -147,6 +147,8 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
     onPlatformChange?.(p);
   };
   const [leagueId, setLeagueId] = useState(() => availableInitialLeague?.leagueId ?? savedIdFor('sleeper'));
+  const [directSleeperId, setDirectSleeperId] = useState(() => availableInitialLeague?.leagueId ?? savedIdFor('sleeper'));
+  const [sleeperMethod, setSleeperMethod] = useState<'username' | 'link'>(availableInitialLeague ? 'link' : 'username');
   const [leagueIdError, setLeagueIdError] = useState<string | null>(null);
   // Cookie problems render next to the cookie fields, not in the League ID
   // slot, so the alert and focus land where the fix is.
@@ -170,6 +172,7 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
 
   // Sleeper league finder (username → leagues, no auth needed)
   const [sleeperUsername, setSleeperUsername] = useState(saved?.sleeper?.username ?? '');
+  const currentUsernameRef = useRef(sleeperUsername);
   const [sleeperLeagues, setSleeperLeagues] = useState<Array<{ id: string; name: string; season: string }>>([]);
   const [sleeperLookupBusy, setSleeperLookupBusy] = useState(false);
   const [sleeperLookupError, setSleeperLookupError] = useState<string | null>(null);
@@ -338,16 +341,6 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
     }
   };
 
-  // Username the current sleeperLeagues list was fetched for. Load League
-  // checks it so a name typed but never searched still gets looked up. A
-  // remembered username + league id pair was matched last visit, so it
-  // starts as looked-up and a returning user still loads in one click.
-  const lookedUpUsernameRef = useRef<string | null>(
-    saved?.sleeper?.username && saved.sleeper.leagueId
-      ? saved.sleeper.username.trim().toLowerCase()
-      : null,
-  );
-
   // Resolves to the leagues found (current season first), or to why not:
   // 'unresolved' when Sleeper answered and the name has no user or no
   // leagues, 'unreachable' when the request itself failed. The error text
@@ -357,12 +350,16 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
     | { failure: 'unresolved' | 'unreachable' };
   const handleSleeperLookup = async (): Promise<SleeperLookupResult> => {
     const username = sleeperUsername.trim();
-    if (!username) return { failure: 'unresolved' };
+    if (!username) {
+      setSleeperLookupError('Enter your Sleeper username to find your leagues.');
+      document.getElementById('sleeperUsername')?.focus();
+      return { failure: 'unresolved' };
+    }
     setSleeperLookupBusy(true);
     setSleeperLookupError(null);
     try {
       const found = await findLeaguesByUsername(username);
-      lookedUpUsernameRef.current = username.toLowerCase();
+      if (currentUsernameRef.current.trim() !== username) return { failure: 'unresolved' };
       if (found === null) {
         setSleeperLeagues([]);
         setSleeperLookupError('No Sleeper user with that username.');
@@ -378,10 +375,11 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
         setSleeperLookupError('That user has no leagues this season or last.');
         return { failure: 'unresolved' };
       }
-      setLeagueId(leagues[0].id);
+      setLeagueId(leagues.length === 1 ? leagues[0].id : '');
       setLeagueIdError(null);
       return { leagues };
     } catch (err) {
+      if (currentUsernameRef.current.trim() !== username) return { failure: 'unresolved' };
       logger.error('Sleeper league lookup failed:', err);
       const noUser = String(err).includes('404');
       setSleeperLookupError(
@@ -437,33 +435,19 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
       return;
     }
 
-    let trimmedId = leagueId.trim();
-
-    // Owner-reported (2026-09-05): username typed, Find leagues never
-    // pressed, Load League clicked. Do the search here instead of failing on
-    // the empty (or stale, saved-from-last-time) League ID: keep the typed
-    // ID if it belongs to that user, otherwise load the best guess, which
-    // is the first league found (current season first).
-    if (platform === 'sleeper') {
-      const username = sleeperUsername.trim().toLowerCase();
-      if (username && username !== lookedUpUsernameRef.current) {
-        // A second Enter while the search is in flight must not load
-        // whatever ID happens to be in the field; the search will finish
-        // and the user can submit again.
-        if (sleeperLookupBusy) return;
-        const result = await handleSleeperLookup();
-        if ('leagues' in result) {
-          const { leagues } = result;
-          trimmedId = leagues.some((l) => l.id === trimmedId) ? trimmedId : leagues[0].id;
-          setLeagueId(trimmedId);
-        } else if (result.failure === 'unresolved' || !trimmedId) {
-          // Sleeper said the name has nothing to load: stop on that error
-          // rather than quietly loading a remembered ID the user did not
-          // ask for. Only an unreachable Sleeper falls back to a typed ID.
-          return;
-        }
+    if (platform === 'sleeper' && sleeperMethod === 'username') {
+      if (sleeperLookupBusy) return;
+      if (!sleeperLeagues.length) {
+        await handleSleeperLookup();
+        return;
+      }
+      if (!sleeperLeagues.some(league => league.id === leagueId)) {
+        setSleeperLookupError('Choose a league from the list before connecting.');
+        document.getElementById('sleeperLeague')?.focus();
+        return;
       }
     }
+    const trimmedId = (platform === 'sleeper' && sleeperMethod === 'link' ? directSleeperId : leagueId).trim();
 
     if (!trimmedId) {
       // Owner-reported (2026-08-31): cookies pasted, League ID overlooked,
@@ -552,6 +536,14 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
           Yahoo <span className={styles.platformStatus}>Coming soon</span>
         </button>
       </div>
+
+      {platform === 'sleeper' && <div className={styles.setupMethod} aria-label="How to find your Sleeper league">
+        <p className={styles.setupIntro}>Connect a league in two steps. Your Sleeper username finds its leagues without a password.</p>
+        <div className={styles.methodOptions}>
+          <button type="button" className={`${styles.methodButton} ${sleeperMethod === 'username' ? styles.methodActive : ''}`} aria-pressed={sleeperMethod === 'username'} onClick={() => { setSleeperMethod('username'); setLeagueIdError(null); }}>Find by username</button>
+          <button type="button" className={`${styles.methodButton} ${sleeperMethod === 'link' ? styles.methodActive : ''}`} aria-pressed={sleeperMethod === 'link'} onClick={() => { setSleeperMethod('link'); setSleeperLookupError(null); }}>Paste league link or ID</button>
+        </div>
+      </div>}
 
       {/* Yahoo OAuth Flow */}
       {platform === 'yahoo' && (
@@ -651,7 +643,7 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
       )}
 
       {/* Sleeper/ESPN League ID Form */}
-      {platform !== 'yahoo' && (
+      {platform !== 'yahoo' && (platform !== 'sleeper' || sleeperMethod === 'link') && (
         <div className={styles.fields}>
           <div className={styles.field}>
             <label htmlFor="leagueId" className={styles.label}>
@@ -661,9 +653,10 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
               id="leagueId"
               type="text"
               className="input"
-              value={leagueId}
+              value={platform === 'sleeper' ? directSleeperId : leagueId}
               onChange={(e) => {
-                setLeagueId(normalizeLeagueId(e.target.value));
+                if (platform === 'sleeper') setDirectSleeperId(normalizeLeagueId(e.target.value));
+                else setLeagueId(normalizeLeagueId(e.target.value));
                 setLeagueIdError(null);
               }}
               placeholder={platform === 'sleeper' ? 'e.g., 123456789012345678' : 'e.g., 12345678'}
@@ -708,48 +701,34 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
         </div>
       )}
 
-      {/* Sleeper league finder: username → leagues, no auth needed. Easier
-          than digging the 18-digit ID out of a URL. */}
-      {platform === 'sleeper' && (
+      {/* Sleeper username is the primary route; choose a result explicitly. */}
+      {platform === 'sleeper' && sleeperMethod === 'username' && (
         <div className={styles.finder}>
           <label htmlFor="sleeperUsername" className={styles.label}>
-            No ID handy? Find it by username
+            Step 1 · Your Sleeper username
           </label>
-          <div className={styles.finderRow}>
             <input
               id="sleeperUsername"
               type="text"
               className="input"
               value={sleeperUsername}
               onChange={(e) => {
+                currentUsernameRef.current = e.target.value;
                 setSleeperUsername(e.target.value);
                 setSleeperLookupError(null);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleSleeperLookup();
-                }
+                setSleeperLeagues([]);
+                setLeagueId('');
               }}
               placeholder="Your Sleeper username"
               autoComplete="off"
               spellCheck={false}
             />
-            <button
-              type="button"
-              className="btn"
-              onClick={handleSleeperLookup}
-              disabled={sleeperLookupBusy || !sleeperUsername.trim()}
-              title={!sleeperUsername.trim() ? 'Enter your Sleeper username first' : undefined}
-            >
-              {sleeperLookupBusy ? 'Searching...' : 'Find leagues'}
-            </button>
-          </div>
+          <p className={styles.hint}>Use the username shown on your Sleeper profile. We will show this season and last season.</p>
           {sleeperLookupError && <p className={styles.error} role="alert">{sleeperLookupError}</p>}
           {sleeperLeagues.length > 0 && (
             <div className={styles.field}>
               <label htmlFor="sleeperLeague" className={styles.label}>
-                League
+                Step 2 · Choose a league ({sleeperLeagues.length} found)
               </label>
               <select
                 id="sleeperLeague"
@@ -760,12 +739,14 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
                   setLeagueIdError(null);
                 }}
               >
+                {sleeperLeagues.length > 1 && <option value="">Select a league…</option>}
                 {sleeperLeagues.map((l) => (
                   <option key={l.id} value={l.id}>
                     {l.season} · {l.name}
                   </option>
                 ))}
               </select>
+              <button type="button" className={styles.searchAgain} onClick={handleSleeperLookup} disabled={sleeperLookupBusy}>Refresh league list</button>
             </div>
           )}
         </div>
@@ -954,10 +935,12 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
           {isLoading || sleeperLookupBusy ? (
             <>
               <span className={styles.spinner}></span>
-              {sleeperLookupBusy ? 'Finding leagues...' : 'Loading League...'}
+              {sleeperLookupBusy ? 'Finding leagues...' : 'Loading league...'}
             </>
           ) : (
-            'Load League'
+            platform === 'sleeper' && sleeperMethod === 'username'
+              ? sleeperLeagues.length ? 'Connect selected league' : 'Find my leagues'
+              : 'Connect league'
           )}
         </button>
       )}

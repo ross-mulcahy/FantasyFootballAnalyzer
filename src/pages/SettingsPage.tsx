@@ -22,7 +22,7 @@ export function SettingsPage({ onLoadLeague, isLoading, error, progress }: {
     <nav className={styles.settingsSections} aria-label="Settings sections"><a href="#connections-heading">League connections ↓</a><a href="#experience-heading">Alerts & backup ↓</a></nav>
     <StudioMonitorFrame as="section" padded className={styles.card} aria-labelledby="connections-heading">
       <h2 id="connections-heading" className={styles.sectionTitle}>League connections</h2>
-      <p className={styles.hint}>Choose your team in each saved league to include its matchups on Game Day.</p>
+      <p className={styles.hint}>Find a Sleeper league by username, or paste its league link. After connecting, choose your team for personal Game Day alerts.</p>
       {reconnectLeague && !initialLeague && <p role="status" className={styles.hint}>{reconnectLeague.platform.toUpperCase()} connections are paused. Your saved league remains on this device.</p>}
       <LeagueForm key={initialLeague ? savedLeagueKey(initialLeague) : 'new'} initialLeague={initialLeague} onSubmit={onLoadLeague} isLoading={isLoading} />
       {isLoading && progress && <p role="status">{progress.stage} · {progress.current}/{progress.total}{progress.detail ? ` · ${progress.detail}` : ''}</p>}

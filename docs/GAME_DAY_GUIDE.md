@@ -3,9 +3,11 @@
 ## Connect your leagues once
 
 1. Start the app and open the same browser profile and address each time.
-2. Go to **Settings** and connect a Sleeper league. ESPN and Yahoo connection
-   controls are currently paused; previously saved leagues remain available on
-   this device.
+2. Go to **Settings**, enter your Sleeper username and select **Find my
+   leagues**. Choose the league you want, then select **Connect selected
+   league**. If you already have a Sleeper league URL or ID, use **Paste league
+   link or ID** instead. ESPN and Yahoo connection controls are currently
+   paused; previously saved leagues remain available on this device.
 3. Select **My team** for each league. This identifies which matchups belong
    on the combined scoreboard and which players are yours or your opponents'.
 4. Return to **Game Day**. Connections and team selections are saved locally.

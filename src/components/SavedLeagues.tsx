@@ -23,12 +23,13 @@ export function SavedLeagues({ onConnect, isLoading }: Props) {
     };
   }, []);
 
+  if (!leagues.length && !notice) return null;
+
   return (
     <section className={styles.section} aria-labelledby="my-leagues-title">
-      <h3 id="my-leagues-title" className={styles.title}>My Leagues</h3>
-      <p className={styles.hint}>Leagues save here after a successful connection. Stored only in this browser. Use the same local address each time.</p>
-      {leagues.length === 0 ? <p className={styles.empty}>No saved leagues yet. Connect one below.</p> : (
-        <ul className={styles.list}>
+      <h3 id="my-leagues-title" className={styles.title}>Saved leagues</h3>
+      <p className={styles.hint}>Reconnect a league below, or choose your team to turn on personal Game Day alerts. Saved on this device.</p>
+        {leagues.length > 0 && <ul className={styles.list}>
           {leagues.map(league => (
             <li key={savedLeagueKey(league)} className={styles.row}>
               <div className={styles.details}>
@@ -54,8 +55,7 @@ export function SavedLeagues({ onConnect, isLoading }: Props) {
               </div>
             </li>
           ))}
-        </ul>
-      )}
+        </ul>}
       {notice && <p role="status" className={styles.hint}>{notice}</p>}
     </section>
   );
