@@ -1,0 +1,10 @@
+.finish { display: grid; gap: .9rem; padding: 1rem; border: 2px solid #2a3f7a; background: #0d1836; box-shadow: 4px 4px 0 #000; }
+.channel { width: fit-content; padding: .35rem .5rem; background: #ffb800; color: #0b132b; font: 700 .65rem var(--font-mono); letter-spacing: .12em; }
+.title { margin: 0; color: #f8fafc; font: 700 clamp(1.3rem, 3vw, 1.8rem)/1.1 var(--font-display); text-transform: uppercase; }
+.intro { margin: 0; color: var(--bone); line-height: 1.5; }
+.teamField { display: grid; gap: .5rem; max-width: 440px; color: #ffb800; font: 700 .7rem var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
+.teamField select { width: 100%; color: var(--bone); }
+.status { margin: 0; color: var(--lime); font: .75rem/1.5 var(--font-mono); }
+.error { margin: 0; color: var(--blood-text); font: .75rem/1.5 var(--font-mono); }
+.actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+.actions button { min-height: 44px; }

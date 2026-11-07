@@ -57,6 +57,7 @@ it('does not prefill an unavailable reconnect target into the Sleeper form', () 
 });
 
 it('finds leagues by username and requires a choice when several are found', async () => {
+  rememberSavedLeague({ ...base, id: '2222222222', name: 'Dynasty League', season: 2025 });
   vi.mocked(findLeaguesByUsername).mockResolvedValue({ userId: 'user-1', leagues: [
     { id: '1111111111', name: 'Sunday League', season: '2026' },
     { id: '2222222222', name: 'Dynasty League', season: '2025' },
@@ -67,11 +68,13 @@ it('finds leagues by username and requires a choice when several are found', asy
   fireEvent.click(screen.getByRole('button', { name: 'Find my leagues' }));
   const selector = await screen.findByLabelText(/Step 2 · Choose a league/);
   expect(selector).toHaveValue('');
+  expect(screen.getByRole('option', { name: '2025 · Dynasty League · Connected' })).toBeInTheDocument();
   expect(onSubmit).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole('button', { name: 'Connect selected league' }));
   expect(screen.getByRole('alert')).toHaveTextContent('Choose a league');
   fireEvent.change(selector, { target: { value: '2222222222' } });
-  fireEvent.click(screen.getByRole('button', { name: 'Connect selected league' }));
+  expect(screen.getByText(/Already connected/)).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Reconnect selected league' }));
   expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ platform: 'sleeper', leagueId: '2222222222' }));
 });
 
@@ -83,4 +86,15 @@ it('accepts a Sleeper league URL through the alternate setup path', () => {
   expect(screen.getByLabelText('League ID')).toHaveValue('1234567890');
   fireEvent.click(screen.getByRole('button', { name: 'Connect league' }));
   expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ platform: 'sleeper', leagueId: '1234567890' }));
+});
+
+it('keeps an unknown username on the search step with a useful error', async () => {
+  vi.mocked(findLeaguesByUsername).mockResolvedValue(null);
+  const onSubmit = vi.fn();
+  render(<LeagueForm onSubmit={onSubmit} isLoading={false} />);
+  fireEvent.change(screen.getByLabelText(/Step 1 · Your Sleeper username/), { target: { value: 'unknown-coach' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Find my leagues' }));
+  expect(await screen.findByRole('alert')).toHaveTextContent('No Sleeper user with that username.');
+  expect(screen.queryByLabelText(/Step 2 · Choose a league/)).not.toBeInTheDocument();
+  expect(onSubmit).not.toHaveBeenCalled();
 });

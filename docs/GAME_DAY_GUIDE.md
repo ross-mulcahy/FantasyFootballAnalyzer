@@ -8,9 +8,13 @@
    league**. If you already have a Sleeper league URL or ID, use **Paste league
    link or ID** instead. ESPN and Yahoo connection controls are currently
    paused; previously saved leagues remain available on this device.
-3. Select **My team** for each league. This identifies which matchups belong
-   on the combined scoreboard and which players are yours or your opponents'.
-4. Return to **Game Day**. Connections and team selections are saved locally.
+3. On the finish screen, confirm **My team** or choose it from the list. This
+   identifies your matchups, lineup alerts and rooting conflicts. You can
+   change the choice later in Settings; league-wide viewing works without it.
+4. Select **Add another league** to keep building your wall, or **Go to Game
+   Day**. If you skipped the team choice, **Watch this league** opens its
+   league-wide matchup wall. Search results mark leagues already connected.
+   Connections and team selections are saved locally.
 
 Private leagues may need reconnecting when their sessions expire. For saved
 ESPN connections, the optional **Remember ESPN login on this device** keeps the

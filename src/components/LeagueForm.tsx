@@ -6,6 +6,7 @@ import { normalizeLeagueId } from '@/utils/leagueId';
 import { loadLastConnection, rememberSleeperUsername } from '@/utils/lastConnection';
 import { loadESPNCredentials, remembersESPNCredentials, forgetESPNCredentials } from '@/utils/espnCredentials';
 import { SavedLeagues } from './SavedLeagues';
+import { useSavedLeagues } from '@/hooks/useSavedLeagues';
 import type { SavedLeague } from '@/utils/savedLeagues';
 import { normalizeEspnS2, normalizeSwid, isEspnS2Valid, isSwidValid } from '@/utils/espnCookies';
 import { logger } from '@/utils/logger';
@@ -112,6 +113,7 @@ interface LeagueFormProps {
 }
 
 export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeague }: LeagueFormProps) {
+  const connectedLeagues = useSavedLeagues();
   const availableInitialLeague = initialLeague && leagueConnectorEnabled(initialLeague.platform) ? initialLeague : undefined;
   // Last successful connection (public identifiers only): prefills the form
   // so a repeat visitor reconnects in one click. Read once per mount.
@@ -365,7 +367,8 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
         setSleeperLookupError('No Sleeper user with that username.');
         return { failure: 'unresolved' };
       }
-      const { userId, leagues } = found;
+      const { userId } = found;
+      const leagues = [...found.leagues].sort((a, b) => Number(b.season) - Number(a.season) || a.name.localeCompare(b.name));
       setSleeperLeagues(leagues);
       // The username resolved, so it's worth prefilling next visit even if
       // the user ends up loading the league some other way. The user_id is
@@ -742,10 +745,12 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
                 {sleeperLeagues.length > 1 && <option value="">Select a league…</option>}
                 {sleeperLeagues.map((l) => (
                   <option key={l.id} value={l.id}>
-                    {l.season} · {l.name}
+                    {l.season} · {l.name}{connectedLeagues.some(savedLeague => savedLeague.platform === 'sleeper' && savedLeague.leagueId === l.id) ? ' · Connected' : ''}
                   </option>
                 ))}
               </select>
+              {connectedLeagues.some(savedLeague => savedLeague.platform === 'sleeper' && savedLeague.leagueId === leagueId) &&
+                <p className={styles.hint}>Already connected. Choose another league to add it, or reconnect this one to refresh.</p>}
               <button type="button" className={styles.searchAgain} onClick={handleSleeperLookup} disabled={sleeperLookupBusy}>Refresh league list</button>
             </div>
           )}
@@ -939,7 +944,9 @@ export function LeagueForm({ onSubmit, isLoading, onPlatformChange, initialLeagu
             </>
           ) : (
             platform === 'sleeper' && sleeperMethod === 'username'
-              ? sleeperLeagues.length ? 'Connect selected league' : 'Find my leagues'
+              ? sleeperLeagues.length
+                ? connectedLeagues.some(savedLeague => savedLeague.platform === 'sleeper' && savedLeague.leagueId === leagueId) ? 'Reconnect selected league' : 'Connect selected league'
+                : 'Find my leagues'
               : 'Connect league'
           )}
         </button>

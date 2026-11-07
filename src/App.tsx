@@ -337,10 +337,10 @@ function App() {
     }
   }, [location, navigate, load, playError]);
 
-  const handleLoadLeague = async (credentials: LeagueCredentials) => {
+  const handleLoadLeague = async (credentials: LeagueCredentials, options?: { stayOnSettings?: boolean }): Promise<League | null> => {
     let loaded = await load(credentials);
     // Stay on the form when the load failed; the error renders there.
-    if (!loaded) return;
+    if (!loaded) return null;
     // A Sleeper league id is pinned to one season, so a saved id keeps
     // landing on last year even after the league renews. Follow the renewal
     // so connecting lands on the newest season that exists. Only from last
@@ -362,7 +362,7 @@ function App() {
           // cache hit, so instant) so the user lands on the league that did
           // load instead of bouncing back to the form.
           const restored = await load(credentials);
-          if (!restored) return;
+          if (!restored) return null;
           loaded = restored;
         }
       }
@@ -371,7 +371,13 @@ function App() {
     // prefilled next visit. The loaded league's values, not the form's, so a
     // mistyped id is never saved and a followed renewal saves the newest id.
     rememberConnection(loaded.platform, loaded.id, loaded.season);
-    navigate('/');
+    if (options?.stayOnSettings) {
+      // The finish step needs team choices before React's league effect runs.
+      rememberSavedLeague(loaded);
+    } else {
+      navigate('/');
+    }
+    return loaded;
   };
 
   // Dropdown click → load the picked season and reflect it in the URL so back

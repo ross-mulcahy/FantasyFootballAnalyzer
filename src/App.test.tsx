@@ -127,10 +127,13 @@ vi.mock('@/components/SeasonFallbackNotice', () => ({
 // The connect form stands in for the real one: a button that hands App the
 // credentials, so handleLoadLeague (load -> navigate) runs for real.
 vi.mock('@/pages/SettingsPage', () => ({
-  SettingsPage: ({ onLoadLeague }: { onLoadLeague: (c: unknown) => void }) => (
+  SettingsPage: ({ onLoadLeague }: { onLoadLeague: (c: unknown, options?: { stayOnSettings?: boolean }) => void }) => (
     <div data-testid="settings-page">
       <button type="button" onClick={() => onLoadLeague({ platform: 'sleeper', leagueId: '77' })}>
         Load League
+      </button>
+      <button type="button" onClick={() => onLoadLeague({ platform: 'sleeper', leagueId: '77' }, { stayOnSettings: true })}>
+        Finish setup
       </button>
     </div>
   ),
@@ -401,6 +404,14 @@ describe('Yahoo OAuth return (/yahoo-success)', () => {
 // loading a league. These two pin the destinations; the one below pins the
 // rewrite guard that keeps them reachable.
 describe('connect flow lands on a page', () => {
+  it('stays in Settings when the finish step is requested', async () => {
+    renderApp('/settings');
+    fireEvent.click(await screen.findByRole('button', { name: 'Finish setup' }));
+    await waitFor(() => expect(h.loadMock).toHaveBeenCalledWith(expect.objectContaining({ leagueId: '77' })));
+    expect(screen.getByTestId('settings-page')).toBeInTheDocument();
+    expect(screen.getByTestId('loc')).toHaveTextContent(/^\/settings$/);
+  });
+
   it('returns to unified Game Day after connecting from Settings', async () => {
     renderApp('/settings');
     fireEvent.click(await screen.findByRole('button', { name: 'Load League' }));
