@@ -78,10 +78,11 @@ it('auto-cues a fresh likely play clip once, then returns to the live wire', asy
     await act(async () => { render(<LeagueWatchMode saved={saved} snapshot={withStarter} data={data} changes={[]} hazards={0} now={now} onClose={vi.fn()} />); });
     const player = screen.getByRole('region', { name: 'Official NFL highlight player' });
     expect(player).toHaveTextContent('AUTO DIRECTOR // LIKELY PLAY MATCH');
-    expect(within(player).getByTitle('Puka Nacua 65 Yard Rushing TD')).toHaveAttribute('src', expect.stringContaining('autoplay=1&mute=1'));
+    expect(within(player).getByRole('link', { name: 'WATCH ON YOUTUBE ↗' })).toHaveAttribute('href', 'https://www.youtube.com/watch?v=abc123XYZ09');
+    expect(within(player).queryByTitle('Puka Nacua 65 Yard Rushing TD')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'AUTO DIRECTOR // ON' })).toHaveAttribute('aria-pressed', 'true');
 
-    await act(async () => { vi.advanceTimersByTime(40_000); });
+    await act(async () => { vi.advanceTimersByTime(12_000); });
     expect(screen.queryByRole('region', { name: 'Official NFL highlight player' })).not.toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'On air story' })).toHaveTextContent('Puka Nacua');
   } finally { vi.useRealTimers(); vi.unstubAllGlobals(); }

@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { NFLTimeline } from '@/api/nflTimeline';
-import { fetchNFLHighlights, gameHighlightSearch, matchGameHighlights, matchPlayHighlight, nflChannelVideosUrl, nflEmbedUrl, nflVideoUrl, playHighlightSearch } from '@/api/nflHighlights';
+import { fetchNFLHighlights, gameHighlightSearch, matchGameHighlights, matchPlayHighlight, nflChannelVideosUrl, nflVideoUrl, playHighlightSearch } from '@/api/nflHighlights';
 import type { HighlightCatalog, NFLVideo } from '@/api/nflHighlights';
 import type { GameDaySnapshot } from '@/types/gameDay';
 import type { ScoreChange } from '@/utils/broadcastControl';
@@ -53,9 +53,14 @@ type VideoCue = { video: NFLVideo; automatic: boolean };
 function HighlightPlayer({ video, automatic, onBack }: { video: NFLVideo; automatic: boolean; onBack: () => void }) {
   return <section className={styles.videoStage} aria-label="Official NFL highlight player">
     <div className={styles.videoHeading}><span>{automatic ? '● AUTO DIRECTOR // LIKELY PLAY MATCH' : 'OFFICIAL @NFL VIDEO · TITLE/DATE MATCH'}</span><button type="button" onClick={onBack}>← RETURN TO LIVE</button></div>
-    <iframe title={video.title} src={`${nflEmbedUrl(video)}${automatic ? '?autoplay=1&mute=1&playsinline=1' : ''}`} loading={automatic ? 'eager' : 'lazy'} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen />
-    <div className={styles.videoCaption}><strong>{video.title}</strong><small>Published {syncTime(Date.parse(video.publishedAt))}. Title and date suggest a match; check the video to confirm it.</small><a href={nflVideoUrl(video)} target="_blank" rel="noopener noreferrer">OPEN ON YOUTUBE ↗</a></div>
-    {automatic && <p className={styles.autoCueNote}>MUTED AUTO CUE · RETURNING TO THE LIVE WIRE IN 40 SECONDS · UNMUTE IN THE PLAYER</p>}
+    <div className={styles.videoPreview}>
+      <span>OFFICIAL @NFL CLIP // EXTERNAL PLAYBACK</span>
+      <strong>{video.title}</strong>
+      <p>NFL clips can be blocked from playing on other sites. Open this likely match in YouTube while the live wire stays on this screen.</p>
+      <a href={nflVideoUrl(video)} target="_blank" rel="noopener noreferrer">WATCH ON YOUTUBE ↗</a>
+    </div>
+    <div className={styles.videoCaption}><small>Published {syncTime(Date.parse(video.publishedAt))}. Title and date suggest a match; check the video to confirm it.</small></div>
+    {automatic && <p className={styles.autoCueNote}>AUTO DIRECTOR CLIP ALERT · RETURNING TO THE LIVE WIRE IN 12 SECONDS</p>}
   </section>;
 }
 
@@ -151,7 +156,7 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
     })[0];
     if (!cue) return;
     autoCuedPlayIds.current.add(cue.alert.id);
-    breakingHoldUntil.current = Date.now() + 40_000;
+    breakingHoldUntil.current = Date.now() + 12_000;
     setActiveKey(cue.alert.channelKey);
     setSelectedAlertId(cue.alert.id);
     setPlayingVideo({ video: cue.video, automatic: true });
@@ -159,7 +164,7 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
 
   useEffect(() => {
     if (!playingVideo?.automatic) return;
-    const timer = window.setTimeout(() => setPlayingVideo(null), 40_000);
+    const timer = window.setTimeout(() => setPlayingVideo(null), 12_000);
     return () => window.clearTimeout(timer);
   }, [playingVideo]);
 

@@ -29,16 +29,19 @@
 .storyDetail { max-width: 75ch; margin: 0; color: #f8fafc; font: 700 clamp(15px,1.55vw,24px)/1.2 var(--font-display); }
 .storyFoot { max-width: 85ch; margin: 2px 0 0; color: #cbd5e1; font: 11px/1.4 var(--font-mono); }
 .storyActions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px; }
-.storyActions button, .storyActions a, .highlightCard button, .highlightCard a, .channelLink, .videoHeading button, .videoCaption a { display: inline-block; padding: 7px 9px; border: 2px solid #ffb800; color: #ffb800; background: #081024; box-shadow: 2px 2px 0 #000; font: 700 9px/1.3 var(--font-mono); text-decoration: none; text-transform: uppercase; }
-.storyActions button:hover, .storyActions a:hover, .highlightCard button:hover, .highlightCard a:hover, .channelLink:hover, .videoHeading button:hover, .videoCaption a:hover { background: #162752; color: #fff; }
-.storyActions button:focus-visible, .storyActions a:focus-visible, .highlightCard button:focus-visible, .highlightCard a:focus-visible, .channelLink:focus-visible, .videoHeading button:focus-visible, .videoCaption a:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.storyActions button, .storyActions a, .highlightCard button, .highlightCard a, .channelLink, .videoHeading button { display: inline-block; padding: 7px 9px; border: 2px solid #ffb800; color: #ffb800; background: #081024; box-shadow: 2px 2px 0 #000; font: 700 9px/1.3 var(--font-mono); text-decoration: none; text-transform: uppercase; }
+.storyActions button:hover, .storyActions a:hover, .highlightCard button:hover, .highlightCard a:hover, .channelLink:hover, .videoHeading button:hover { background: #162752; color: #fff; }
+.storyActions button:focus-visible, .storyActions a:focus-visible, .highlightCard button:focus-visible, .highlightCard a:focus-visible, .channelLink:focus-visible, .videoHeading button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 .videoStage { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; padding: 12px; background: #030712; }
 .videoHeading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; color: #ffb800; font: 8px/1.4 var(--font-arcade); }
-.videoStage iframe { width: 100%; min-height: 220px; flex: 1; border: 2px solid #64748b; background: #000; aspect-ratio: 16 / 9; }
+.videoPreview { flex: 1; min-height: 220px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 15px; padding: clamp(20px,4vw,60px); border: 2px solid #64748b; background: radial-gradient(circle at 75% 40%,#322047,#10182e 45%,#030712 100%); }
+.videoPreview > span { color: #ffb800; font: 9px/1.4 var(--font-arcade); }
+.videoPreview > strong { max-width: 22ch; font: 900 clamp(30px,4vw,65px)/1 var(--font-display); text-transform: uppercase; text-shadow: 4px 4px 0 #000; }
+.videoPreview > p { max-width: 65ch; margin: 0; color: #cbd5e1; font: 13px/1.5 var(--font-mono); }
+.videoPreview > a { padding: 12px 16px; border: 2px solid #ffb800; background: #ffb800; box-shadow: 4px 4px 0 #000; color: #081024; font: 900 13px/1.2 var(--font-display); text-decoration: none; }
+.videoPreview > a:hover, .videoPreview > a:focus-visible { background: #fff; border-color: #fff; }
 .videoCaption { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
-.videoCaption strong { font: 800 17px/1.1 var(--font-display); text-transform: uppercase; }
 .videoCaption small { color: #94a3b8; font: 10px/1.4 var(--font-mono); }
-.videoCaption a { margin-left: auto; }
 .autoCueNote { margin: 0; color: #ffb800; font: 9px/1.4 var(--font-mono); letter-spacing: .04em; }
 .scoreSwing { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin-top: 6px; }
 .scoreSwing > div { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 5px 10px; align-items: end; padding: 9px 12px; background: #050b14d9; border: 2px solid #fb7185; }
@@ -118,5 +121,5 @@
 .channelRail i { color: #94a3b8; font-style: normal; }
 .channelRail small { color: #10b981; font: 11px var(--font-mono); }
 @media(max-width:900px) { .overlay { gap: 8px; padding: 8px; } .stage { grid-template-columns: 1fr; overflow-y: auto; } .feature { min-height: 560px; } .director { min-height: 260px; } .alertList { max-height: 260px; } .header { align-items: start; flex-wrap: wrap; } .headerActions { justify-content: start; } .identity strong { font-size: clamp(19px,3vw,30px); } .scorebug > b { font-size: clamp(25px,4vw,42px); } }
-@media(max-width:560px) { .headerActions button { font-size: 8px; padding: 6px; } .live { font-size: 7px; } .brand strong { font-size: 16px; } .scorebug { gap: 6px; padding: 9px; } .scorebug > b { font-size: 26px; } .identity small { font-size: 8px; } .story { padding: 45px 16px 20px; } .storyTop { left: 16px; right: 16px; } .storyTop small { font-size: 8px; } .story h3 { font-size: clamp(25px,7vw,42px); } .scoreSwing { grid-template-columns: 1fr; } .tapeMetrics { grid-template-columns: 1fr; } .tapeMetrics > div { display: flex; gap: 8px; align-items: baseline; padding: 4px 7px; } .tapeMetrics strong { margin-top: 0; font-size: 12px; } .impactGrid { grid-template-columns: 1fr; } .videoStage iframe { min-height: 180px; } }
+@media(max-width:560px) { .headerActions button { font-size: 8px; padding: 6px; } .live { font-size: 7px; } .brand strong { font-size: 16px; } .scorebug { gap: 6px; padding: 9px; } .scorebug > b { font-size: 26px; } .identity small { font-size: 8px; } .story { padding: 45px 16px 20px; } .storyTop { left: 16px; right: 16px; } .storyTop small { font-size: 8px; } .story h3 { font-size: clamp(25px,7vw,42px); } .scoreSwing { grid-template-columns: 1fr; } .tapeMetrics { grid-template-columns: 1fr; } .tapeMetrics > div { display: flex; gap: 8px; align-items: baseline; padding: 4px 7px; } .tapeMetrics strong { margin-top: 0; font-size: 12px; } .impactGrid { grid-template-columns: 1fr; } .videoPreview { min-height: 180px; } }
 @media(prefers-reduced-motion:reduce) { .overlay * { scroll-behavior: auto; } }
