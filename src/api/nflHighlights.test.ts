@@ -1,6 +1,6 @@
 import { expect, it, vi } from 'vitest';
 import type { MajorEvent } from './nflTimeline';
-import { fetchNFLHighlights, gameHighlightSearch, matchGameHighlights, matchPlayHighlight, nflEmbedUrl, playHighlightSearch } from './nflHighlights';
+import { fetchNFLHighlights, gameHighlightSearch, matchGameHighlights, matchPlayHighlight, matchPlayHighlightCandidates, nflEmbedUrl, playHighlightSearch } from './nflHighlights';
 
 const kickoff = '2026-11-08T18:00:00Z';
 const event: MajorEvent = { id: 'e1', gameId: 'g1', game: 'LAR @ SF', kickoff, occurredAt: '2026-11-08T19:21:00Z', quarter: 2, clock: '7:30', kind: 'Rushing Touchdown', description: 'Puka Nacua 65 Yd Rush (Kick)' };
@@ -36,6 +36,16 @@ it('rejects misleading recaps, old clips, conflicting plays and ambiguous same-p
   expect(matchPlayHighlight(event, [clip('DDDDDDDDDDD', 'Puka Nacua rushing TD | 2025 NFL Season')])).toBeNull();
   expect(matchPlayHighlight(event, [clip('DDDDDDDDDDD', 'Puka Nacua rushing TD'), clip('EEEEEEEEEEE', 'Puka Nacua touchdown')])).toBeNull();
   expect(matchPlayHighlight(event, [clip('DDDDDDDDDDD', 'Puka Nacua 65 Yard Rushing TD'), clip('EEEEEEEEEEE', 'Puka Nacua touchdown')])?.id).toBe('DDDDDDDDDDD');
+});
+
+it('prefers a playable FOX scoring clip, then CBS, then NFL for the same verified play', () => {
+  const publishedAt = '2026-11-08T20:00:00Z';
+  const candidates = matchPlayHighlightCandidates(event, [
+    { id: 'NNNNNNNNNNN', title: 'Puka Nacua 65 Yard Rushing TD', publishedAt, source: 'NFL' },
+    { id: 'CCCCCCCCCCC', title: 'Puka Nacua 65 Yard Rushing TD', publishedAt, source: 'NFL on CBS' },
+    { id: 'FFFFFFFFFFF', title: 'Puka Nacua 65 YARDS for a TOUCHDOWN vs. 49ers | NFL Highlights', publishedAt, source: 'NFL on FOX' },
+  ]);
+  expect(candidates.map(video => video.id)).toEqual(['FFFFFFFFFFF', 'CCCCCCCCCCC', 'NNNNNNNNNNN']);
 });
 
 it('finds an official-channel game recap and provides searches when no metadata match exists', () => {

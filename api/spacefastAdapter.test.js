@@ -41,14 +41,21 @@ describe('Spacefast ESPN adapter', () => {
 });
 describe('Spacefast NFL highlights adapter', () => {
   it('uses the Space secret without a Node process global or browser-visible key', async () => {
-    const fetch = vi.fn().mockResolvedValueOnce(Response.json({ items: [{ contentDetails: { relatedPlaylists: { uploads: 'official-uploads' } } }] }))
-      .mockResolvedValueOnce(Response.json({ items: [{ contentDetails: { videoId: 'AAAAAAAAAAA', videoPublishedAt: '2026-11-08T20:00:00Z' }, snippet: { title: 'Rams vs 49ers Highlights' } }] }));
+    const fetch = vi.fn(async url => {
+      const parsed = new URL(url);
+      const handle = parsed.searchParams.get('forHandle');
+      if (handle) return Response.json({ items: [{ contentDetails: { relatedPlaylists: { uploads: handle } } }] });
+      const playlist = parsed.searchParams.get('playlistId');
+      if (playlist) return Response.json({ items: [{ contentDetails: { videoId: 'AAAAAAAAAAA', videoPublishedAt: '2026-11-08T20:00:00Z' }, snippet: { title: 'Rams vs 49ers Highlights' } }] });
+      return Response.json({ items: [{ id: 'AAAAAAAAAAA', status: { embeddable: true } }] });
+    });
     vi.stubGlobal('fetch', fetch);
     vi.stubGlobal('process', undefined);
     const response = await serveHighlights(new Request('https://fantasy-game-day.space.fast/api/nfl-highlights'), { YOUTUBE_API_KEY: 'spacefast-secret' }, highlightsHandler);
     expect(response.status).toBe(200);
     const body = await response.json();
-    expect(body).toMatchObject({ configured: true, videos: [{ id: 'AAAAAAAAAAA' }] });
+    expect(body.configured).toBe(true);
+    expect(body.videos).toEqual(expect.arrayContaining([{ id: 'AAAAAAAAAAA', title: 'Rams vs 49ers Highlights', publishedAt: '2026-11-08T20:00:00Z', source: 'NFL on FOX', embeddable: true }]));
     expect(JSON.stringify(body)).not.toContain('spacefast-secret');
     expect(String(fetch.mock.calls[0][0])).not.toContain('spacefast-secret');
     expect(fetch.mock.calls[0][1].headers['x-goog-api-key']).toBe('spacefast-secret');

@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { NFLTimeline } from '@/api/nflTimeline';
-import { fetchNFLHighlights, gameHighlightSearch, matchGameHighlights, matchPlayHighlight, nflChannelVideosUrl, nflEmbedUrl, nflVideoUrl, playHighlightSearch } from '@/api/nflHighlights';
+import { fetchNFLHighlights, gameHighlightSearch, matchGameHighlights, matchGameHighlightsCandidates, matchPlayHighlight, matchPlayHighlightCandidates, nflChannelVideosUrl, nflEmbedUrl, nflVideoUrl, playHighlightSearch } from '@/api/nflHighlights';
 import type { HighlightCatalog, NFLVideo } from '@/api/nflHighlights';
 import type { GameDaySnapshot } from '@/types/gameDay';
 import type { ScoreChange } from '@/utils/broadcastControl';
@@ -42,7 +42,7 @@ function WatchStory({ alert, channel, now, playSearch, clip, onPlay, onHighlight
       <div className={styles.storyActions}>
         {alert.kind === 'play' && clip?.embeddable && <button type="button" onClick={() => onPlay(clip)}>WATCH LIKELY CLIP ▶</button>}
         {alert.kind === 'play' && clip && !clip.embeddable && <a href={nflVideoUrl(clip)} target="_blank" rel="noopener noreferrer">CLIP ON YOUTUBE ↗</a>}
-        {alert.kind === 'play' && playSearch && <a href={playSearch} target="_blank" rel="noopener noreferrer">{clip ? 'CHECK ON @NFL ↗' : 'FIND CLIP ON @NFL ↗'}</a>}
+        {alert.kind === 'play' && playSearch && <a href={playSearch} target="_blank" rel="noopener noreferrer">{clip ? `CHECK ${clip.source ?? 'NFL'} ↗` : 'FIND CLIP ON @NFL ↗'}</a>}
         <button type="button" onClick={onHighlights}>GAME HIGHLIGHTS →</button>
       </div>
     </> : <><p className={styles.storyKicker}>DIRECTOR'S WATCH</p><h3>WAITING FOR THE NEXT CUT</h3><p className={styles.storyDetail}>{channel.currentGap !== null && channel.currentGap <= 10 ? `Only ${points(channel.currentGap)} points separate these teams. The director is watching for a confirmed score change.` : 'No confirmed score change or linked NFL play is available for this matchup yet.'}</p><p className={styles.storyFoot}>The wire will take this screen when a relevant update arrives.</p></>}
@@ -72,7 +72,7 @@ function loadYouTubePlayerApi(): Promise<void> {
   return youtubeApiReady;
 }
 
-type VideoCue = { video: NFLVideo; automatic: boolean; blocked?: boolean };
+type VideoCue = { video: NFLVideo; automatic: boolean; remaining: NFLVideo[]; blocked?: boolean };
 
 function HighlightPlayer({ video, automatic, blocked, onBlocked, onBack }: { video: NFLVideo; automatic: boolean; blocked: boolean; onBlocked: () => void; onBack: () => void }) {
   const playerSlotRef = useRef<HTMLDivElement>(null);
@@ -97,11 +97,11 @@ function HighlightPlayer({ video, automatic, blocked, onBlocked, onBack }: { vid
       } });
     }).catch(() => { if (!disposed) blockedRef.current(); });
     return () => { disposed = true; player?.destroy(); frame.remove(); };
-  }, [video.id, blocked]);
+  }, [video, automatic, blocked]);
   return <section className={styles.videoStage} aria-label="Official NFL highlight player">
-    <div className={styles.videoHeading}><span>{automatic ? '● AUTO DIRECTOR // LIKELY PLAY MATCH' : 'OFFICIAL @NFL VIDEO · TITLE/DATE MATCH'}</span><button type="button" onClick={onBack}>← RETURN TO LIVE</button></div>
+    <div className={styles.videoHeading}><span>{automatic ? `● AUTO DIRECTOR // ${video.source ?? 'NFL'} PLAY MATCH` : `OFFICIAL ${video.source ?? 'NFL'} VIDEO · TITLE/DATE MATCH`}</span><button type="button" onClick={onBack}>← RETURN TO LIVE</button></div>
     {blocked ? <div className={styles.videoPreview}>
-      <span>OFFICIAL @NFL CLIP // EXTERNAL PLAYBACK</span>
+      <span>OFFICIAL {video.source ?? 'NFL'} CLIP // EXTERNAL PLAYBACK</span>
       <strong>{video.title}</strong>
       <p>This clip is blocked from playing here. Open it on YouTube while the live wire stays on this screen.</p>
       <a href={nflVideoUrl(video)} target="_blank" rel="noopener noreferrer">WATCH ON YOUTUBE ↗</a>
@@ -142,6 +142,8 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
   const [catalog, setCatalog] = useState<HighlightCatalog | null>(null);
   const [highlightsOpen, setHighlightsOpen] = useState(false);
   const [playingVideo, setPlayingVideo] = useState<VideoCue | null>(null);
+  const [blockedVideoIds, setBlockedVideoIds] = useState<Set<string>>(() => new Set());
+  const playableVideos = useMemo(() => (catalog?.videos ?? []).filter(video => video.embeddable && !blockedVideoIds.has(video.id)), [catalog, blockedVideoIds]);
   const active = channels.find(channel => channel.key === activeKey) ?? channels[0];
   const selectedIndex = channels.findIndex(channel => channel.key === active?.key);
   const latestAlert = allAlerts[0];
@@ -198,16 +200,16 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
     const cue = allAlerts.flatMap(alert => {
       if (alert.kind !== 'play' || !freshAlert(alert, now) || autoCuedPlayIds.current.has(alert.id)) return [];
       const play = data?.events.find(event => event.id === alert.id);
-      const video = play ? matchPlayHighlight(play, (catalog?.videos ?? []).filter(candidate => candidate.embeddable)) : null;
-      return video?.embeddable ? [{ alert, video }] : [];
+      const candidates = play ? matchPlayHighlightCandidates(play, playableVideos) : [];
+      return candidates[0] ? [{ alert, candidates }] : [];
     })[0];
     if (!cue) return;
     autoCuedPlayIds.current.add(cue.alert.id);
     breakingHoldUntil.current = Date.now() + 40_000;
     setActiveKey(cue.alert.channelKey);
     setSelectedAlertId(cue.alert.id);
-    setPlayingVideo({ video: cue.video, automatic: true });
-  }, [auto, playingVideo, allAlerts, now, data, catalog]);
+    setPlayingVideo({ video: cue.candidates[0], remaining: cue.candidates.slice(1), automatic: true });
+  }, [auto, playingVideo, allAlerts, now, data, playableVideos]);
 
   useEffect(() => {
     if (!playingVideo?.automatic) return;
@@ -223,9 +225,18 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
   const call = activeAlert ? activeAlert.kind === 'score' ? freshAlert(activeAlert, now) ? 'SCORE UPDATE' : 'LAST SCORE CHANGE' : freshAlert(activeAlert, now) ? 'NFL PLAY ALERT' : 'LAST NFL PLAY' : closeGame ? 'WITCHING HOUR WATCH' : 'MONITORING';
   const channelNumber = active ? snapshot.matchups.findIndex(match => match.id === active.match.id) + 1 : 0;
   const playEvent = activeAlert?.kind === 'play' ? data?.events.find(event => event.id === activeAlert.id) : undefined;
-  const playClip = playEvent ? matchPlayHighlight(playEvent, (catalog?.videos ?? []).filter(candidate => candidate.embeddable)) ?? matchPlayHighlight(playEvent, catalog?.videos ?? []) : null;
-  const playSearch = playEvent ? playHighlightSearch(playEvent) : null;
-  const playVideo = (video: NFLVideo) => { setAuto(false); setPlayingVideo({ video, automatic: false }); };
+  const playCandidates = playEvent ? matchPlayHighlightCandidates(playEvent, playableVideos) : [];
+  const playClip = playCandidates[0] ?? (playEvent ? matchPlayHighlight(playEvent, (catalog?.videos ?? []).filter(video => !blockedVideoIds.has(video.id))) : null);
+  const playSearch = playEvent ? playHighlightSearch(playEvent, playClip?.source) : null;
+  const playVideo = (video: NFLVideo, candidates: NFLVideo[] = playCandidates) => { setAuto(false); setPlayingVideo({ video, remaining: candidates.filter(candidate => candidate.id !== video.id), automatic: false }); };
+  const handleBlockedVideo = () => {
+    if (!playingVideo) return;
+    setBlockedVideoIds(previous => new Set(previous).add(playingVideo.video.id));
+    breakingHoldUntil.current = Date.now() + 12_000;
+    setPlayingVideo(current => current ? current.remaining.length
+      ? { ...current, video: current.remaining[0], remaining: current.remaining.slice(1), blocked: false }
+      : { ...current, blocked: true } : null);
+  };
 
   return createPortal(<div className={styles.overlay} ref={panelRef} role="dialog" aria-modal="true" aria-label={`${saved.name} watch mode`}>
     <header className={styles.header}><div className={styles.brand}><span className={styles.live}>● LIVE</span><div><strong>WITCHING HOUR // WATCH MODE</strong><small>{saved.name} · Week {snapshot.week} · {channels.length} {channels.length === 1 ? 'game' : 'games'}</small></div></div><div className={styles.headerActions}>
@@ -234,8 +245,8 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
       <button type="button" onClick={() => { setActiveKey(channels[0]?.key ?? ''); setSelectedAlertId(null); setPlayingVideo(null); setHighlightsOpen(false); setAuto(true); }}>GO LIVE</button>
       <button type="button" ref={closeRef} onClick={onClose} aria-label="Close watch mode">CLOSE ×</button>
     </div></header>
-    <div className={styles.stage}><StudioMonitorFrame as="section" className={styles.feature} title={playingVideo ? 'NFL HIGHLIGHTS // @NFL' : active ? `CH ${String(channelNumber).padStart(2, '0')} // ${saved.name}` : saved.name} badge={playingVideo ? 'OFFICIAL NFL' : call}>
-      {playingVideo ? <HighlightPlayer video={playingVideo.video} automatic={playingVideo.automatic} blocked={!!playingVideo.blocked} onBlocked={() => { breakingHoldUntil.current = Date.now() + 12_000; setPlayingVideo(current => current ? { ...current, blocked: true } : null); }} onBack={() => setPlayingVideo(null)} /> : active ? <>
+    <div className={styles.stage}><StudioMonitorFrame as="section" className={styles.feature} title={playingVideo ? `NFL HIGHLIGHTS // ${playingVideo.video.source ?? 'NFL'}` : active ? `CH ${String(channelNumber).padStart(2, '0')} // ${saved.name}` : saved.name} badge={playingVideo ? 'OFFICIAL NFL' : call}>
+      {playingVideo ? <HighlightPlayer video={playingVideo.video} automatic={playingVideo.automatic} blocked={!!playingVideo.blocked} onBlocked={handleBlockedVideo} onBack={() => setPlayingVideo(null)} /> : active ? <>
         <WatchStory alert={activeAlert} channel={active} now={now} playSearch={playSearch} clip={playClip} onPlay={playVideo} onHighlights={() => setHighlightsOpen(true)} />
         <div className={styles.broadcastCanvas} aria-label="Featured matchup scorebug">
           <div className={styles.scorebug}><div className={styles.identity}><span>TEAM 1</span><strong title={active.first.name}>{active.first.name}</strong><small>PROJ. {active.first.projection} · {active.first.left === null ? 'STARTERS UNCONFIRMED' : `${active.first.left} LEFT`}</small></div><b>{points(active.first.points)}</b></div>
@@ -246,15 +257,16 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
       </> : <div className={styles.empty}>Awaiting matchup signal.</div>}
     </StudioMonitorFrame><aside className={styles.director}>
       {highlightsOpen ? <>
-        <h2>NFL HIGHLIGHTS <span>@NFL</span></h2>
-        <p className={styles.caveat}>{catalog?.status === 'ready' ? 'Official NFL uploads. A title/date match suggests a clip; check playback to confirm the play.' : 'Automatic matching is unavailable. Search the official NFL channel for each game.'}</p>
+        <h2>NFL HIGHLIGHTS <span>OFFICIAL CHANNELS</span></h2>
+        <p className={styles.caveat}>{catalog?.status === 'ready' ? 'FOX and CBS clips take priority when they match; NFL uploads cover the rest. Check the video to confirm the play.' : 'Automatic matching is unavailable. Search the official NFL channel for each game.'}</p>
         <div className={styles.alertList}>
           {active?.games.length ? active.games.map(game => {
-            const video = matchGameHighlights(game, (catalog?.videos ?? []).filter(candidate => candidate.embeddable)) ?? matchGameHighlights(game, catalog?.videos ?? []);
+            const candidates = matchGameHighlightsCandidates(game, playableVideos);
+            const video = candidates[0] ?? matchGameHighlights(game, (catalog?.videos ?? []).filter(candidate => !blockedVideoIds.has(candidate.id)));
             return <div className={styles.highlightCard} key={game.id}><span>{game.name} · {game.state === 'post' ? 'FINAL' : game.state === 'in' ? 'IN PROGRESS' : 'UPCOMING'}</span>
               <strong>{video?.title ?? 'GAME HIGHLIGHTS'}</strong>
-              <small>{video ? `Likely match · uploaded ${syncTime(Date.parse(video.publishedAt))}` : 'No reliable title/date match yet.'}</small>
-              <div>{video?.embeddable ? <button type="button" onClick={() => playVideo(video)}>WATCH LIKELY MATCH ▶</button> : video ? <a href={nflVideoUrl(video)} target="_blank" rel="noopener noreferrer">CLIP ON YOUTUBE ↗</a> : null}<a href={gameHighlightSearch(game)} target="_blank" rel="noopener noreferrer">SEARCH @NFL ↗</a></div>
+              <small>{video ? `${video.source ?? 'NFL'} · likely match · uploaded ${syncTime(Date.parse(video.publishedAt))}` : 'No reliable title/date match yet.'}</small>
+              <div>{video?.embeddable ? <button type="button" onClick={() => playVideo(video, candidates)}>WATCH LIKELY MATCH ▶</button> : video ? <a href={nflVideoUrl(video)} target="_blank" rel="noopener noreferrer">CLIP ON YOUTUBE ↗</a> : null}<a href={gameHighlightSearch(game)} target="_blank" rel="noopener noreferrer">SEARCH @NFL ↗</a></div>
             </div>;
           }) : <p>NFL game details for this fantasy matchup are pending.</p>}
         </div>

@@ -77,7 +77,7 @@ it('auto-cues a fresh likely play clip once, then returns to the live wire', asy
   try {
     await act(async () => { render(<LeagueWatchMode saved={saved} snapshot={withStarter} data={data} changes={[]} hazards={0} now={now} onClose={vi.fn()} />); });
     const player = screen.getByRole('region', { name: 'Official NFL highlight player' });
-    expect(player).toHaveTextContent('AUTO DIRECTOR // LIKELY PLAY MATCH');
+    expect(player).toHaveTextContent('AUTO DIRECTOR // NFL PLAY MATCH');
     expect(within(player).getByTitle('Puka Nacua 65 Yard Rushing TD')).toHaveAttribute('src', expect.stringContaining('enablejsapi=1'));
     expect(screen.getByRole('button', { name: 'AUTO DIRECTOR // ON' })).toHaveAttribute('aria-pressed', 'true');
 
@@ -105,5 +105,30 @@ it('replaces a rights-blocked inline clip with a YouTube link', async () => {
     const player = screen.getByRole('region', { name: 'Official NFL highlight player' });
     expect(within(player).queryByTitle('Puka Nacua 65 Yard Rushing TD')).not.toBeInTheDocument();
     expect(within(player).getByRole('link', { name: 'WATCH ON YOUTUBE ↗' })).toHaveAttribute('href', 'https://www.youtube.com/watch?v=abc123XYZ09');
+  } finally { vi.unstubAllGlobals(); }
+});
+
+it('switches from a blocked FOX embed to the next matching official source', async () => {
+  const withStarter: GameDaySnapshot = { ...snapshot, teams: [
+    { ...snapshot.teams[0], roster: [{ id: 'p1', name: 'Puka Nacua', position: 'WR', nflTeam: 'LAR', slot: 'WR', points: 0, projection: 15 }] },
+    ...snapshot.teams.slice(1),
+  ] };
+  const kickoff = '2026-11-08T18:00:00Z';
+  const data = { fetchedAt: now, warnings: [], games: [{ id: 'g1', name: 'LAR @ SF', kickoff, teams: ['LAR', 'SF'], state: 'in' as const, detail: 'Q2', quarter: 2, clock: '7:30' }],
+    events: [{ id: 'play-1', gameId: 'g1', game: 'LAR @ SF', kickoff, occurredAt: new Date(now - 60_000).toISOString(), quarter: 2, clock: '7:30', kind: 'Touchdown', description: 'Puka Nacua 65 Yd Rush (Kick)' }] };
+  let playerError: (() => void) | undefined;
+  vi.stubGlobal('YT', { Player: class { constructor(_frame: HTMLIFrameElement, options: { events: { onError: () => void } }) { playerError = options.events.onError; } destroy() {} } });
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ configured: true, videos: [
+    { id: 'fox123XYZ09', title: 'Puka Nacua 65 Yards for a Touchdown | NFL Highlights', publishedAt: '2026-11-08T18:01:00Z', embeddable: true, source: 'NFL on FOX' },
+    { id: 'nfl123XYZ09', title: 'Puka Nacua 65 Yard Rushing TD', publishedAt: '2026-11-08T18:02:00Z', embeddable: true, source: 'NFL' },
+  ] }) }));
+  try {
+    await act(async () => { render(<LeagueWatchMode saved={saved} snapshot={withStarter} data={data} changes={[]} hazards={0} now={now} onClose={vi.fn()} />); });
+    expect(screen.getByTitle('Puka Nacua 65 Yards for a Touchdown | NFL Highlights')).toBeInTheDocument();
+    await act(async () => { playerError?.(); });
+    const player = screen.getByRole('region', { name: 'Official NFL highlight player' });
+    expect(player).toHaveTextContent('AUTO DIRECTOR // NFL PLAY MATCH');
+    expect(within(player).getByTitle('Puka Nacua 65 Yard Rushing TD')).toBeInTheDocument();
+    expect(within(player).queryByRole('link', { name: 'WATCH ON YOUTUBE ↗' })).not.toBeInTheDocument();
   } finally { vi.unstubAllGlobals(); }
 });

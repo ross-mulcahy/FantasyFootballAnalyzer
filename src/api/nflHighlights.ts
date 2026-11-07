@@ -1,7 +1,8 @@
 import type { MajorEvent, NFLGameStatus } from './nflTimeline';
 import { nflTeamInfo } from '@/data/nflTeams';
 
-export interface NFLVideo { id: string; title: string; publishedAt: string; embeddable?: boolean }
+export type NFLVideoSource = 'NFL on FOX' | 'NFL on CBS' | 'NFL';
+export interface NFLVideo { id: string; title: string; publishedAt: string; embeddable?: boolean; source?: NFLVideoSource }
 export interface HighlightCatalog { status: 'ready' | 'unconfigured' | 'unavailable'; videos: NFLVideo[] }
 const URL = import.meta.env.VITE_NFL_HIGHLIGHTS_URL || (import.meta.env.DEV ? '/api/nfl-highlights' : 'https://fantasy-football-analyzer-mu.vercel.app/api/nfl-highlights');
 const NFL_CHANNEL = 'https://www.youtube.com/@NFL';
@@ -14,8 +15,9 @@ export async function fetchNFLHighlights(): Promise<HighlightCatalog> {
     if (body?.configured !== true) return { status: 'unconfigured', videos: [] };
     if (!Array.isArray(body.videos)) return { status: 'unavailable', videos: [] };
     const videos = body.videos.filter((video: NFLVideo) => video && /^[a-zA-Z0-9_-]{11}$/.test(video.id) &&
-      typeof video.title === 'string' && Number.isFinite(Date.parse(video.publishedAt))).slice(0, 150)
-      .map((video: NFLVideo) => ({ id: video.id, title: video.title, publishedAt: video.publishedAt, embeddable: video.embeddable === true }));
+      typeof video.title === 'string' && Number.isFinite(Date.parse(video.publishedAt)) &&
+      (video.source === undefined || video.source === 'NFL on FOX' || video.source === 'NFL on CBS' || video.source === 'NFL')).slice(0, 300)
+      .map((video: NFLVideo) => ({ id: video.id, title: video.title, publishedAt: video.publishedAt, embeddable: video.embeddable === true, source: video.source ?? 'NFL' }));
     return { status: 'ready', videos };
   } catch { return { status: 'unavailable', videos: [] }; }
 }
@@ -32,7 +34,8 @@ const nearGame = (publishedAt: string, kickoff: string) => {
   const published = Date.parse(publishedAt), start = Date.parse(kickoff);
   return Number.isFinite(published) && Number.isFinite(start) && published >= start - 4 * 3600_000 && published <= start + 4 * 86400_000;
 };
-const latest = (videos: NFLVideo[]) => [...videos].sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))[0] ?? null;
+const sourcePriority = (video: NFLVideo) => video.source === 'NFL on FOX' ? 0 : video.source === 'NFL on CBS' ? 1 : 2;
+const sourceOrder = (a: NFLVideo, b: NFLVideo) => sourcePriority(a) - sourcePriority(b) || Date.parse(b.publishedAt) - Date.parse(a.publishedAt);
 
 type PlayType = 'touchdown' | 'interception' | 'fumble' | 'field-goal';
 const nameToken = /^[A-Z][A-Za-z.'’-]*$/;
@@ -66,7 +69,7 @@ function playActor(event: MajorEvent, type: PlayType): string | null {
   return firstName(description);
 }
 const yardage = (value: string) => [...value.matchAll(/\b(\d{1,3})\s*[- ]?\s*(?:yard|yd)s?\b/gi)].map(match => Number(match[1]));
-const genericVideo = (title: string) => /\b(?:highlights?|game recap|full game|game previews?|preview|every touchdown|all touchdowns|best (?:plays|catches|throws|runs)|top \d+|mic d up|power rankings|podcast|throwback|compilation)\b/.test(title);
+const genericVideo = (title: string) => /\b(?:game highlights?|game recap|full game|game previews?|preview|every touchdown|all touchdowns|best (?:plays|catches|throws|runs)|top \d+|mic d up|power rankings|podcast|throwback|compilation)\b/.test(title);
 const typeMatches = (type: PlayType, title: string) => type === 'touchdown' ? /\b(touchdown|td)\b/.test(title)
   : type === 'interception' ? /\b(int|interception|intercepts|intercepted|pick six|picked off)\b/.test(title)
   : type === 'fumble' ? /\b(fumble|fumbles|fumbled|strip|recovery|recovers|recovered)\b/.test(title)
@@ -82,12 +85,12 @@ function playUploadWindow(event: MajorEvent, publishedAt: string): boolean {
   return Number.isFinite(start) && Number.isFinite(published) && published >= (Number.isFinite(occurred) ? occurred - 5 * 60000 : start - 2 * 3600_000) && published <= start + 36 * 3600_000;
 }
 
-/** A conservative single-play title/date match; the viewer must still verify the clip. */
-export function matchPlayHighlight(event: MajorEvent, videos: NFLVideo[]): NFLVideo | null {
+/** Conservative title/date matches, ordered by sources that passed inline playback checks. */
+export function matchPlayHighlightCandidates(event: MajorEvent, videos: NFLVideo[]): NFLVideo[] {
   const type = playType(event);
-  if (!type) return null;
+  if (!type) return [];
   const actor = playActor(event, type);
-  if (!actor) return null;
+  if (!actor) return [];
   const eventYards = yardage(event.description)[0];
   const gameTeams = teams(event.game).map(clean);
   const gameYear = new Date(event.kickoff).getUTCFullYear();
@@ -102,27 +105,37 @@ export function matchPlayHighlight(event: MajorEvent, videos: NFLVideo[]): NFLVi
     const score = (eventYards !== undefined && titleYards.includes(eventYards) ? 4 : 0) + teamHits +
       (/(?:rush|rushing|pass|passing|int|interception|field goal|fg|fumble)/.test(title) ? 1 : 0);
     return [{ video, score }];
-  }).sort((a, b) => b.score - a.score || Date.parse(b.video.publishedAt) - Date.parse(a.video.publishedAt));
-  // A player can score twice in one game. Without a clear winner, do not auto-cue a guess.
-  if (candidates.length > 1 && candidates[0].score - candidates[1].score < 2) return null;
-  return candidates[0]?.video ?? null;
+  });
+  const ordered: NFLVideo[] = [];
+  for (const source of [0, 1, 2]) {
+    const group = candidates.filter(candidate => sourcePriority(candidate.video) === source)
+      .sort((a, b) => b.score - a.score || Date.parse(b.video.publishedAt) - Date.parse(a.video.publishedAt));
+    // The same player can score twice. Ambiguity within a source is not a safe auto-cue.
+    if (group.length > 1 && group[0].score - group[1].score < 2) continue;
+    if (group[0]) ordered.push(group[0].video);
+  }
+  return ordered;
 }
+export const matchPlayHighlight = (event: MajorEvent, videos: NFLVideo[]) => matchPlayHighlightCandidates(event, videos)[0] ?? null;
 
-export function matchGameHighlights(game: Pick<NFLGameStatus, 'name' | 'kickoff'>, videos: NFLVideo[]): NFLVideo | null {
+export function matchGameHighlightsCandidates(game: Pick<NFLGameStatus, 'name' | 'kickoff'>, videos: NFLVideo[]): NFLVideo[] {
   const names = teams(game.name);
-  if (names.length !== 2) return null;
+  if (names.length !== 2) return [];
   const gameYear = new Date(game.kickoff).getUTCFullYear();
-  return latest(videos.filter(video => {
+  return videos.filter(video => {
     const title = clean(video.title);
     const years = [...title.matchAll(/\b20\d{2}\b/g)].map(match => Number(match[0]));
     return nearGame(video.publishedAt, game.kickoff) && names.every(team => hasWord(title, team)) && /\b(highlights|recap)\b/.test(title) &&
       (!years.length || years.every(year => year === gameYear));
-  }));
+  }).sort(sourceOrder);
 }
+export const matchGameHighlights = (game: Pick<NFLGameStatus, 'name' | 'kickoff'>, videos: NFLVideo[]) => matchGameHighlightsCandidates(game, videos)[0] ?? null;
 
-const channelSearch = (query: string) => `${NFL_CHANNEL}/search?query=${encodeURIComponent(query)}`;
-export function playHighlightSearch(event: MajorEvent): string {
-  return channelSearch(`${event.game} ${event.description.slice(0, 90)} ${event.kind}`);
+const channelUrl = (source?: NFLVideoSource) => source === 'NFL on FOX' ? 'https://www.youtube.com/@NFLonFOX'
+  : source === 'NFL on CBS' ? 'https://www.youtube.com/@NFLonCBS' : NFL_CHANNEL;
+const channelSearch = (query: string, source?: NFLVideoSource) => `${channelUrl(source)}/search?query=${encodeURIComponent(query)}`;
+export function playHighlightSearch(event: MajorEvent, source?: NFLVideoSource): string {
+  return channelSearch(`${event.game} ${event.description.slice(0, 90)} ${event.kind}`, source);
 }
 export function gameHighlightSearch(game: Pick<NFLGameStatus, 'name' | 'kickoff'>): string {
   const names = teams(game.name);
