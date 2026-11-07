@@ -10,7 +10,9 @@ The private **Fantasy Game Day** Space for this fork is at [fantasy-game-day.spa
 
 ## NFL highlight metadata
 
-For automatic official-video title matching, open the **Fantasy Game Day** Space in the Spacefast dashboard, go to **Variables**, and add `YOUTUBE_API_KEY` as a **Secret**. The key must have YouTube Data API v3 enabled and be restricted to that API. Spacefast's Functions runtime supplies the secret to `/api/nfl-highlights`; the Vite build points the hosted Watch Mode at that same-origin route. The feed checks recent NFL on FOX and NFL on CBS clips before @NFL uploads. Without a working key, Watch Mode still offers searches on the official NFL channel. Never add the secret to `VITE_*`, Git, or the build command.
+For automatic official-video title matching, open the **Fantasy Game Day** Space in the Spacefast dashboard, go to **Variables**, and add `YOUTUBE_API_KEY` as a **Secret**. The key must have YouTube Data API v3 enabled and be restricted to that API. Spacefast's Functions runtime supplies the secret to `/api/nfl-highlights`; the Vite build points the hosted Watch Mode at that same-origin route. The feed checks recent NFL on FOX and NFL on CBS clips before @NFL uploads, including each source's embed-permission metadata. Without a working key, Watch Mode still offers searches on the official NFL channel. Never add the secret to `VITE_*`, Git, or the build command.
+
+Watch Mode checks actual YouTube player errors as well as metadata because a rights holder can block a clip from this site even when the API reports it as embeddable. It then tries another matched official source and, if none plays, leaves a **Watch on YouTube** link. Do not proxy or copy video media to bypass an embed restriction. On 7 November 2026, the connected build for commit `0eca5460` succeeded and the live endpoint returned all three configured source feeds; that check does not certify every clip's playback rights.
 
 ## Bring your leagues across
 

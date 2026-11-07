@@ -58,6 +58,14 @@ shared players and local recap capture. Recap display lives at `/recap`; Game Da
 continues recording summaries without rendering that panel. Shared players sort
 by their highest finite per-league projection and display it below current points.
 
+Selected leagues expose every matchup in a two-column Game Day wall and a
+full-screen Watch Mode. Auto Director prioritises fresh score changes and
+relevant NFL plays, while Studio 02 keeps provider score tape separate from the
+NFL play tape. `api/nfl-highlights.js` supplies official YouTube metadata from
+NFL on FOX, NFL on CBS and NFL. `src/api/nflHighlights.ts` ranks likely matches;
+`LeagueWatchMode` handles inline playback errors, alternate official clips and
+external YouTube fallback. Metadata embed permission is not a rights guarantee.
+
 Start with `docs/GAME_DAY_GUIDE.md` for user behavior and `docs/GAME_DAY_DATA.md`
 for data sources, cadence, route hierarchy, storage and correctness limits.
 `src/data/playerIdentityMap.json` is a separate, explicitly regenerated NFL roster
@@ -68,6 +76,8 @@ the bot-owned draft pool pipeline.
 
 The private Fantasy Game Day Space has a separate static plus Functions build:
 `npm run build:spacefast` writes the SPA and same-origin ESPN proxy to `dist/`.
+It also packages `/api/nfl-highlights`; `YOUTUBE_API_KEY` belongs only in
+Spacefast runtime Secrets, never in a `VITE_*` browser variable.
 See `docs/SPACEFAST.md` for the existing Space ID, source archive and publish
 command. Yahoo's hosted routes return a setup error until the user supplies a
 Yahoo developer app and hosted login service. Local `.env.local` is never

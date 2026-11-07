@@ -79,31 +79,27 @@ NFL game status describes the game, not whether that player is on the field;
 unavailable roster details are marked as such. Fantasy and NFL feed sync times
 are shown under Matchup Intel.
 
-Play reports offer an **@NFL** search link when no clip matches. When the
-optional official video metadata feed is configured, Watch Mode may also show
-**Watch likely clip** for a likely match. The feed checks recent uploads from
-NFL on FOX, NFL on CBS and NFL, in that order. NFL play uploads use several title orders: player
-first ("JUSTICE HILL MAKES 65 YARD RUSHING TD"), play first ("INT. BY JOURDAN
-LEWIS"), and action first with the player last ("TD PASS DOWN THE MIDDLE TO
-PARKER WASHINGTON"). The matcher recognizes these forms and allows omitted
-yardage. It requires the named player, compatible play type and a plausible
-publish time; explicit yardage must agree. Recaps, previews, compilations,
-wrong-season titles and ambiguous same-player clips from the same source do
-not auto-match. This
-is a suggested clip, not a verified play-to-video association; check the video
-itself. While Auto Director
-is on, a fresh play with a likely embeddable match automatically cuts to the official
-video once. It starts muted, returns to the live wire after 40 seconds, and
-offers **Return to Live** at any time. Turning Auto Director off keeps the
-current clip open for manual viewing. Select **NFL
-Highlights** for game recaps related to the current matchup, or to search the
-official channel when no reliable title match is found. Inline playback uses
-YouTube's privacy-enhanced embed. The metadata service checks each upload's
-embed permission, and the player catches playback errors that can still occur
-because of rights claims. If an embed is blocked, Watch Mode tries the next
-matching official source and excludes the blocked clip for that session.
-If no alternative works, it keeps a direct **Watch on YouTube** link and Auto
-Director returns to the live wire after 12 seconds.
+Play reports offer an **@NFL** search link when no clip matches. With the
+optional official video metadata feed configured, Watch Mode may also offer
+**Watch likely clip**. It checks recent NFL on FOX, NFL on CBS and NFL uploads,
+in that order. Titles can put the player first ("JUSTICE HILL MAKES 65 YARD
+RUSHING TD"), the play first ("INT. BY JOURDAN LEWIS"), or the action first
+with the player last ("TD PASS DOWN THE MIDDLE TO PARKER WASHINGTON"). The
+matcher accepts these forms and omitted yardage, but requires the player, a
+compatible play type and plausible publish time. Explicit yardage must agree.
+Recaps, previews, compilations, wrong-season titles and ambiguous same-source
+clips do not auto-match a play. A match is a suggestion, not verified footage.
+
+With Auto Director on, a fresh play with a likely embeddable match can cut to
+the official video once. Playback starts muted, returns to the live wire after
+40 seconds, and offers **Return to Live** at any time. Turning Auto Director
+off keeps the clip open for manual viewing. **NFL Highlights** offers related
+game recaps or a search of the official channel. Inline playback uses YouTube's
+privacy-enhanced embed. A rights claim can still block a clip after its metadata
+reports it as embeddable. If the player fails, Watch Mode tries the next
+matching official source and excludes the blocked clip for that session. If
+none works, **Watch on YouTube** remains available and Auto Director returns
+to the live wire after 12 seconds.
 
 For automatic title matching on Spacefast, add `YOUTUBE_API_KEY` as a Secret in
 the **Fantasy Game Day** Space's Variables. For local Vite development use

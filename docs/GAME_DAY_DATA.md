@@ -26,6 +26,28 @@
   Published scoringPlays and plays flagged isTurnover are deduplicated by ID.
   No events are inferred from stat deltas. These public feeds have no stability
   guarantee; failures are handled as optional data availability.
+- Official video metadata: the server-only `/api/nfl-highlights` Function reads
+  recent uploads and video status from NFL on FOX, NFL on CBS and NFL via
+  YouTube Data API v3. `YOUTUBE_API_KEY` stays in the Function environment;
+  browser responses contain titles, IDs, source labels, publish times and
+  embed flags, never the key. Source failures are independent, and an absent
+  key leaves the Watch Mode search links available.
+
+## Highlight matching and playback
+
+Watch Mode ranks candidate clips by official source, then matches a reported
+play against the named player, compatible play type and plausible publication
+date. Explicit yardage must agree. Recaps, previews, wrong-season titles and
+ambiguous same-source candidates do not auto-match a play. Game highlights
+are matched separately. Neither match proves that the video depicts the exact
+reported play; the user can inspect it or search the official channel.
+
+The YouTube embed flag is a first filter, not a playback guarantee. A rights
+claim can block an otherwise embeddable clip on this site. The player handles
+that runtime failure, excludes the blocked ID for the current session, tries
+the next matching official source and retains a direct YouTube link. Auto
+Director returns to the live wire when no inline source works. Video files
+are neither copied nor proxied by this app.
 
 ## Refresh and cache
 

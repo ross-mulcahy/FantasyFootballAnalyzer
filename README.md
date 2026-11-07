@@ -17,13 +17,15 @@ ESPN and Yahoo connection controls are paused while their setup is completed. Pr
 
 ## What you get
 
-- **Game Day:** a multi-league CRT monitor wall, Pixel Scott's deduplicated lineup update, close-game focus, rooting conflicts, live events, pop-up detail panels and browser alerts.
+- **Game Day:** a multi-league CRT monitor wall, Pixel Scott's deduplicated lineup update, close-game focus, rooting conflicts, live events, pop-up detail panels and browser alerts. Selecting a league shows every matchup in its two-column wall.
+- **Watch Mode:** a full-screen, league-wide broadcast view with an Auto Director that prioritises fresh score changes and relevant NFL plays. The wire, matchup intel, and Sunday Production Desk give more context without claiming that an NFL play caused an exact fantasy score change.
+- **Official highlights:** likely play clips and game recaps from NFL on FOX, NFL on CBS and NFL can play inside Watch Mode when YouTube permits embedding. Blocked clips try another official source; a YouTube link remains available. Matching is based on metadata and needs visual confirmation.
 - **Matchups and rosters:** player scores and stats, event timelines, full team rosters and manual refresh.
 - **Recap:** saved weekly results and player highlights. History begins when you use Game Day; earlier weeks are not backfilled.
 - **League analysis:** draft grades, trade and waiver reviews, luck analysis, team pages and league history.
 - **Draft tools:** a draft room, rankings, values and trends. These pages work without connecting a league.
 
-Matchup data refreshes every 60 seconds during live NFL games and every three hours otherwise. Live events are checked more often. Scores follow each league's scoring rules; projections are estimates. See the [Game Day guide](docs/GAME_DAY_GUIDE.md) for the full workflow.
+Matchup data refreshes every 60 seconds during live NFL games and every three hours otherwise. Live events are checked more often. Scores follow each league's scoring rules; missing weekly projections are labelled partial or pending rather than treated as zero. See the [Game Day guide](docs/GAME_DAY_GUIDE.md) for the full workflow.
 
 The league dock switches context without leaving the current page; its buttons stay alphabetical. Original, low-volume studio cues mark channel changes, Next Take, newly reported lineup hazards and matchups entering a close projected margin. The sidebar mute control silences them.
 
