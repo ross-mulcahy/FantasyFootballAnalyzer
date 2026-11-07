@@ -29,16 +29,18 @@
 - Official video metadata: the server-only `/api/nfl-highlights` Function reads
   recent uploads and video status from NFL on FOX, NFL on CBS and NFL via
   YouTube Data API v3. `YOUTUBE_API_KEY` stays in the Function environment;
-  browser responses contain titles, IDs, source labels, publish times, embed
-  flags and available region restrictions, never the key. Source failures are
+  browser responses contain titles, IDs, source labels, publish times, official
+  thumbnail URLs, durations, embed flags and available region restrictions,
+  never the key. Source failures are
   independent, and an absent key leaves the Watch Mode search links available.
 
 ## Highlight matching and playback
 
-Watch Mode ranks candidate clips by official source, then matches a reported
+Watch Mode ranks candidate clips by play evidence, then official source, and matches a reported
 play against the named player, compatible play type and plausible publication
 date. Explicit yardage must agree. Recaps, previews, wrong-season titles and
-ambiguous same-source candidates do not auto-match a play. Game highlights
+ambiguous same-source candidates do not auto-match a play. Strong matches can
+be auto-cued; possible matches are manual only. Game highlights
 are matched separately. Neither match proves that the video depicts the exact
 reported play; the user can inspect it or search the official channel.
 
@@ -50,7 +52,12 @@ playback, pause, end, autoplay blocking, slow startup, stalls and embed errors.
 Blocked IDs stay excluded in session storage. Runtime failures try the next
 matching official source and retain a direct YouTube link. Auto Director's
 40-second limit begins when playback actually starts; it returns sooner when
-the clip ends. Video files are neither copied nor proxied by this app.
+the clip ends or its reported duration plus two seconds elapses. A bounded
+queue and user-selectable clip pacing limit automatic cuts. Newly uploaded
+matches for older plays are called out for manual viewing. Wrong-play feedback
+excludes a video locally; successful playback provides a small source preference
+only among candidates with comparable play evidence. Video files are neither
+copied nor proxied by this app.
 
 ## Refresh and cache
 

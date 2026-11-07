@@ -81,19 +81,29 @@ are shown under Matchup Intel.
 
 Play reports offer an **@NFL** search link when no clip matches. With the
 optional official video metadata feed configured, Watch Mode may also offer
-**Watch likely clip**. It checks recent NFL on FOX, NFL on CBS and NFL uploads,
-in that order. Titles can put the player first ("JUSTICE HILL MAKES 65 YARD
+**Watch likely clip** or a manually selectable **Watch possible clip**. It
+checks recent NFL on FOX, NFL on CBS and NFL uploads, ranking play evidence
+before source preference. Titles can put the player first ("JUSTICE HILL MAKES 65 YARD
 RUSHING TD"), the play first ("INT. BY JOURDAN LEWIS"), or the action first
 with the player last ("TD PASS DOWN THE MIDDLE TO PARKER WASHINGTON"). The
 matcher accepts these forms and omitted yardage, but requires the player, a
 compatible play type and plausible publish time. Explicit yardage must agree.
 Recaps, previews, compilations, wrong-season titles and ambiguous same-source
-clips do not auto-match a play. A match is a suggestion, not verified footage.
+clips do not auto-match a play. Strong matches can enter Auto Director; possible
+matches require a manual take. The preview shows the official thumbnail when
+available, source, duration, confidence and matching reasons. A match is a
+suggestion, not verified footage.
 
-With Auto Director on, a fresh play with a likely embeddable match can cut to
-the official video once. Playback starts muted and returns to the live wire
-when the clip ends, or after at most 40 seconds of confirmed playback. The
-headline remains visible while the player connects. If autoplay is blocked or
+With Auto Director on, a fresh play with a strong embeddable match can enter a
+bounded clip queue. **Clips: Balanced / More / Less** sets the queue size and
+minimum time between automatic cuts. The director preserves a breaking story's
+30-second hold and pauses the queue while a clip is on screen or the tab is
+hidden. Older plays whose matching clip appears on a later metadata refresh
+get a **Clip now available** cue for manual viewing; they do not interrupt live.
+Playback starts muted and returns to the live wire when the clip ends, after
+its reported duration plus two seconds, or after 40 seconds of confirmed
+playback, whichever is sooner. The play headline and live score remain visible
+while the player connects. If autoplay is blocked or
 the clip takes too long to start, **Play Clip** lets you start it manually.
 **Return to Live** is available at any time. Turning Auto Director off keeps
 the clip open for manual viewing. **NFL Highlights** offers related
@@ -104,14 +114,18 @@ matching official source. Rights-blocked clips are remembered for this browser
 session. If none works, **Watch on YouTube** remains available and Auto Director
 returns to the live wire after 12 seconds. Where the host supplies a viewer
 country, known YouTube region restrictions are filtered before cueing; a
-missing country is never inferred from browser language.
+missing country is never inferred from browser language. **Wrong play** rejects
+a clip in this browser and tries another official candidate when available;
+**Worked here** records a successful playback and gently prefers that source
+when future candidates have comparable play evidence. This feedback stays in
+local browser storage and is never sent to the metadata service.
 
 For automatic title matching on Spacefast, add `YOUTUBE_API_KEY` as a Secret in
 the **Fantasy Game Day** Space's Variables. For local Vite development use
 `.env.local`; for the separate Vercel API use its server environment. Enable
 YouTube Data API v3 on that key. The server reads recent uploads from the
 official `@NFLonFOX`, `@NFLonCBS` and `@NFL` channels and returns titles, IDs,
-source names, publish times and embed permissions; the key
+source names, publish times, thumbnails, durations and embed permissions; the key
 never enters the browser bundle. If the key is absent or the metadata service
 is unavailable, channel searches still work. The Spacefast build uses its
 same-origin `/api/nfl-highlights` Function. A separately hosted metadata

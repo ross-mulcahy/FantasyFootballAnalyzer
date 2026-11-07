@@ -29,9 +29,9 @@ it('reads official FOX, CBS and NFL uploads, marks embed candidates, and caches 
     const handle = parsed.searchParams.get('forHandle');
     const playlist = parsed.searchParams.get('playlistId');
     if (handle) return { ok: true, json: async () => ({ items: [{ contentDetails: { relatedPlaylists: { uploads: handle } } }] }) };
-    if (playlist) return { ok: true, json: async () => ({ items: [{ contentDetails: { videoId: ids[playlist], videoPublishedAt: '2026-11-08T20:00:00Z' }, snippet: { title: 'Scoring play' } }] }) };
+    if (playlist) return { ok: true, json: async () => ({ items: [{ contentDetails: { videoId: ids[playlist], videoPublishedAt: '2026-11-08T20:00:00Z' }, snippet: { title: 'Scoring play', thumbnails: { medium: { url: playlist === 'NFLonFOX' ? 'https://i.ytimg.com/vi/AAAAAAAAAAA/mqdefault.jpg' : 'https://untrusted.example/image.jpg' } } } }] }) };
     const id = parsed.searchParams.get('id');
-    return { ok: true, json: async () => ({ items: id.split(',').map(videoId => ({ id: videoId, status: { embeddable: videoId !== 'CCCCCCCCCCC' } })) }) };
+    return { ok: true, json: async () => ({ items: id.split(',').map(videoId => ({ id: videoId, status: { embeddable: videoId !== 'CCCCCCCCCCC' }, contentDetails: { duration: 'PT28S' } })) }) };
   });
   vi.stubGlobal('fetch', fetch);
   const run = await handler();
@@ -39,9 +39,9 @@ it('reads official FOX, CBS and NFL uploads, marks embed candidates, and caches 
   await run(request, first);
   await run(request, second);
   expect(first.body).toEqual({ configured: true, sources: ['NFL on FOX', 'NFL on CBS', 'NFL'], videos: [
-    { id: 'AAAAAAAAAAA', title: 'Scoring play', publishedAt: '2026-11-08T20:00:00Z', source: 'NFL on FOX', embeddable: true },
-    { id: 'BBBBBBBBBBB', title: 'Scoring play', publishedAt: '2026-11-08T20:00:00Z', source: 'NFL on CBS', embeddable: true },
-    { id: 'CCCCCCCCCCC', title: 'Scoring play', publishedAt: '2026-11-08T20:00:00Z', source: 'NFL', embeddable: false },
+    { id: 'AAAAAAAAAAA', title: 'Scoring play', publishedAt: '2026-11-08T20:00:00Z', source: 'NFL on FOX', thumbnailUrl: 'https://i.ytimg.com/vi/AAAAAAAAAAA/mqdefault.jpg', embeddable: true, durationSeconds: 28 },
+    { id: 'BBBBBBBBBBB', title: 'Scoring play', publishedAt: '2026-11-08T20:00:00Z', source: 'NFL on CBS', embeddable: true, durationSeconds: 28 },
+    { id: 'CCCCCCCCCCC', title: 'Scoring play', publishedAt: '2026-11-08T20:00:00Z', source: 'NFL', embeddable: false, durationSeconds: 28 },
   ] });
   expect(second.body).toEqual(first.body);
   expect(fetch).toHaveBeenCalledTimes(7);

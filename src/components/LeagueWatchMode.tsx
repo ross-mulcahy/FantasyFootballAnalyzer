@@ -1,8 +1,8 @@
 import { createPortal } from 'react-dom';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { NFLTimeline } from '@/api/nflTimeline';
-import { canPlayInRegion, fetchNFLHighlights, gameHighlightSearch, matchGameHighlights, matchGameHighlightsCandidates, matchPlayHighlight, matchPlayHighlightCandidates, nflChannelVideosUrl, nflEmbedUrl, nflVideoUrl, playHighlightSearch } from '@/api/nflHighlights';
-import type { HighlightCatalog, NFLVideo } from '@/api/nflHighlights';
+import { canPlayInRegion, fetchNFLHighlights, gameHighlightSearch, matchGameHighlights, matchGameHighlightsCandidates, matchPlayHighlightOptions, nflChannelVideosUrl, nflEmbedUrl, nflVideoUrl, playHighlightSearch } from '@/api/nflHighlights';
+import type { HighlightCatalog, HighlightMatch, NFLVideo, NFLVideoSource } from '@/api/nflHighlights';
 import type { GameDaySnapshot } from '@/types/gameDay';
 import type { ScoreChange } from '@/utils/broadcastControl';
 import type { WatchAlert, WatchChannel, WatchSide } from '@/utils/leagueWatch';
@@ -27,8 +27,10 @@ function ImpactStarters({ side }: { side: WatchSide }) {
 }
 
 const freshAlert = (alert: WatchAlert | undefined, now: number) => !!alert?.at && now - alert.at >= 0 && now - alert.at < 2 * 60000;
-function WatchStory({ alert, channel, now, playSearch, clip, onPlay, onHighlights }: { alert: WatchAlert | undefined; channel: WatchChannel; now: number; playSearch: string | null; clip: NFLVideo | null; onPlay: (video: NFLVideo) => void; onHighlights: () => void }) {
+function durationLabel(seconds?: number) { return seconds === undefined ? '' : `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`; }
+function WatchStory({ alert, channel, now, playSearch, match, lateClip, onPlay, onHighlights }: { alert: WatchAlert | undefined; channel: WatchChannel; now: number; playSearch: string | null; match: HighlightMatch | null; lateClip: boolean; onPlay: (video: NFLVideo) => void; onHighlights: () => void }) {
   const fresh = freshAlert(alert, now);
+  const clip = match?.video;
   return <section className={`${styles.story} ${alert?.kind === 'score' ? styles.scoreStory : alert ? styles.playStory : styles.quietStory}`} aria-label="On air story">
     <div className={styles.storyTop}><span>{alert ? fresh ? '● BREAKING NOW' : 'LAST VERIFIED UPDATE' : '● MONITORING THIS GAME'}</span><small>{alert?.at ? syncTime(alert.at) : 'AWAITING THE NEXT CONFIRMED UPDATE'}</small></div>
     {alert ? <><p className={styles.storyKicker}>{alert.kind === 'score' ? 'FANTASY SCORE TAPE' : 'NFL GAME WIRE // FANTASY IMPACT UNCONFIRMED'}</p>
@@ -39,8 +41,13 @@ function WatchStory({ alert, channel, now, playSearch, clip, onPlay, onHighlight
         <div><span>{alert.score.opponentName}</span><strong>{points(alert.score.beforeOpponent)} <i>→</i> {points(alert.score.opponent)}</strong><b>{alert.score.opponentDelta >= 0 ? '+' : ''}{points(alert.score.opponentDelta)}</b></div>
       </div>}
       {alert.kind === 'play' && <p className={styles.storyFoot}>This NFL play is from a game involving starters in this matchup. Fantasy points update only when the league provider confirms them.</p>}
+      {alert.kind === 'play' && lateClip && <p className={styles.lateClip}>CLIP NOW AVAILABLE // RECORDED PLAY</p>}
+      {alert.kind === 'play' && match && <div className={styles.clipPreview}>
+        {clip?.thumbnailUrl && <img src={clip.thumbnailUrl} alt={`Official ${clip.source ?? 'NFL'} video thumbnail`} loading="lazy" />}
+        <div><span>{match.confidence === 'strong' ? 'STRONG TITLE MATCH' : 'POSSIBLE CLIP'} · {clip?.source ?? 'NFL'}{clip?.durationSeconds !== undefined ? ` · ${durationLabel(clip.durationSeconds)}` : ''}</span><strong>{clip?.title}</strong><small>{match.reasons.join(' · ')} · VERIFY THE PLAY</small></div>
+      </div>}
       <div className={styles.storyActions}>
-        {alert.kind === 'play' && clip?.embeddable && <button type="button" onClick={() => onPlay(clip)}>WATCH LIKELY CLIP ▶</button>}
+        {alert.kind === 'play' && clip?.embeddable && <button type="button" onClick={() => onPlay(clip)}>{match?.confidence === 'strong' ? 'WATCH LIKELY CLIP' : 'WATCH POSSIBLE CLIP'} ▶</button>}
         {alert.kind === 'play' && clip && !clip.embeddable && <a href={nflVideoUrl(clip)} target="_blank" rel="noopener noreferrer">CLIP ON YOUTUBE ↗</a>}
         {alert.kind === 'play' && playSearch && <a href={playSearch} target="_blank" rel="noopener noreferrer">{clip ? `CHECK ${clip.source ?? 'NFL'} ↗` : 'FIND CLIP ON @NFL ↗'}</a>}
         <button type="button" onClick={onHighlights}>GAME HIGHLIGHTS →</button>
@@ -75,15 +82,32 @@ function loadYouTubePlayerApi(): Promise<void> {
 
 type VideoPhase = 'loading' | 'ready' | 'playing' | 'paused' | 'start-delayed' | 'autoplay-blocked' | 'blocked' | 'unavailable';
 type VideoCue = { video: NFLVideo; automatic: boolean; remaining: NFLVideo[]; phase: VideoPhase; headline: string };
+type ClipFrequency = 'more' | 'balanced' | 'less';
+type VideoPreferences = { frequency: ClipFrequency; wrongIds: string[]; workedIds: string[]; sourceSuccess: Partial<Record<NFLVideoSource, number>> };
+const preferencesKey = 'witching-hour:video-preferences:v1';
+const defaultPreferences: VideoPreferences = { frequency: 'balanced', wrongIds: [], workedIds: [], sourceSuccess: {} };
+function savedPreferences(): VideoPreferences {
+  try {
+    const raw = JSON.parse(localStorage.getItem(preferencesKey) ?? '{}');
+    return { frequency: ['more', 'balanced', 'less'].includes(raw.frequency) ? raw.frequency : 'balanced',
+      wrongIds: Array.isArray(raw.wrongIds) ? raw.wrongIds.filter((id: unknown) => typeof id === 'string' && /^[a-zA-Z0-9_-]{11}$/.test(id)) : [],
+      workedIds: Array.isArray(raw.workedIds) ? raw.workedIds.filter((id: unknown) => typeof id === 'string' && /^[a-zA-Z0-9_-]{11}$/.test(id)) : [],
+      sourceSuccess: Object.fromEntries((['NFL on FOX', 'NFL on CBS', 'NFL'] as NFLVideoSource[]).map(source => [source, Math.min(10, Math.max(0, Number(raw.sourceSuccess?.[source]) || 0))])),
+    };
+  } catch { return defaultPreferences; }
+}
+function savePreferences(preferences: VideoPreferences) {
+  try { localStorage.setItem(preferencesKey, JSON.stringify(preferences)); } catch { /* Storage may be unavailable. */ }
+}
 const blockedStorageKey = 'witching-hour:blocked-youtube-embeds';
 function savedBlockedVideos(): Set<string> {
   try { return new Set(JSON.parse(sessionStorage.getItem(blockedStorageKey) ?? '[]').filter((id: unknown) => typeof id === 'string' && /^[a-zA-Z0-9_-]{11}$/.test(id))); }
   catch { return new Set(); }
 }
 
-function HighlightPlayer({ video, automatic, phase, headline, onPhase, onFailed, onEnded, onManualPlay, onBack }: {
+function HighlightPlayer({ video, automatic, phase, headline, scoreline, worked, onPhase, onFailed, onEnded, onManualPlay, onWrong, onWorked, onBack }: {
   video: NFLVideo; automatic: boolean; phase: VideoPhase; headline: string;
-  onPhase: (phase: VideoPhase) => void; onFailed: (blocked: boolean) => void; onEnded: () => void; onManualPlay: () => void; onBack: () => void;
+  scoreline: string; worked: boolean; onPhase: (phase: VideoPhase) => void; onFailed: (blocked: boolean) => void; onEnded: () => void; onManualPlay: () => void; onWrong: () => void; onWorked: () => void; onBack: () => void;
 }) {
   const playerSlotRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YouTubePlayer | null>(null);
@@ -145,6 +169,7 @@ function HighlightPlayer({ video, automatic, phase, headline, onPhase, onFailed,
   return <section className={styles.videoStage} aria-label="Official NFL highlight player">
     <div className={styles.videoHeading}><span>{automatic ? `● AUTO DIRECTOR // ${video.source ?? 'NFL'} PLAY MATCH` : `OFFICIAL ${video.source ?? 'NFL'} VIDEO · TITLE/DATE MATCH`}</span><button type="button" onClick={onBack}>← RETURN TO LIVE</button></div>
     <div className={styles.videoStory}><span>ON AIR // {video.source ?? 'NFL'}</span><strong>{headline}</strong><small>{video.title}</small></div>
+    {phase !== 'playing' && <div className={styles.videoScoreline}>{scoreline}</div>}
     <div className={styles.videoStatus} role="status">{status}{(phase === 'autoplay-blocked' || phase === 'start-delayed') && <button type="button" onClick={() => { onManualPlay(); playerRef.current?.playVideo(); }}>PLAY CLIP ▶</button>}</div>
     {phase === 'blocked' || phase === 'unavailable' ? <div className={styles.videoPreview}>
       <span>OFFICIAL {video.source ?? 'NFL'} CLIP // EXTERNAL PLAYBACK</span>
@@ -152,7 +177,7 @@ function HighlightPlayer({ video, automatic, phase, headline, onPhase, onFailed,
       <p>{phase === 'blocked' ? 'This clip is blocked from playing here.' : 'The video player could not load here.'} Open it on YouTube while the live wire stays on this screen.</p>
       <a href={nflVideoUrl(video)} target="_blank" rel="noopener noreferrer">WATCH ON YOUTUBE ↗</a>
     </div> : <div className={styles.videoPlayerSlot} ref={playerSlotRef} />}
-    <div className={styles.videoCaption}><small>Published {syncTime(Date.parse(video.publishedAt))}. Title and date suggest a match; check the video to confirm it.</small></div>
+    <div className={styles.videoCaption}><small>Published {syncTime(Date.parse(video.publishedAt))}{video.durationSeconds !== undefined ? ` · ${durationLabel(video.durationSeconds)}` : ''}. Title and date suggest a match; check the video to confirm it.</small><div className={styles.feedback}><button type="button" onClick={onWrong}>WRONG PLAY</button><button type="button" onClick={onWorked} aria-pressed={worked} disabled={phase !== 'playing' && !worked}>{worked ? 'WORKED HERE ✓' : 'WORKED HERE'}</button></div></div>
     {automatic && <p className={styles.autoCueNote}>{phase === 'blocked' || phase === 'unavailable' || phase === 'autoplay-blocked' || phase === 'start-delayed' ? 'RETURNING TO THE LIVE WIRE IN 12 SECONDS' : phase === 'playing' ? 'MUTED AUTO CUE · RETURNING TO LIVE AFTER THE CLIP OR IN 40 SECONDS' : 'WAITING FOR VIDEO PLAYBACK · RETURN TO LIVE AT ANY TIME'}</p>}
   </section>;
 }
@@ -188,14 +213,21 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
   const [catalog, setCatalog] = useState<HighlightCatalog | null>(null);
   const [highlightsOpen, setHighlightsOpen] = useState(false);
   const [playingVideo, setPlayingVideo] = useState<VideoCue | null>(null);
+  const [preferences, setPreferences] = useState(savedPreferences);
+  const [clipQueue, setClipQueue] = useState<string[]>([]);
+  const [lateClipIds, setLateClipIds] = useState<Set<string>>(() => new Set());
+  const [directorTick, setDirectorTick] = useState(0);
   const [blockedVideoIds, setBlockedVideoIds] = useState(savedBlockedVideos);
-  const availableVideos = useMemo(() => (catalog?.videos ?? []).filter(video => !blockedVideoIds.has(video.id) && canPlayInRegion(video, catalog?.viewerCountry)), [catalog, blockedVideoIds]);
+  const availableVideos = useMemo(() => (catalog?.videos ?? []).filter(video => !blockedVideoIds.has(video.id) && !preferences.wrongIds.includes(video.id) && canPlayInRegion(video, catalog?.viewerCountry)), [catalog, blockedVideoIds, preferences.wrongIds]);
   const playableVideos = useMemo(() => availableVideos.filter(video => video.embeddable), [availableVideos]);
   const active = channels.find(channel => channel.key === activeKey) ?? channels[0];
   const selectedIndex = channels.findIndex(channel => channel.key === active?.key);
   const latestAlert = allAlerts[0];
   const seenAlert = useRef(latestAlert?.id);
   const autoCuedPlayIds = useRef(new Set<string>());
+  const knownCatalogVideoIds = useRef<Set<string> | null>(null);
+  const lastCheckedCatalog = useRef<HighlightCatalog | null>(null);
+  const lastAutoClipAt = useRef(0);
   const breakingHoldUntil = useRef(0);
   const closeRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -207,6 +239,23 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
     const timer = window.setInterval(load, 5 * 60_000);
     return () => { mounted = false; window.clearInterval(timer); };
   }, []);
+
+  useEffect(() => {
+    if (catalog?.status !== 'ready') return;
+    if (lastCheckedCatalog.current === catalog) return;
+    lastCheckedCatalog.current = catalog;
+    const currentIds = new Set(catalog.videos.map(video => video.id));
+    if (knownCatalogVideoIds.current) {
+      const newVideos = availableVideos.filter(video => !knownCatalogVideoIds.current?.has(video.id));
+      const newlyAvailable = allAlerts.filter(alert => {
+        if (alert.kind !== 'play' || freshAlert(alert, now)) return false;
+        const play = data?.events.find(event => event.id === alert.id);
+        return play && matchPlayHighlightOptions(play, newVideos, preferences.sourceSuccess).length > 0;
+      }).map(alert => alert.id);
+      if (newlyAvailable.length) setLateClipIds(previous => new Set([...previous, ...newlyAvailable]));
+    }
+    knownCatalogVideoIds.current = currentIds;
+  }, [catalog, allAlerts, data, availableVideos, preferences.sourceSuccess, now]);
 
   useEffect(() => {
     const root = document.getElementById('root');
@@ -243,30 +292,45 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
   }, [latestAlert, auto, now, playingVideo]);
 
   useEffect(() => {
-    if (!auto || playingVideo || document.visibilityState !== 'visible') return;
-    const cue = allAlerts.flatMap(alert => {
-      if (alert.kind !== 'play' || !freshAlert(alert, now) || autoCuedPlayIds.current.has(alert.id)) return [];
+    if (!auto) { setClipQueue([]); return; }
+    const newIds = allAlerts.filter(alert => {
+      if (alert.kind !== 'play' || !freshAlert(alert, now) || autoCuedPlayIds.current.has(alert.id)) return false;
       const play = data?.events.find(event => event.id === alert.id);
-      const candidates = play ? matchPlayHighlightCandidates(play, playableVideos) : [];
-      return candidates[0] ? [{ alert, candidates }] : [];
-    })[0];
-    if (!cue) return;
-    autoCuedPlayIds.current.add(cue.alert.id);
-    breakingHoldUntil.current = Date.now() + 40_000;
-    setActiveKey(cue.alert.channelKey);
-    setSelectedAlertId(cue.alert.id);
-    setPlayingVideo({ video: cue.candidates[0], remaining: cue.candidates.slice(1), automatic: true, phase: 'loading', headline: cue.alert.headline });
-  }, [auto, playingVideo, allAlerts, now, data, playableVideos]);
+      return play && matchPlayHighlightOptions(play, playableVideos, preferences.sourceSuccess).some(match => match.confidence === 'strong');
+    }).map(alert => alert.id);
+    if (newIds.length) setClipQueue(previous => [...new Set([...previous, ...newIds])].slice(0, preferences.frequency === 'more' ? 5 : preferences.frequency === 'balanced' ? 3 : 1));
+  }, [auto, allAlerts, now, data, playableVideos, preferences.frequency, preferences.sourceSuccess]);
+  useEffect(() => {
+    if (!auto || playingVideo || !clipQueue.length || document.visibilityState !== 'visible') return;
+    const cooldown = preferences.frequency === 'more' ? 30_000 : preferences.frequency === 'balanced' ? 90_000 : 180_000;
+    if (Date.now() < lastAutoClipAt.current + cooldown || Date.now() < breakingHoldUntil.current) return;
+    const alert = allAlerts.find(item => item.id === clipQueue[0]);
+    const play = data?.events.find(event => event.id === alert?.id);
+    const candidates = play ? matchPlayHighlightOptions(play, playableVideos, preferences.sourceSuccess).filter(match => match.confidence === 'strong').map(match => match.video) : [];
+    setClipQueue(previous => previous.slice(1));
+    if (!alert || !candidates[0] || autoCuedPlayIds.current.has(alert.id)) return;
+    autoCuedPlayIds.current.add(alert.id);
+    lastAutoClipAt.current = Date.now();
+    breakingHoldUntil.current = Date.now() + 30_000;
+    setActiveKey(alert.channelKey);
+    setSelectedAlertId(alert.id);
+    setPlayingVideo({ video: candidates[0], remaining: candidates.slice(1), automatic: true, phase: 'loading', headline: alert.headline });
+  }, [auto, playingVideo, clipQueue, allAlerts, data, playableVideos, preferences.frequency, preferences.sourceSuccess, directorTick]);
+  useEffect(() => {
+    if (!auto || playingVideo || !clipQueue.length) return;
+    const timer = window.setInterval(() => setDirectorTick(previous => previous + 1), 5000);
+    return () => window.clearInterval(timer);
+  }, [auto, playingVideo, clipQueue.length]);
 
   useEffect(() => {
     if (!playingVideo?.automatic) return;
-    const duration = playingVideo.phase === 'playing' ? 40_000 : ['blocked', 'unavailable', 'autoplay-blocked', 'start-delayed'].includes(playingVideo.phase) ? 12_000 : null;
+    const duration = playingVideo.phase === 'playing' ? Math.min(40_000, Math.max(12_000, ((playingVideo.video.durationSeconds ?? 40) + 2) * 1000)) : ['blocked', 'unavailable', 'autoplay-blocked', 'start-delayed'].includes(playingVideo.phase) ? 12_000 : null;
     if (duration === null) return;
     const timer = window.setTimeout(() => setPlayingVideo(null), duration);
     return () => window.clearTimeout(timer);
   }, [playingVideo]);
 
-  const take = (key: string, alertId: string | null = null) => { setAuto(false); setActiveKey(key); setSelectedAlertId(alertId); setPlayingVideo(null); };
+  const take = (key: string, alertId: string | null = null) => { setAuto(false); setClipQueue([]); setActiveKey(key); setSelectedAlertId(alertId); setPlayingVideo(null); };
   const next = () => { if (channels.length) take(channels[(selectedIndex + 1) % channels.length].key); };
   const activeAlert = active?.alerts.find(alert => alert.id === selectedAlertId) ?? active?.alerts[0];
   const closeGame = active && (active.currentGap !== null && active.currentGap <= 10 || active.projectedGap !== null && active.projectedGap <= 10);
@@ -274,10 +338,23 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
   const call = activeAlert ? activeAlert.kind === 'score' ? freshAlert(activeAlert, now) ? 'SCORE UPDATE' : 'LAST SCORE CHANGE' : freshAlert(activeAlert, now) ? 'NFL PLAY ALERT' : 'LAST NFL PLAY' : closeGame ? 'WITCHING HOUR WATCH' : 'MONITORING';
   const channelNumber = active ? snapshot.matchups.findIndex(match => match.id === active.match.id) + 1 : 0;
   const playEvent = activeAlert?.kind === 'play' ? data?.events.find(event => event.id === activeAlert.id) : undefined;
-  const playCandidates = playEvent ? matchPlayHighlightCandidates(playEvent, playableVideos) : [];
-  const playClip = playCandidates[0] ?? (playEvent ? matchPlayHighlight(playEvent, availableVideos) : null);
-  const playSearch = playEvent ? playHighlightSearch(playEvent, playClip?.source) : null;
-  const playVideo = (video: NFLVideo, candidates: NFLVideo[] = playCandidates, headline = activeAlert?.headline ?? video.title) => { setAuto(false); setPlayingVideo({ video, remaining: candidates.filter(candidate => candidate.id !== video.id), automatic: false, phase: 'loading', headline }); };
+  const playOptions = playEvent ? matchPlayHighlightOptions(playEvent, availableVideos, preferences.sourceSuccess) : [];
+  const playMatch = playOptions[0] ?? null;
+  const playCandidates = playOptions.filter(match => match.video.embeddable).map(match => match.video);
+  const playSearch = playEvent ? playHighlightSearch(playEvent, playMatch?.video.source) : null;
+  const playVideo = (video: NFLVideo, candidates: NFLVideo[] = playCandidates, headline = activeAlert?.headline ?? video.title) => { setAuto(false); setClipQueue([]); setPlayingVideo({ video, remaining: candidates.filter(candidate => candidate.id !== video.id), automatic: false, phase: 'loading', headline }); };
+  const updatePreferences = (update: (previous: VideoPreferences) => VideoPreferences) => setPreferences(previous => { const next = update(previous); savePreferences(next); return next; });
+  const markWrong = () => {
+    if (!playingVideo) return;
+    const rejectedId = playingVideo.video.id;
+    updatePreferences(previous => ({ ...previous, wrongIds: [...new Set([...previous.wrongIds, rejectedId])] }));
+    setPlayingVideo(current => current?.remaining.length ? { ...current, video: current.remaining[0], remaining: current.remaining.slice(1), phase: 'loading' } : null);
+  };
+  const markWorked = () => {
+    if (!playingVideo) return;
+    const { id, source = 'NFL' } = playingVideo.video;
+    updatePreferences(previous => previous.workedIds.includes(id) ? previous : { ...previous, workedIds: [...previous.workedIds, id], sourceSuccess: { ...previous.sourceSuccess, [source]: Math.min(10, (previous.sourceSuccess[source] ?? 0) + 1) } });
+  };
   const handleVideoFailure = (blocked: boolean) => {
     if (!playingVideo) return;
     if (blocked) setBlockedVideoIds(previous => {
@@ -295,13 +372,14 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
   return createPortal(<div className={styles.overlay} ref={panelRef} role="dialog" aria-modal="true" aria-label={`${saved.name} watch mode`}>
     <header className={styles.header}><div className={styles.brand}><span className={styles.live}>● LIVE</span><div><strong>WITCHING HOUR // WATCH MODE</strong><small>{saved.name} · Week {snapshot.week} · {channels.length} {channels.length === 1 ? 'game' : 'games'}</small></div></div><div className={styles.headerActions}>
       <button type="button" aria-pressed={highlightsOpen} onClick={() => setHighlightsOpen(value => !value)}>NFL HIGHLIGHTS</button>
+      <button type="button" onClick={() => updatePreferences(previous => ({ ...previous, frequency: previous.frequency === 'balanced' ? 'more' : previous.frequency === 'more' ? 'less' : 'balanced' }))}>CLIPS: {preferences.frequency.toUpperCase()}</button>
       <button type="button" className={auto ? styles.activeControl : ''} aria-pressed={auto} onClick={() => { setAuto(value => !value); if (playingVideo?.automatic) setPlayingVideo({ ...playingVideo, automatic: false }); }}>{auto ? 'AUTO DIRECTOR // ON' : 'AUTO DIRECTOR // OFF'}</button>
       <button type="button" onClick={() => { setActiveKey(channels[0]?.key ?? ''); setSelectedAlertId(null); setPlayingVideo(null); setHighlightsOpen(false); setAuto(true); }}>GO LIVE</button>
       <button type="button" ref={closeRef} onClick={onClose} aria-label="Close watch mode">CLOSE ×</button>
     </div></header>
     <div className={styles.stage}><StudioMonitorFrame as="section" className={styles.feature} title={playingVideo ? `NFL HIGHLIGHTS // ${playingVideo.video.source ?? 'NFL'}` : active ? `CH ${String(channelNumber).padStart(2, '0')} // ${saved.name}` : saved.name} badge={playingVideo ? 'OFFICIAL NFL' : call}>
-      {playingVideo ? <HighlightPlayer video={playingVideo.video} automatic={playingVideo.automatic} phase={playingVideo.phase} headline={playingVideo.headline} onPhase={phase => updateVideoPhase(playingVideo.video.id, phase)} onFailed={handleVideoFailure} onEnded={() => setPlayingVideo(null)} onManualPlay={() => setPlayingVideo(current => current ? { ...current, automatic: false, phase: 'ready' } : null)} onBack={() => setPlayingVideo(null)} /> : active ? <>
-        <WatchStory alert={activeAlert} channel={active} now={now} playSearch={playSearch} clip={playClip} onPlay={playVideo} onHighlights={() => setHighlightsOpen(true)} />
+      {playingVideo ? <HighlightPlayer video={playingVideo.video} automatic={playingVideo.automatic} phase={playingVideo.phase} headline={playingVideo.headline} scoreline={active ? `${active.first.name} ${points(active.first.points)}  //  ${active.second.name} ${points(active.second.points)}` : 'LIVE SCORE PENDING'} worked={preferences.workedIds.includes(playingVideo.video.id)} onPhase={phase => updateVideoPhase(playingVideo.video.id, phase)} onFailed={handleVideoFailure} onEnded={() => setPlayingVideo(null)} onManualPlay={() => setPlayingVideo(current => current ? { ...current, automatic: false, phase: 'ready' } : null)} onWrong={markWrong} onWorked={markWorked} onBack={() => setPlayingVideo(null)} /> : active ? <>
+        <WatchStory alert={activeAlert} channel={active} now={now} playSearch={playSearch} match={playMatch} lateClip={!!activeAlert && lateClipIds.has(activeAlert.id)} onPlay={playVideo} onHighlights={() => setHighlightsOpen(true)} />
         <div className={styles.broadcastCanvas} aria-label="Featured matchup scorebug">
           <div className={styles.scorebug}><div className={styles.identity}><span>TEAM 1</span><strong title={active.first.name}>{active.first.name}</strong><small>PROJ. {active.first.projection} · {active.first.left === null ? 'STARTERS UNCONFIRMED' : `${active.first.left} LEFT`}</small></div><b>{points(active.first.points)}</b></div>
           <div className={styles.seam}>VS</div>
@@ -310,16 +388,18 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
         <WatchTaleOfTape channel={active} fetchedAt={snapshot.fetchedAt} nflFetchedAt={data?.fetchedAt ?? null} />
       </> : <div className={styles.empty}>Awaiting matchup signal.</div>}
     </StudioMonitorFrame><aside className={styles.director}>
+      {auto && !!clipQueue.length && <div className={styles.queueNotice}><span>UP NEXT // {clipQueue.length} {clipQueue.length === 1 ? 'CLIP' : 'CLIPS'} QUEUED</span><strong>{allAlerts.find(alert => alert.id === clipQueue[0])?.headline ?? 'NEXT VERIFIED PLAY'}</strong></div>}
       {highlightsOpen ? <>
         <h2>NFL HIGHLIGHTS <span>OFFICIAL CHANNELS</span></h2>
         <p className={styles.caveat}>{catalog?.status === 'ready' ? 'FOX and CBS clips take priority when they match; NFL uploads cover the rest. Check the video to confirm the play.' : 'Automatic matching is unavailable. Search the official NFL channel for each game.'}</p>
         <div className={styles.alertList}>
           {active?.games.length ? active.games.map(game => {
-            const candidates = matchGameHighlightsCandidates(game, playableVideos);
+            const candidates = matchGameHighlightsCandidates(game, playableVideos).sort((a, b) => (preferences.sourceSuccess[b.source ?? 'NFL'] ?? 0) - (preferences.sourceSuccess[a.source ?? 'NFL'] ?? 0));
             const video = candidates[0] ?? matchGameHighlights(game, availableVideos);
             return <div className={styles.highlightCard} key={game.id}><span>{game.name} · {game.state === 'post' ? 'FINAL' : game.state === 'in' ? 'IN PROGRESS' : 'UPCOMING'}</span>
+              {video?.thumbnailUrl && <img className={styles.highlightThumbnail} src={video.thumbnailUrl} alt={`Official ${video.source ?? 'NFL'} video thumbnail`} loading="lazy" />}
               <strong>{video?.title ?? 'GAME HIGHLIGHTS'}</strong>
-              <small>{video ? `${video.source ?? 'NFL'} · likely match · uploaded ${syncTime(Date.parse(video.publishedAt))}` : 'No reliable title/date match yet.'}</small>
+              <small>{video ? `${video.source ?? 'NFL'} · likely match · uploaded ${syncTime(Date.parse(video.publishedAt))}${video.durationSeconds !== undefined ? ` · ${durationLabel(video.durationSeconds)}` : ''}` : 'No reliable title/date match yet.'}</small>
               <div>{video?.embeddable ? <button type="button" onClick={() => playVideo(video, candidates, video.title)}>WATCH LIKELY MATCH ▶</button> : video ? <a href={nflVideoUrl(video)} target="_blank" rel="noopener noreferrer">CLIP ON YOUTUBE ↗</a> : null}<a href={gameHighlightSearch(game)} target="_blank" rel="noopener noreferrer">SEARCH @NFL ↗</a></div>
             </div>;
           }) : <p>NFL game details for this fantasy matchup are pending.</p>}
@@ -329,7 +409,7 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
       </> : <>
         <div className={styles.scott}><PixelScott state={pose} compact /><div><span>PIXEL SCOTT // DIRECTOR'S DESK</span><strong>{auto ? 'Watching the wire. Cutting to new score swings and starter-game plays.' : 'Manual channel selected. Choose a wire item to take the story.'}</strong></div></div>
         <h2>THE WIRE <span>{allAlerts.length} REPORTS</span></h2><p className={styles.caveat}>Fantasy score swings are confirmed by provider refreshes. NFL play reports flag games involving starters; fantasy impact remains unconfirmed.</p>
-        <div className={styles.alertList}>{allAlerts.length ? allAlerts.slice(0, 8).map(alert => <button key={`${alert.kind}:${alert.gameId ?? ''}:${alert.id}`} type="button" className={alert.kind === 'score' ? styles.scoreAlert : styles.playAlert} aria-current={active?.key === alert.channelKey && activeAlert?.id === alert.id ? 'true' : undefined} onClick={() => take(alert.channelKey, alert.id)}><span>{freshAlert(alert, now) ? '● NEW' : 'RECORDED'} · {alert.kind === 'score' ? 'SCORE CHANGE' : 'NFL PLAY'} · {alert.at ? syncTime(alert.at) : 'TIME UNCONFIRMED'}{(alert.relatedChannels ?? 1) > 1 ? ` · ${alert.relatedChannels} CHANNELS` : ''}</span><strong>{alert.headline}</strong><small>{alert.detail}</small><em>TAKE THIS STORY ↗</em></button>) : <p>No score changes or relevant NFL plays in the current feed yet.</p>}</div>
+        <div className={styles.alertList}>{allAlerts.length ? allAlerts.slice(0, 8).map(alert => <button key={`${alert.kind}:${alert.gameId ?? ''}:${alert.id}`} type="button" className={alert.kind === 'score' ? styles.scoreAlert : styles.playAlert} aria-current={active?.key === alert.channelKey && activeAlert?.id === alert.id ? 'true' : undefined} onClick={() => take(alert.channelKey, alert.id)}><span>{lateClipIds.has(alert.id) ? 'CLIP NOW AVAILABLE' : freshAlert(alert, now) ? '● NEW' : 'RECORDED'} · {alert.kind === 'score' ? 'SCORE CHANGE' : 'NFL PLAY'} · {alert.at ? syncTime(alert.at) : 'TIME UNCONFIRMED'}{(alert.relatedChannels ?? 1) > 1 ? ` · ${alert.relatedChannels} CHANNELS` : ''}</span><strong>{alert.headline}</strong><small>{alert.detail}</small><em>TAKE THIS STORY ↗</em></button>) : <p>No score changes or relevant NFL plays in the current feed yet.</p>}</div>
         <button type="button" className={styles.next} onClick={next} disabled={channels.length < 2}>NEXT GAME →</button>
       </>}
     </aside></div>

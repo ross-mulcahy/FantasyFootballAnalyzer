@@ -2,7 +2,7 @@ import type { MajorEvent, NFLGameStatus } from './nflTimeline';
 import { nflTeamInfo } from '@/data/nflTeams';
 
 export type NFLVideoSource = 'NFL on FOX' | 'NFL on CBS' | 'NFL';
-export interface NFLVideo { id: string; title: string; publishedAt: string; embeddable?: boolean; source?: NFLVideoSource; regionRestriction?: { allowed?: string[]; blocked?: string[] } }
+export interface NFLVideo { id: string; title: string; publishedAt: string; embeddable?: boolean; source?: NFLVideoSource; regionRestriction?: { allowed?: string[]; blocked?: string[] }; durationSeconds?: number; thumbnailUrl?: string }
 export interface HighlightCatalog { status: 'ready' | 'unconfigured' | 'unavailable'; videos: NFLVideo[]; viewerCountry?: string }
 const URL = import.meta.env.VITE_NFL_HIGHLIGHTS_URL || (import.meta.env.DEV ? '/api/nfl-highlights' : 'https://fantasy-football-analyzer-mu.vercel.app/api/nfl-highlights');
 const NFL_CHANNEL = 'https://www.youtube.com/@NFL';
@@ -18,6 +18,8 @@ export async function fetchNFLHighlights(): Promise<HighlightCatalog> {
       typeof video.title === 'string' && Number.isFinite(Date.parse(video.publishedAt)) &&
       (video.source === undefined || video.source === 'NFL on FOX' || video.source === 'NFL on CBS' || video.source === 'NFL')).slice(0, 300)
       .map((video: NFLVideo) => ({ id: video.id, title: video.title, publishedAt: video.publishedAt, embeddable: video.embeddable === true, source: video.source ?? 'NFL',
+        ...(Number.isFinite(video.durationSeconds) && video.durationSeconds! >= 0 ? { durationSeconds: video.durationSeconds } : {}),
+        ...(typeof video.thumbnailUrl === 'string' && /^https:\/\/i\.ytimg\.com\//.test(video.thumbnailUrl) ? { thumbnailUrl: video.thumbnailUrl } : {}),
         regionRestriction: video.regionRestriction && {
           ...(Array.isArray(video.regionRestriction.allowed) ? { allowed: video.regionRestriction.allowed.filter(code => /^[A-Z]{2}$/.test(code)) } : {}),
           ...(Array.isArray(video.regionRestriction.blocked) ? { blocked: video.regionRestriction.blocked.filter(code => /^[A-Z]{2}$/.test(code)) } : {}),
@@ -99,8 +101,9 @@ function playUploadWindow(event: MajorEvent, publishedAt: string): boolean {
   return Number.isFinite(start) && Number.isFinite(published) && published >= (Number.isFinite(occurred) ? occurred - 5 * 60000 : start - 2 * 3600_000) && published <= start + 36 * 3600_000;
 }
 
-/** Conservative title/date matches, ordered by sources that passed inline playback checks. */
-export function matchPlayHighlightCandidates(event: MajorEvent, videos: NFLVideo[]): NFLVideo[] {
+export interface HighlightMatch { video: NFLVideo; confidence: 'strong' | 'possible'; reasons: string[]; score: number }
+/** Title/date matches with explicit evidence. Only strong, unambiguous short clips auto-cue. */
+export function matchPlayHighlightOptions(event: MajorEvent, videos: NFLVideo[], sourceSuccess: Partial<Record<NFLVideoSource, number>> = {}): HighlightMatch[] {
   const type = playType(event);
   if (!type) return [];
   const actor = playActor(event, type);
@@ -116,21 +119,31 @@ export function matchPlayHighlightCandidates(event: MajorEvent, videos: NFLVideo
     const titleYards = yardage(video.title);
     if (eventYards !== undefined && titleYards.length && !titleYards.includes(eventYards)) return [];
     const teamHits = gameTeams.filter(team => hasWord(title, team)).length;
-    const score = (eventYards !== undefined && titleYards.includes(eventYards) ? 4 : 0) + teamHits +
-      (/(?:rush|rushing|pass|passing|int|interception|field goal|fg|fumble)/.test(title) ? 1 : 0);
-    return [{ video, score }];
+    const yardHit = eventYards !== undefined && titleYards.includes(eventYards);
+    const actionHit = /(?:rush|rushing|pass|passing|int|interception|field goal|fg|fumble)/.test(title);
+    const shortClip = video.durationSeconds === undefined || video.durationSeconds <= 120;
+    const reasons = ['PLAYER + PLAY TYPE', 'GAME-DAY UPLOAD'];
+    if (yardHit) reasons.push('YARDAGE MATCH');
+    if (teamHits) reasons.push(`${teamHits} TEAM ${teamHits === 1 ? 'MATCH' : 'MATCHES'}`);
+    if (video.durationSeconds !== undefined) reasons.push(video.durationSeconds <= 120 ? 'SHORT CLIP' : 'LONG VIDEO');
+    const score = (yardHit ? 5 : 0) + teamHits * 2 + (actionHit ? 1 : 0);
+    const confidence = shortClip && (yardHit || teamHits >= 2 || teamHits >= 1 && actionHit) ? 'strong' : 'possible';
+    return [{ video, score, confidence, reasons } satisfies HighlightMatch];
   });
-  const ordered: NFLVideo[] = [];
+  const ordered: HighlightMatch[] = [];
   for (const source of [0, 1, 2]) {
     const group = candidates.filter(candidate => sourcePriority(candidate.video) === source)
       .sort((a, b) => b.score - a.score || Date.parse(b.video.publishedAt) - Date.parse(a.video.publishedAt));
-    // The same player can score twice. Ambiguity within a source is not a safe auto-cue.
+    // A player can make two similar plays; do not present a disputed same-source clip.
     if (group.length > 1 && group[0].score - group[1].score < 2) continue;
-    if (group[0]) ordered.push(group[0].video);
+    if (group[0]) ordered.push(group[0]);
   }
-  return ordered;
+  return ordered.sort((a, b) => (a.confidence === 'strong' ? 1 : 0) === (b.confidence === 'strong' ? 1 : 0)
+    ? b.score - a.score || Math.min(2, sourceSuccess[b.video.source ?? 'NFL'] ?? 0) - Math.min(2, sourceSuccess[a.video.source ?? 'NFL'] ?? 0) || sourcePriority(a.video) - sourcePriority(b.video)
+    : a.confidence === 'strong' ? -1 : 1);
 }
-export const matchPlayHighlight = (event: MajorEvent, videos: NFLVideo[]) => matchPlayHighlightCandidates(event, videos)[0] ?? null;
+export const matchPlayHighlightCandidates = (event: MajorEvent, videos: NFLVideo[], sourceSuccess?: Partial<Record<NFLVideoSource, number>>) => matchPlayHighlightOptions(event, videos, sourceSuccess).filter(match => match.confidence === 'strong').map(match => match.video);
+export const matchPlayHighlight = (event: MajorEvent, videos: NFLVideo[]) => matchPlayHighlightOptions(event, videos)[0]?.video ?? null;
 
 export function matchGameHighlightsCandidates(game: Pick<NFLGameStatus, 'name' | 'kickoff'>, videos: NFLVideo[]): NFLVideo[] {
   const names = teams(game.name);

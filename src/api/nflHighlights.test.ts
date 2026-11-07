@@ -1,6 +1,6 @@
 import { expect, it, vi } from 'vitest';
 import type { MajorEvent } from './nflTimeline';
-import { canPlayInRegion, fetchNFLHighlights, gameHighlightSearch, matchGameHighlights, matchPlayHighlight, matchPlayHighlightCandidates, nflEmbedUrl, playHighlightSearch } from './nflHighlights';
+import { canPlayInRegion, fetchNFLHighlights, gameHighlightSearch, matchGameHighlights, matchPlayHighlight, matchPlayHighlightCandidates, matchPlayHighlightOptions, nflEmbedUrl, playHighlightSearch } from './nflHighlights';
 
 const kickoff = '2026-11-08T18:00:00Z';
 const event: MajorEvent = { id: 'e1', gameId: 'g1', game: 'LAR @ SF', kickoff, occurredAt: '2026-11-08T19:21:00Z', quarter: 2, clock: '7:30', kind: 'Rushing Touchdown', description: 'Puka Nacua 65 Yd Rush (Kick)' };
@@ -46,6 +46,37 @@ it('prefers a playable FOX scoring clip, then CBS, then NFL for the same verifie
     { id: 'FFFFFFFFFFF', title: 'Puka Nacua 65 YARDS for a TOUCHDOWN vs. 49ers | NFL Highlights', publishedAt, source: 'NFL on FOX' },
   ]);
   expect(candidates.map(video => video.id)).toEqual(['FFFFFFFFFFF', 'CCCCCCCCCCC', 'NNNNNNNNNNN']);
+});
+
+it('ranks stronger play evidence ahead of source preference', () => {
+  const publishedAt = '2026-11-08T18:01:00Z';
+  const options = matchPlayHighlightOptions({ ...event, occurredAt: '2026-11-08T17:59:00Z' }, [
+    { id: 'fox123XYZ09', title: 'Puka Nacua 65 Yards for a Touchdown | NFL Highlights', publishedAt, source: 'NFL on FOX' },
+    { id: 'nfl123XYZ09', title: 'Puka Nacua 65 Yard Rushing TD', publishedAt, source: 'NFL' },
+  ]);
+  expect(options.map(option => [option.video.source, option.score, option.confidence])).toEqual([
+    ['NFL', 6, 'strong'], ['NFL on FOX', 5, 'strong'],
+  ]);
+});
+
+it('keeps a vague title manual-only and uses local source success for tied evidence', () => {
+  const eventAt = { ...event, occurredAt: '2026-11-08T17:59:00Z' };
+  const publishedAt = '2026-11-08T18:01:00Z';
+  const vague = matchPlayHighlightOptions(eventAt, [{ id: 'VVVVVVVVVVV', title: 'Puka Nacua Touchdown', publishedAt, source: 'NFL' }]);
+  expect(vague[0]?.confidence).toBe('possible');
+  expect(matchPlayHighlightCandidates(eventAt, [vague[0].video])).toEqual([]);
+  const tied = matchPlayHighlightOptions(eventAt, [
+    { id: 'FFFFFFFFFFF', title: 'Puka Nacua 65 Yard Rushing TD', publishedAt, source: 'NFL on FOX' },
+    { id: 'CCCCCCCCCCC', title: 'Puka Nacua 65 Yard Rushing TD', publishedAt, source: 'NFL on CBS' },
+  ], { 'NFL on CBS': 2 });
+  expect(tied.map(match => match.video.source)).toEqual(['NFL on CBS', 'NFL on FOX']);
+});
+
+it('keeps long videos out of automatic play cues', () => {
+  const options = matchPlayHighlightOptions({ ...event, occurredAt: '2026-11-08T17:59:00Z' }, [
+    { id: 'LLLLLLLLLLL', title: 'Puka Nacua 65 Yard Rushing TD', publishedAt: '2026-11-08T18:01:00Z', durationSeconds: 600 },
+  ]);
+  expect(options[0]?.confidence).toBe('possible');
 });
 
 it('finds an official-channel game recap and provides searches when no metadata match exists', () => {

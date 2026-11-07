@@ -12,6 +12,14 @@ const viewerCountry = req => {
   const value = req.headers?.['cf-ipcountry'] ?? req.headers?.['x-vercel-ip-country'];
   return typeof value === 'string' && /^[A-Za-z]{2}$/.test(value) ? value.toUpperCase() : null;
 };
+const durationSeconds = value => {
+  const match = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/.exec(value ?? '');
+  return match ? Number(match[1] ?? 0) * 3600 + Number(match[2] ?? 0) * 60 + Number(match[3] ?? 0) : null;
+};
+const thumbnailUrl = value => {
+  try { const url = new URL(value); return url.protocol === 'https:' && url.hostname === 'i.ytimg.com' ? url.href : null; }
+  catch { return null; }
+};
 function sendCatalog(req, res, body) {
   const country = viewerCountry(req);
   res.setHeader('Cache-Control', country ? 'private, max-age=300' : 'public, max-age=300, s-maxage=600');
@@ -39,7 +47,8 @@ async function sourceUploads(source, key) {
       const title = item.snippet?.title;
       const publishedAt = item.contentDetails?.videoPublishedAt ?? item.snippet?.publishedAt;
       if (/^[a-zA-Z0-9_-]{11}$/.test(id) && typeof title === 'string' && Number.isFinite(Date.parse(publishedAt))) {
-        videos.push({ id, title, publishedAt, source: source.name });
+        const thumbnail = thumbnailUrl(item.snippet?.thumbnails?.medium?.url);
+        videos.push({ id, title, publishedAt, source: source.name, ...(thumbnail ? { thumbnailUrl: thumbnail } : {}) });
       }
     }
     pageToken = result.nextPageToken ?? '';
@@ -78,6 +87,8 @@ export default async function handler(req, res, { apiKey } = {}) {
       for (const video of batches[index]) {
         const item = byId.get(video.id);
         video.embeddable = item?.status?.embeddable === true;
+        const duration = durationSeconds(item?.contentDetails?.duration);
+        if (duration !== null) video.durationSeconds = duration;
         const restriction = item?.contentDetails?.regionRestriction;
         if (restriction && (Array.isArray(restriction.allowed) || Array.isArray(restriction.blocked))) {
           video.regionRestriction = {
