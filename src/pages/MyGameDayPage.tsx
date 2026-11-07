@@ -18,7 +18,7 @@ import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'r
 import { Link, useSearchParams } from 'react-router-dom';
 import type { NFLTimeline } from '@/api/nflTimeline';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { lineupProjection, lineupProjectionCoverage } from '@/utils/playerWeek';
+import { lineupProjection, lineupProjectionCoverage, unprojectedStarters } from '@/utils/playerWeek';
 import { lineupProgress, liveStatusIsStale } from '@/utils/matchupGameStatus';
 import type { GameDaySnapshot, ScoreMatchup } from '@/types/gameDay';
 import { MatchupAlerts } from '@/components/MatchupAlerts';
@@ -84,8 +84,10 @@ function LeagueMatchups({ saved, currentLeague, onUpdate, timelines, focus, clos
         const team = snapshot?.teams.find(team => team.id === side.id);
         const projection = typeof side.projection === 'number' ? side.projection : lineupProjection(team);
         const coverage = projection === null ? lineupProjectionCoverage(team) : null;
+        const missing = projection === null ? unprojectedStarters(team) : [];
         const progress = lineupProgress(team, timeline?.data ?? null);
-        return <span title={coverage?.missing ? `${coverage.missing} starters have no provider projection; displayed sum is partial` : undefined}>Proj. {projection !== null ? score(projection) : coverage?.known ? `${score(coverage.total)} partial` : 'pending'}{progress && !progress.unknown && <> · {progress.toPlay} left{!stale && progress.inPlay > 0 && <span className={styles.rowLive}> · {progress.inPlay} live</span>}{progress.unscheduled > 0 && ` · ${progress.unscheduled} bye`}</>}</span>;
+        const missingNames = missing.map(player => `${player.name}${player.availability ? ` (${player.availability})` : ''}`).join(', ');
+        return <span title={missing.length ? `No provider projection: ${missingNames}. Displayed sum is partial.` : undefined}>Proj. {projection !== null ? score(projection) : coverage?.known ? `${score(coverage.total)} partial` : 'pending'}{missing.length > 0 && ` · ${missing.length} unprojected`}{progress && !progress.unknown && <> · {progress.toPlay} left{!stale && progress.inPlay > 0 && <span className={styles.rowLive}> · {progress.inPlay} live</span>}{progress.unscheduled > 0 && ` · ${progress.unscheduled} bye`}</>}</span>;
       };
       const teamInfo = (side: typeof opponent, first: boolean) => <div className={first ? styles.ownTeam : styles.opponentTeam}><div className={styles.zoneIdentity}><span className={styles.teamRole}>{featured ? first ? 'Your team' : 'Opponent' : first ? 'Team 1' : 'Team 2'}</span><span className={styles.rowTeamName} title={name(side.id)}>{name(side.id)}</span><div className={styles.zoneProjection}>{telemetry(side)}</div></div><strong className={styles.zoneScore}>{score(side.points)}</strong>{first && <span className={styles.splitVs}>VS</span>}</div>;
       const difference = matchupMargin(displayContext, match, 'projected', data);

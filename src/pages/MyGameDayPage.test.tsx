@@ -46,6 +46,17 @@ it('combines only my matchups across platforms and includes the league and seaso
   expect(screen.queryByRole('button', { name: 'WATCH MODE ↗' })).not.toBeInTheDocument();
   expect(screen.queryByText(/Matchups update every/)).not.toBeInTheDocument();
 });
+it('names the injured starter behind a partial projection instead of implying a zero', () => {
+  cacheLeague(a); rememberSavedLeague(a);
+  const current = snapshot(a);
+  current.teams[0].roster = [
+    { id: 'p1', name: 'Injured Starter', position: 'WR', nflTeam: 'BUF', slot: 'WR', projection: null, availability: 'Out' },
+    { id: 'p2', name: 'Projected Starter', position: 'RB', nflTeam: 'BAL', slot: 'RB', projection: 12 },
+  ];
+  vi.mocked(useGameDayState).mockReturnValue({ ...state(a), snapshot: current });
+  mount();
+  expect(screen.getByTitle('No provider projection: Injured Starter (Out). Displayed sum is partial.')).toHaveTextContent('Proj. 12.00 partial · 1 unprojected');
+});
 it('shows every matchup in a selected league without labelling other teams as mine', () => {
   for (const league of [a, b]) { cacheLeague(league); rememberSavedLeague(league); }
   render(<MemoryRouter initialEntries={['/?league=espn:A&year=2026']}><MyGameDayPage /></MemoryRouter>);

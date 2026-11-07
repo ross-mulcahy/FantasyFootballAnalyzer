@@ -16,6 +16,11 @@ export function lineupProjectionCoverage(team: RosterTeam | undefined): { total:
   return { total: projected.reduce((sum, player) => sum + player.projection!, 0), missing: starters.length - projected.length, known: projected.length };
 }
 
+export function unprojectedStarters(team: RosterTeam | undefined): NonNullable<RosterTeam['roster']> {
+  return team?.roster?.filter(player => player.id !== '0' && isStartingSlot(player.slot)
+    && (typeof player.projection !== 'number' || !Number.isFinite(player.projection))) ?? [];
+}
+
 export function statLines(stats: unknown, labels: Record<string, string>): PlayerStat[] {
   if (!stats || typeof stats !== 'object') return [];
   const source = stats as Record<string, unknown>;

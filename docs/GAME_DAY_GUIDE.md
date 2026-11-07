@@ -121,7 +121,11 @@ all leagues connected and updating.
 
 The scorebug uses the provider's complete matchup projection when available.
 If one or more starters lack a provider estimate, it shows the sum of known
-starters marked **partial**; if none have estimates it says **pending**. The
+starters marked **partial** and the number unprojected; hover the monitor or
+open the matchup to see their names and injury statuses. Sleeper sometimes
+returns only draft ADP for an Out, IR or Doubtful starter, with no weekly
+scoring stats. That is a missing estimate, not a zero. If none have estimates
+the scorebug says **pending**. The
 studio line and segmented projection-share bar require complete comparable
 totals. Neither the line nor the bar represents a betting line or win probability.
 

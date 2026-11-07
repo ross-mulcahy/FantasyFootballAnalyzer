@@ -19,7 +19,7 @@ import { playerGameStatus, liveStatusIsStale, lineupProgress } from '@/utils/mat
 import { useGameDay } from '@/hooks/useGameDay';
 import { MatchupPollingNotice } from '@/components/MatchupPollingNotice';
 import { MatchupTimeline } from '@/components/MatchupTimeline';
-import { isStartingSlot, lineupProjection } from '@/utils/playerWeek';
+import { isStartingSlot, lineupProjection, lineupProjectionCoverage, unprojectedStarters } from '@/utils/playerWeek';
 import { matchupHref, matchupKey, rosterHref } from '@/utils/gameDayLinks';
 import styles from './GameDayPage.module.css';
 
@@ -133,11 +133,14 @@ function MatchupDetail({ snapshot, matchup, league, now, events }: { snapshot: G
       <div className={styles.scoreboard}>{sides.map((side, index) => {
         const team = snapshot.teams.find(t => t.id === side.id);
         const projection = typeof side.projection === 'number' && Number.isFinite(side.projection) ? side.projection : lineupProjection(team);
+        const coverage = projection === null ? lineupProjectionCoverage(team) : null;
+        const missing = projection === null ? unprojectedStarters(team) : [];
         const progress = lineupProgress(team, events.data);
         return <div key={index} className={styles.scoreSide}>
         <span className={styles.teamName}>{teamName(side.id)}</span>
         <strong>{score(side.points)}</strong>
-        <p className={styles.period}>Projection <span className={styles.projectionValue}>{score(projection)}</span></p>
+        <p className={styles.period}>Projection <span className={styles.projectionValue}>{projection !== null ? score(projection) : coverage?.known ? `${score(coverage.total)} partial` : 'pending'}</span></p>
+        {missing.length > 0 && <p className={styles.hint}>No provider projection for {missing.map(player => `${player.name}${player.availability ? ` (${player.availability})` : ''}`).join(', ')}. {coverage?.known ? `The partial sum excludes ${missing.length === 1 ? 'this starter' : 'these starters'}.` : 'No lineup total is available yet.'}</p>}
         {progress ? <>
           <dl className={styles.playerCounts} aria-label={`${teamName(side.id)} player progress`}>
             <div><dt>Played</dt><dd>{progress.played}</dd></div>
