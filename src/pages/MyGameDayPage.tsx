@@ -1,7 +1,7 @@
 import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import { StudioAnchorDesk } from '@/components/StudioAnchorDesk';
 import { LeagueWatchMode } from '@/components/LeagueWatchMode';
-import type { StudioConflict, StudioMatchup } from '@/utils/studioAnchor';
+import { studioExcuseCandidate, studioProjectedRecord, type StudioConflict, type StudioMatchup } from '@/utils/studioAnchor';
 import { CortisolMeter } from '@/components/CortisolMeter';
 import { MatchupPresser } from '@/components/MatchupPresser';
 import { WorkspaceControls } from '@/components/WorkspaceControls';
@@ -10,6 +10,7 @@ import { ProviderLink } from '@/components/ConnectionHealth';
 import { TacticalLoading } from '@/components/TacticalLoading';
 import { useExperiencePreferences, prioritizeEvents, reconnectHref } from '@/utils/experience';
 import { useKickoffReminders } from '@/hooks/useKickoffReminders';
+import { useStudioRivalries, type StudioRivalryTarget } from '@/hooks/useStudioRivalries';
 import { EventImpactDetails, GameDayRecapRecorder } from '@/components/GameDayInsights';
 import { lineupWarnings, matchupSides, matchupMargin, myMatchups } from '@/utils/gameDayInsights';
 import type { SharedLeagueContext } from '@/utils/sharedPlayers';
@@ -93,12 +94,13 @@ function LeagueMatchups({ saved, currentLeague, onUpdate, timelines, focus, clos
       const hazards = featured ? lineupWarnings([context], { [`${snapshot?.season}:${snapshot?.week}`]: timeline ?? { data: null, error: null } }, Date.now()) : [];
       const byes = hazards.filter(w => /Bye/i.test(w.message)).length;
       const outs = hazards.filter(w => /Out|IR|Injured reserve|Inactive/i.test(w.message)).length;
+      const presserReady = featured && !!studioExcuseCandidate(context, match, data);
       return <article id={allMatchups && index === 0 ? `studio-channel-${key}` : undefined} className={`${styles.monitorBay} ${sweat ? styles.sweat : ''} ${cueLeagueKey === key && allMatchups && index === 0 ? styles.directorFocus : ''}`} key={matchupKey(match)}><StudioMonitorFrame>
         <div className={styles.channelBezel}><i className={`${styles.channelLed} ${hazards.length ? styles.hazardLed : sweat ? styles.sweatLed : ''}`} aria-hidden="true" /><h3><LeagueLink league={{ platform: saved.platform, id: saved.leagueId, season: saved.season }}><span className={styles.channelBadge}>CH {String(channel + index).padStart(2, '0')}</span> {saved.name}</LeagueLink></h3><span className={styles.studioLine} title="Projection-derived studio line. Entertainment, not sportsbook odds.">{difference === null ? 'LINE: OFF' : Math.abs(difference) < 1 ? 'TOSS-UP' : `LINE: ${-difference > 0 ? '+' : ''}${(-difference).toFixed(1)}`}</span></div>
         <div className={styles.monitorStatus}><span>{saved.platform.toUpperCase()} // WEEK {snapshot?.week ?? '—'}</span>{sweat && <b>WITCHING HOUR SWEAT</b>}</div>
         <Link to={leagueGameDayHref({ platform: saved.platform, id: saved.leagueId, season: saved.season })} className={styles.monitorCanvas} aria-label={`View matchup: ${name(own.id)} vs ${name(opponent.id)}`}>
           {teamInfo(own, true)}{teamInfo(opponent, false)}
-        </Link><div className={styles.splitTelemetry}><div className={styles.hazardTags}>{byes > 0 && <span>{byes} ON BYE</span>}{outs > 0 && <span>{outs} OUT / IR</span>}{hazards.length > byes + outs && <span>{hazards.length - byes - outs} HAZARD{hazards.length - byes - outs === 1 ? '' : 'S'}</span>}</div><div className={styles.monitorActions}><ProviderLink compact league={saved} teamId={featured ? myTeam : undefined} /><MatchupPresser own={name(own.id)} opponent={name(opponent.id)} /></div></div><ProjectionBar own={sides.ownProjection} opponent={sides.opponentProjection} />
+        </Link><div className={styles.splitTelemetry}><div className={styles.hazardTags}>{byes > 0 && <span>{byes} ON BYE</span>}{outs > 0 && <span>{outs} OUT / IR</span>}{hazards.length > byes + outs && <span>{hazards.length - byes - outs} HAZARD{hazards.length - byes - outs === 1 ? '' : 'S'}</span>}</div><div className={styles.monitorActions}><ProviderLink compact league={saved} teamId={featured ? myTeam : undefined} />{presserReady && <MatchupPresser own={name(own.id)} opponent={name(opponent.id)} />}</div></div><ProjectionBar own={sides.ownProjection} opponent={sides.opponentProjection} />
       </StudioMonitorFrame>
       </article>;
     })}
@@ -219,6 +221,20 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
     const sides = matchupSides(context, match);
     return margin !== null && sides.own && sides.opponent ? [{ league: context.saved.name, own: sides.own.name, opponent: sides.opponent.name, margin }] : [];
   })).sort((a, b) => Math.abs(a.margin) - Math.abs(b.margin))[0] ?? null;
+  const projectedRecord = studioProjectedRecord(contexts);
+  const excuse = contexts.flatMap(context => myMatchups(context).flatMap(match => {
+    const data = timelines[`${context.snapshot?.season}:${context.snapshot?.week}`]?.data ?? null;
+    const candidate = studioExcuseCandidate(context, match, data);
+    return candidate ? [candidate] : [];
+  })).sort((a, b) => b.deficit - a.deficit)[0] ?? null;
+  const rivalryTargets: StudioRivalryTarget[] = contexts.flatMap(context => myMatchups(context).flatMap(match => {
+    const sides = matchupSides(context, match);
+    if (!context.snapshot || !context.myTeamId || !sides.opponentId || !sides.own || !sides.opponent) return [];
+    const cached = loadCachedLeague(context.saved.platform, context.saved.leagueId, context.saved.season);
+    return [{ key: `${savedLeagueKey(context.saved)}:${context.myTeamId}:${sides.opponentId}:${context.snapshot.week}`, league: context.saved, teamId: context.myTeamId, own: sides.own.name, opponent: sides.opponent.name,
+      opponentOwnerId: cached?.teams.find(team => team.id === sides.opponentId)?.ownerUserIds?.[0], season: context.snapshot.season, week: context.snapshot.week }];
+  }));
+  const rivalries = useStudioRivalries(rivalryTargets);
   const warnings = lineupWarnings(contexts, timelines, now);
   useEffect(() => {
     const cue = studioAudio.current.observe(contexts, timelines, warnings, Date.now());
@@ -240,7 +256,7 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
         {!!leagues.length && <button className="btn studio-key" onClick={() => void refreshAll()} disabled={!ready || refreshing} aria-busy={refreshing}>{refreshing ? 'Refreshing…' : 'Refresh all'}</button>}
       </div>
     </div>
-    {!!leagues.length && <StudioAnchorDesk warnings={warnings} closest={closest} conflict={biggestConflict} missing={missingRosters} />}
+    {!!leagues.length && <StudioAnchorDesk warnings={warnings} closest={closest} conflict={biggestConflict} missing={missingRosters} record={projectedRecord} rivalries={rivalries} excuse={excuse} />}
     <DirectorCueBar cue={cue} onFocus={focusChannel} />
     {!!kickoff.checks.length && <p className={styles.period}>Kickoff within 15 minutes · Review your lineup warnings before games start.</p>}
     {kickoff.problem && <p role="status" className={styles.warningText}>{kickoff.problem}</p>}

@@ -92,6 +92,7 @@
 .dialogueHeader { align-items: center; }
 .dialogueHeader small { margin-left: auto; }
 .dialogueActions { margin: 0; padding: 0; }
+.dialogueActions { gap: 6px; flex-wrap: wrap; }
 
 .desk { align-items: start; }
 .stage, .dialogue { align-self: start; }

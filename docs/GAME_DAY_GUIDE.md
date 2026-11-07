@@ -41,6 +41,18 @@ Comeback Watch and show card cover every matchup; its lead labels are neutral
 team names. All Leagues returns those tools to your own matchups and
 cross-league conflicts.
 
+Pixel Scott changes takes every 15 seconds while the page is visible. **Pause
+Takes** holds the current line; **Next Take** still advances manually. The
+weekly forecast counts projected wins, losses and ties across your selected
+teams, and calls out matchups with missing comparable projections. The
+**Rivalry File** uses scored head-to-head meetings from the available league
+archive (up to three seasons), excluding the current week; it never presents
+an unplayed game as a result. If the archive cannot load, Scott skips that
+take. The coaching presser appears only after a confirmed loss or once a game
+is underway with at least a 30-point deficit in both the live score and
+projection.
+The monitor's **Draft Excuse** action follows the same rule.
+
 Use **Watch Mode** on a selected league to put one game on a full-screen studio
 monitor. **Auto Director** starts with the most consequential available channel,
 then rotates every 18 seconds while the tab is visible. Fresh fantasy score
