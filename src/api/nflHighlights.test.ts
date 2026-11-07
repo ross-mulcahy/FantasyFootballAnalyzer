@@ -17,6 +17,27 @@ it('matches a play only when player, yardage, kind and game date agree', () => {
   expect(matchPlayHighlight(event, videos.slice(1))).toBeNull();
 });
 
+it('recognizes official NFL play-title patterns with the actor at either end', () => {
+  const gameEvent = { ...event, game: 'JAX @ BAL', kickoff: '2026-11-06T01:00:00Z', occurredAt: '2026-11-06T02:00:00Z' };
+  const title = (name: string) => [{ id: 'DDDDDDDDDDD', title: name, publishedAt: '2026-11-06T03:00:00Z' }];
+  expect(matchPlayHighlight({ ...gameEvent, description: 'Justice Hill 65 Yd Rush (Kick)' }, title('JUSTICE HILL MAKES 65 YARD RUSHING TD'))?.id).toBe('DDDDDDDDDDD');
+  expect(matchPlayHighlight({ ...gameEvent, kind: 'Interception', description: 'Trevor Lawrence Pass Intercepted by Jourdan Lewis' }, title('INT. BY JOURDAN LEWIS'))?.id).toBe('DDDDDDDDDDD');
+  expect(matchPlayHighlight({ ...gameEvent, kind: 'Passing Touchdown', description: 'Parker Washington 18 Yd Pass from Trevor Lawrence (Kick)' }, title('TD PASS DOWN THE MIDDLE TO PARKER WASHINGTON'))?.id).toBe('DDDDDDDDDDD');
+  expect(matchPlayHighlight({ ...gameEvent, description: 'Bhayshul Tuten 6 Yd Rush (Kick)' }, title('JAGUARS END THE FIRST DRIVE WITH A RUSHING TD BY BHAYSHUL TUTEN'))?.id).toBe('DDDDDDDDDDD');
+  expect(matchPlayHighlight({ ...gameEvent, kind: 'Scoring play', description: 'Justice Hill 65 Yd Rush (Kick)' }, title('JUSTICE HILL MAKES 65 YARD RUSHING TD'))?.id).toBe('DDDDDDDDDDD');
+});
+
+it('rejects misleading recaps, old clips, conflicting plays and ambiguous same-player clips', () => {
+  const clip = (id: string, title: string, publishedAt = '2026-11-08T20:00:00Z') => ({ id, title, publishedAt });
+  expect(matchPlayHighlight(event, [clip('DDDDDDDDDDD', 'Puka Nacua 42 Yard Rushing TD')])).toBeNull();
+  expect(matchPlayHighlight(event, [clip('DDDDDDDDDDD', 'Puka Nacua 65 Yard Receiving TD')])).toBeNull();
+  expect(matchPlayHighlight(event, [clip('DDDDDDDDDDD', 'Puka Nacua best plays and touchdowns | Week 9')])).toBeNull();
+  expect(matchPlayHighlight(event, [clip('DDDDDDDDDDD', 'Puka Nacua rushing TD', '2026-11-08T18:00:00Z')])).toBeNull();
+  expect(matchPlayHighlight(event, [clip('DDDDDDDDDDD', 'Puka Nacua rushing TD | 2025 NFL Season')])).toBeNull();
+  expect(matchPlayHighlight(event, [clip('DDDDDDDDDDD', 'Puka Nacua rushing TD'), clip('EEEEEEEEEEE', 'Puka Nacua touchdown')])).toBeNull();
+  expect(matchPlayHighlight(event, [clip('DDDDDDDDDDD', 'Puka Nacua 65 Yard Rushing TD'), clip('EEEEEEEEEEE', 'Puka Nacua touchdown')])?.id).toBe('DDDDDDDDDDD');
+});
+
 it('finds an official-channel game recap and provides searches when no metadata match exists', () => {
   const game = { name: 'LAR @ SF', kickoff };
   expect(matchGameHighlights(game, videos)?.id).toBe('BBBBBBBBBBB');

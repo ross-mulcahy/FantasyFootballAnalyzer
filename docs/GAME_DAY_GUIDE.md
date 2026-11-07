@@ -75,8 +75,15 @@ are shown under Matchup Intel.
 
 Play reports offer an **@NFL** search link. When the optional official NFL
 video metadata feed is configured, Watch Mode may also show **Watch likely
-clip** for a title/date/player/yardage match. This is a suggested clip, not a
-verified play-to-video association; check the video itself. While Auto Director
+clip** for a likely match. NFL play uploads use several title orders: player
+first ("JUSTICE HILL MAKES 65 YARD RUSHING TD"), play first ("INT. BY JOURDAN
+LEWIS"), and action first with the player last ("TD PASS DOWN THE MIDDLE TO
+PARKER WASHINGTON"). The matcher recognizes these forms and allows omitted
+yardage. It requires the named player, compatible play type and a plausible
+publish time; explicit yardage must agree. Recaps, previews, compilations,
+wrong-season titles and ambiguous same-player clips do not auto-match. This
+is a suggested clip, not a verified play-to-video association; check the video
+itself. While Auto Director
 is on, a fresh play with a likely match automatically cuts to the official
 video once. It starts muted, returns to the live wire after 40 seconds, and
 offers **Return to Live** at any time. Turning Auto Director off keeps the
