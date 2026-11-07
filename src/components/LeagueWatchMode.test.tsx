@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { expect, it, vi } from 'vitest';
 import type { GameDaySnapshot } from '@/types/gameDay';
 import { LeagueWatchMode } from './LeagueWatchMode';
@@ -61,4 +61,28 @@ it('offers official-channel searches for a live play and its game without a vide
   fireEvent.click(screen.getByRole('button', { name: 'NFL HIGHLIGHTS' }));
   expect(screen.getByText('GAME HIGHLIGHTS')).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'SEARCH @NFL ↗' })).toHaveAttribute('href', expect.stringContaining('Rams%20vs%2049ers'));
+});
+
+it('auto-cues a fresh likely play clip once, then returns to the live wire', async () => {
+  const withStarter: GameDaySnapshot = { ...snapshot, teams: [
+    { ...snapshot.teams[0], roster: [{ id: 'p1', name: 'Puka Nacua', position: 'WR', nflTeam: 'LAR', slot: 'WR', points: 0, projection: 15 }] },
+    ...snapshot.teams.slice(1),
+  ] };
+  const kickoff = '2026-11-08T18:00:00Z';
+  const data = { fetchedAt: now, warnings: [], games: [{ id: 'g1', name: 'LAR @ SF', kickoff, teams: ['LAR', 'SF'], state: 'in' as const, detail: 'Q2', quarter: 2, clock: '7:30' }],
+    events: [{ id: 'play-1', gameId: 'g1', game: 'LAR @ SF', kickoff, occurredAt: new Date(now - 60_000).toISOString(), quarter: 2, clock: '7:30', kind: 'Touchdown', description: 'Puka Nacua 65 Yd Rush (Kick)' }] };
+  const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ configured: true, videos: [{ id: 'abc123XYZ09', title: 'Puka Nacua 65 Yard Rushing TD', publishedAt: '2026-11-08T18:01:00Z' }] }) });
+  vi.stubGlobal('fetch', fetchMock);
+  vi.useFakeTimers();
+  try {
+    await act(async () => { render(<LeagueWatchMode saved={saved} snapshot={withStarter} data={data} changes={[]} hazards={0} now={now} onClose={vi.fn()} />); });
+    const player = screen.getByRole('region', { name: 'Official NFL highlight player' });
+    expect(player).toHaveTextContent('AUTO DIRECTOR // LIKELY PLAY MATCH');
+    expect(within(player).getByTitle('Puka Nacua 65 Yard Rushing TD')).toHaveAttribute('src', expect.stringContaining('autoplay=1&mute=1'));
+    expect(screen.getByRole('button', { name: 'AUTO DIRECTOR // ON' })).toHaveAttribute('aria-pressed', 'true');
+
+    await act(async () => { vi.advanceTimersByTime(40_000); });
+    expect(screen.queryByRole('region', { name: 'Official NFL highlight player' })).not.toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'On air story' })).toHaveTextContent('Puka Nacua');
+  } finally { vi.useRealTimers(); vi.unstubAllGlobals(); }
 });

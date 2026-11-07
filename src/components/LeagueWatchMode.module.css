@@ -39,6 +39,7 @@
 .videoCaption strong { font: 800 17px/1.1 var(--font-display); text-transform: uppercase; }
 .videoCaption small { color: #94a3b8; font: 10px/1.4 var(--font-mono); }
 .videoCaption a { margin-left: auto; }
+.autoCueNote { margin: 0; color: #ffb800; font: 9px/1.4 var(--font-mono); letter-spacing: .04em; }
 .scoreSwing { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin-top: 6px; }
 .scoreSwing > div { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 5px 10px; align-items: end; padding: 9px 12px; background: #050b14d9; border: 2px solid #fb7185; }
 .scoreSwing span { grid-column: 1/-1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #f8fafc; font: 800 15px var(--font-display); text-transform: uppercase; }

@@ -64,10 +64,14 @@ are shown under Matchup Intel.
 Play reports offer an **@NFL** search link. When the optional official NFL
 video metadata feed is configured, Watch Mode may also show **Watch likely
 clip** for a title/date/player/yardage match. This is a suggested clip, not a
-verified play-to-video association; check the video itself. Select **NFL
+verified play-to-video association; check the video itself. While Auto Director
+is on, a fresh play with a likely match automatically cuts to the official
+video once. It starts muted, returns to the live wire after 40 seconds, and
+offers **Return to Live** at any time. Turning Auto Director off keeps the
+current clip open for manual viewing. Select **NFL
 Highlights** for game recaps related to the current matchup, or to search the
-official channel when no reliable title match is found. Video playback opens
-only when selected and uses YouTube's privacy-enhanced embed. YouTube may
+official channel when no reliable title match is found. Manual video playback
+uses YouTube's privacy-enhanced embed. YouTube may
 restrict embedding for some uploads; **Open on YouTube** remains available.
 
 For automatic title matching on Spacefast, add `YOUTUBE_API_KEY` as a Secret in

@@ -48,11 +48,14 @@ function WatchStory({ alert, channel, now, playSearch, clip, onPlay, onHighlight
   </section>;
 }
 
-function HighlightPlayer({ video, onBack }: { video: NFLVideo; onBack: () => void }) {
+type VideoCue = { video: NFLVideo; automatic: boolean };
+
+function HighlightPlayer({ video, automatic, onBack }: { video: NFLVideo; automatic: boolean; onBack: () => void }) {
   return <section className={styles.videoStage} aria-label="Official NFL highlight player">
-    <div className={styles.videoHeading}><span>OFFICIAL @NFL VIDEO · TITLE/DATE MATCH</span><button type="button" onClick={onBack}>← BACK TO BROADCAST</button></div>
-    <iframe title={video.title} src={nflEmbedUrl(video)} loading="lazy" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen />
+    <div className={styles.videoHeading}><span>{automatic ? '● AUTO DIRECTOR // LIKELY PLAY MATCH' : 'OFFICIAL @NFL VIDEO · TITLE/DATE MATCH'}</span><button type="button" onClick={onBack}>← RETURN TO LIVE</button></div>
+    <iframe title={video.title} src={`${nflEmbedUrl(video)}${automatic ? '?autoplay=1&mute=1&playsinline=1' : ''}`} loading={automatic ? 'eager' : 'lazy'} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen />
     <div className={styles.videoCaption}><strong>{video.title}</strong><small>Published {syncTime(Date.parse(video.publishedAt))}. Title and date suggest a match; check the video to confirm it.</small><a href={nflVideoUrl(video)} target="_blank" rel="noopener noreferrer">OPEN ON YOUTUBE ↗</a></div>
+    {automatic && <p className={styles.autoCueNote}>MUTED AUTO CUE · RETURNING TO THE LIVE WIRE IN 40 SECONDS · UNMUTE IN THE PLAYER</p>}
   </section>;
 }
 
@@ -86,11 +89,12 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
   const [selectedAlertId, setSelectedAlertId] = useState<string | null>(null);
   const [catalog, setCatalog] = useState<HighlightCatalog | null>(null);
   const [highlightsOpen, setHighlightsOpen] = useState(false);
-  const [playingVideo, setPlayingVideo] = useState<NFLVideo | null>(null);
+  const [playingVideo, setPlayingVideo] = useState<VideoCue | null>(null);
   const active = channels.find(channel => channel.key === activeKey) ?? channels[0];
   const selectedIndex = channels.findIndex(channel => channel.key === active?.key);
   const latestAlert = allAlerts[0];
   const seenAlert = useRef(latestAlert?.id);
+  const autoCuedPlayIds = useRef(new Set<string>());
   const breakingHoldUntil = useRef(0);
   const closeRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -124,17 +128,40 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
     return () => document.removeEventListener('keydown', keydown);
   }, [onClose]);
   useEffect(() => {
-    if (!auto || channels.length < 2) return;
+    if (!auto || playingVideo || channels.length < 2) return;
     const timer = window.setInterval(() => {
       if (document.visibilityState === 'visible' && Date.now() >= breakingHoldUntil.current) { setActiveKey(previous => channels[(channels.findIndex(channel => channel.key === previous) + 1) % channels.length].key); setSelectedAlertId(null); }
     }, 18000);
     return () => window.clearInterval(timer);
-  }, [auto, channels]);
+  }, [auto, channels, playingVideo]);
   useEffect(() => {
+    if (playingVideo) return;
     if (!latestAlert || latestAlert.id === seenAlert.current) return;
     seenAlert.current = latestAlert.id;
     if (auto && freshAlert(latestAlert, now)) { breakingHoldUntil.current = Date.now() + 30000; setActiveKey(latestAlert.channelKey); setSelectedAlertId(latestAlert.id); }
-  }, [latestAlert, auto, now]);
+  }, [latestAlert, auto, now, playingVideo]);
+
+  useEffect(() => {
+    if (!auto || playingVideo || document.visibilityState !== 'visible') return;
+    const cue = allAlerts.flatMap(alert => {
+      if (alert.kind !== 'play' || !freshAlert(alert, now) || autoCuedPlayIds.current.has(alert.id)) return [];
+      const play = data?.events.find(event => event.id === alert.id);
+      const video = play ? matchPlayHighlight(play, catalog?.videos ?? []) : null;
+      return video ? [{ alert, video }] : [];
+    })[0];
+    if (!cue) return;
+    autoCuedPlayIds.current.add(cue.alert.id);
+    breakingHoldUntil.current = Date.now() + 40_000;
+    setActiveKey(cue.alert.channelKey);
+    setSelectedAlertId(cue.alert.id);
+    setPlayingVideo({ video: cue.video, automatic: true });
+  }, [auto, playingVideo, allAlerts, now, data, catalog]);
+
+  useEffect(() => {
+    if (!playingVideo?.automatic) return;
+    const timer = window.setTimeout(() => setPlayingVideo(null), 40_000);
+    return () => window.clearTimeout(timer);
+  }, [playingVideo]);
 
   const take = (key: string, alertId: string | null = null) => { setAuto(false); setActiveKey(key); setSelectedAlertId(alertId); setPlayingVideo(null); };
   const next = () => { if (channels.length) take(channels[(selectedIndex + 1) % channels.length].key); };
@@ -146,17 +173,17 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
   const playEvent = activeAlert?.kind === 'play' ? data?.events.find(event => event.id === activeAlert.id) : undefined;
   const playClip = playEvent ? matchPlayHighlight(playEvent, catalog?.videos ?? []) : null;
   const playSearch = playEvent ? playHighlightSearch(playEvent) : null;
-  const playVideo = (video: NFLVideo) => { setAuto(false); setPlayingVideo(video); };
+  const playVideo = (video: NFLVideo) => { setAuto(false); setPlayingVideo({ video, automatic: false }); };
 
   return createPortal(<div className={styles.overlay} ref={panelRef} role="dialog" aria-modal="true" aria-label={`${saved.name} watch mode`}>
     <header className={styles.header}><div className={styles.brand}><span className={styles.live}>● LIVE</span><div><strong>WITCHING HOUR // WATCH MODE</strong><small>{saved.name} · Week {snapshot.week} · {channels.length} {channels.length === 1 ? 'game' : 'games'}</small></div></div><div className={styles.headerActions}>
       <button type="button" aria-pressed={highlightsOpen} onClick={() => setHighlightsOpen(value => !value)}>NFL HIGHLIGHTS</button>
-      <button type="button" className={auto ? styles.activeControl : ''} aria-pressed={auto} onClick={() => setAuto(value => !value)}>{auto ? 'AUTO DIRECTOR // ON' : 'AUTO DIRECTOR // OFF'}</button>
+      <button type="button" className={auto ? styles.activeControl : ''} aria-pressed={auto} onClick={() => { setAuto(value => !value); if (playingVideo?.automatic) setPlayingVideo({ ...playingVideo, automatic: false }); }}>{auto ? 'AUTO DIRECTOR // ON' : 'AUTO DIRECTOR // OFF'}</button>
       <button type="button" onClick={() => { setActiveKey(channels[0]?.key ?? ''); setSelectedAlertId(null); setPlayingVideo(null); setHighlightsOpen(false); setAuto(true); }}>GO LIVE</button>
       <button type="button" ref={closeRef} onClick={onClose} aria-label="Close watch mode">CLOSE ×</button>
     </div></header>
     <div className={styles.stage}><StudioMonitorFrame as="section" className={styles.feature} title={playingVideo ? 'NFL HIGHLIGHTS // @NFL' : active ? `CH ${String(channelNumber).padStart(2, '0')} // ${saved.name}` : saved.name} badge={playingVideo ? 'OFFICIAL NFL' : call}>
-      {playingVideo ? <HighlightPlayer video={playingVideo} onBack={() => setPlayingVideo(null)} /> : active ? <>
+      {playingVideo ? <HighlightPlayer video={playingVideo.video} automatic={playingVideo.automatic} onBack={() => setPlayingVideo(null)} /> : active ? <>
         <WatchStory alert={activeAlert} channel={active} now={now} playSearch={playSearch} clip={playClip} onPlay={playVideo} onHighlights={() => setHighlightsOpen(true)} />
         <div className={styles.broadcastCanvas} aria-label="Featured matchup scorebug">
           <div className={styles.scorebug}><div className={styles.identity}><span>TEAM 1</span><strong title={active.first.name}>{active.first.name}</strong><small>PROJ. {active.first.projection} · {active.first.left === null ? 'STARTERS UNCONFIRMED' : `${active.first.left} LEFT`}</small></div><b>{points(active.first.points)}</b></div>
