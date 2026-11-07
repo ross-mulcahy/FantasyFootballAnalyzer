@@ -91,15 +91,20 @@ Recaps, previews, compilations, wrong-season titles and ambiguous same-source
 clips do not auto-match a play. A match is a suggestion, not verified footage.
 
 With Auto Director on, a fresh play with a likely embeddable match can cut to
-the official video once. Playback starts muted, returns to the live wire after
-40 seconds, and offers **Return to Live** at any time. Turning Auto Director
-off keeps the clip open for manual viewing. **NFL Highlights** offers related
+the official video once. Playback starts muted and returns to the live wire
+when the clip ends, or after at most 40 seconds of confirmed playback. The
+headline remains visible while the player connects. If autoplay is blocked or
+the clip takes too long to start, **Play Clip** lets you start it manually.
+**Return to Live** is available at any time. Turning Auto Director off keeps
+the clip open for manual viewing. **NFL Highlights** offers related
 game recaps or a search of the official channel. Inline playback uses YouTube's
 privacy-enhanced embed. A rights claim can still block a clip after its metadata
 reports it as embeddable. If the player fails, Watch Mode tries the next
-matching official source and excludes the blocked clip for that session. If
-none works, **Watch on YouTube** remains available and Auto Director returns
-to the live wire after 12 seconds.
+matching official source. Rights-blocked clips are remembered for this browser
+session. If none works, **Watch on YouTube** remains available and Auto Director
+returns to the live wire after 12 seconds. Where the host supplies a viewer
+country, known YouTube region restrictions are filtered before cueing; a
+missing country is never inferred from browser language.
 
 For automatic title matching on Spacefast, add `YOUTUBE_API_KEY` as a Secret in
 the **Fantasy Game Day** Space's Variables. For local Vite development use

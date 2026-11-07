@@ -29,9 +29,9 @@
 - Official video metadata: the server-only `/api/nfl-highlights` Function reads
   recent uploads and video status from NFL on FOX, NFL on CBS and NFL via
   YouTube Data API v3. `YOUTUBE_API_KEY` stays in the Function environment;
-  browser responses contain titles, IDs, source labels, publish times and
-  embed flags, never the key. Source failures are independent, and an absent
-  key leaves the Watch Mode search links available.
+  browser responses contain titles, IDs, source labels, publish times, embed
+  flags and available region restrictions, never the key. Source failures are
+  independent, and an absent key leaves the Watch Mode search links available.
 
 ## Highlight matching and playback
 
@@ -43,11 +43,14 @@ are matched separately. Neither match proves that the video depicts the exact
 reported play; the user can inspect it or search the official channel.
 
 The YouTube embed flag is a first filter, not a playback guarantee. A rights
-claim can block an otherwise embeddable clip on this site. The player handles
-that runtime failure, excludes the blocked ID for the current session, tries
-the next matching official source and retains a direct YouTube link. Auto
-Director returns to the live wire when no inline source works. Video files
-are neither copied nor proxied by this app.
+claim can block an otherwise embeddable clip on this site. When the host
+provides a country code, known region restrictions filter candidates; without
+one, the app does not guess location from language. The player distinguishes
+playback, pause, end, autoplay blocking, slow startup, stalls and embed errors.
+Blocked IDs stay excluded in session storage. Runtime failures try the next
+matching official source and retain a direct YouTube link. Auto Director's
+40-second limit begins when playback actually starts; it returns sooner when
+the clip ends. Video files are neither copied nor proxied by this app.
 
 ## Refresh and cache
 

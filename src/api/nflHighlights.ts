@@ -2,8 +2,8 @@ import type { MajorEvent, NFLGameStatus } from './nflTimeline';
 import { nflTeamInfo } from '@/data/nflTeams';
 
 export type NFLVideoSource = 'NFL on FOX' | 'NFL on CBS' | 'NFL';
-export interface NFLVideo { id: string; title: string; publishedAt: string; embeddable?: boolean; source?: NFLVideoSource }
-export interface HighlightCatalog { status: 'ready' | 'unconfigured' | 'unavailable'; videos: NFLVideo[] }
+export interface NFLVideo { id: string; title: string; publishedAt: string; embeddable?: boolean; source?: NFLVideoSource; regionRestriction?: { allowed?: string[]; blocked?: string[] } }
+export interface HighlightCatalog { status: 'ready' | 'unconfigured' | 'unavailable'; videos: NFLVideo[]; viewerCountry?: string }
 const URL = import.meta.env.VITE_NFL_HIGHLIGHTS_URL || (import.meta.env.DEV ? '/api/nfl-highlights' : 'https://fantasy-football-analyzer-mu.vercel.app/api/nfl-highlights');
 const NFL_CHANNEL = 'https://www.youtube.com/@NFL';
 
@@ -17,9 +17,23 @@ export async function fetchNFLHighlights(): Promise<HighlightCatalog> {
     const videos = body.videos.filter((video: NFLVideo) => video && /^[a-zA-Z0-9_-]{11}$/.test(video.id) &&
       typeof video.title === 'string' && Number.isFinite(Date.parse(video.publishedAt)) &&
       (video.source === undefined || video.source === 'NFL on FOX' || video.source === 'NFL on CBS' || video.source === 'NFL')).slice(0, 300)
-      .map((video: NFLVideo) => ({ id: video.id, title: video.title, publishedAt: video.publishedAt, embeddable: video.embeddable === true, source: video.source ?? 'NFL' }));
-    return { status: 'ready', videos };
+      .map((video: NFLVideo) => ({ id: video.id, title: video.title, publishedAt: video.publishedAt, embeddable: video.embeddable === true, source: video.source ?? 'NFL',
+        regionRestriction: video.regionRestriction && {
+          ...(Array.isArray(video.regionRestriction.allowed) ? { allowed: video.regionRestriction.allowed.filter(code => /^[A-Z]{2}$/.test(code)) } : {}),
+          ...(Array.isArray(video.regionRestriction.blocked) ? { blocked: video.regionRestriction.blocked.filter(code => /^[A-Z]{2}$/.test(code)) } : {}),
+        },
+      }));
+    const viewerCountry = typeof body.viewerCountry === 'string' && /^[A-Z]{2}$/.test(body.viewerCountry) ? body.viewerCountry : undefined;
+    return { status: 'ready', videos, ...(viewerCountry ? { viewerCountry } : {}) };
   } catch { return { status: 'unavailable', videos: [] }; }
+}
+
+export function canPlayInRegion(video: NFLVideo, country?: string): boolean {
+  const restriction = video.regionRestriction;
+  if (!restriction) return true;
+  if (restriction.allowed && (restriction.allowed.length === 0 || country && !restriction.allowed.includes(country))) return false;
+  if (country && restriction.blocked?.includes(country)) return false;
+  return true;
 }
 
 const clean = (value: string) => value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, ' ').trim();

@@ -1,6 +1,6 @@
 import { expect, it, vi } from 'vitest';
 import type { MajorEvent } from './nflTimeline';
-import { fetchNFLHighlights, gameHighlightSearch, matchGameHighlights, matchPlayHighlight, matchPlayHighlightCandidates, nflEmbedUrl, playHighlightSearch } from './nflHighlights';
+import { canPlayInRegion, fetchNFLHighlights, gameHighlightSearch, matchGameHighlights, matchPlayHighlight, matchPlayHighlightCandidates, nflEmbedUrl, playHighlightSearch } from './nflHighlights';
 
 const kickoff = '2026-11-08T18:00:00Z';
 const event: MajorEvent = { id: 'e1', gameId: 'g1', game: 'LAR @ SF', kickoff, occurredAt: '2026-11-08T19:21:00Z', quarter: 2, clock: '7:30', kind: 'Rushing Touchdown', description: 'Puka Nacua 65 Yd Rush (Kick)' };
@@ -61,4 +61,24 @@ it('treats an unconfigured metadata service as a search-only experience', async 
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ configured: false, videos: [] }) }));
   expect(await fetchNFLHighlights()).toEqual({ status: 'unconfigured', videos: [] });
   vi.unstubAllGlobals();
+});
+
+it('filters known regional restrictions without guessing a viewer location', () => {
+  const restricted = { ...videos[0], regionRestriction: { blocked: ['IE'] } };
+  expect(canPlayInRegion(restricted, 'IE')).toBe(false);
+  expect(canPlayInRegion(restricted, 'US')).toBe(true);
+  expect(canPlayInRegion(restricted)).toBe(true);
+  expect(canPlayInRegion({ ...videos[0], regionRestriction: { allowed: ['US'] } }, 'IE')).toBe(false);
+  expect(canPlayInRegion({ ...videos[0], regionRestriction: { allowed: [] } })).toBe(false);
+});
+
+it('preserves regional availability from the official metadata response', async () => {
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ configured: true, viewerCountry: 'IE', videos: [
+    { ...videos[0], embeddable: true, source: 'NFL on FOX', regionRestriction: { blocked: ['IE'] } },
+  ] }) }));
+  try {
+    const catalog = await fetchNFLHighlights();
+    expect(catalog.viewerCountry).toBe('IE');
+    expect(canPlayInRegion(catalog.videos[0], catalog.viewerCountry)).toBe(false);
+  } finally { vi.unstubAllGlobals(); }
 });

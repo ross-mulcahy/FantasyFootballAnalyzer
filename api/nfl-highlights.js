@@ -8,6 +8,15 @@ const SOURCES = [
   { handle: 'NFL', name: 'NFL' },
 ];
 let cache = null;
+const viewerCountry = req => {
+  const value = req.headers?.['cf-ipcountry'] ?? req.headers?.['x-vercel-ip-country'];
+  return typeof value === 'string' && /^[A-Za-z]{2}$/.test(value) ? value.toUpperCase() : null;
+};
+function sendCatalog(req, res, body) {
+  const country = viewerCountry(req);
+  res.setHeader('Cache-Control', country ? 'private, max-age=300' : 'public, max-age=300, s-maxage=600');
+  return res.status(200).json(country ? { ...body, viewerCountry: country } : body);
+}
 
 async function youtube(path, params, key) {
   const url = new URL(`${YOUTUBE_API}/${path}`);
@@ -44,7 +53,7 @@ export default async function handler(req, res, { apiKey } = {}) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
   const key = apiKey ?? (typeof process !== 'undefined' ? process.env.YOUTUBE_API_KEY : undefined);
   if (!key) return res.status(200).json({ configured: false, videos: [] });
-  if (cache && Date.now() - cache.at < CACHE_MS) return res.status(200).json(cache.body);
+  if (cache && Date.now() - cache.at < CACHE_MS) return sendCatalog(req, res, cache.body);
 
   try {
     // Broadcasters have supplied playable scoring clips in embed tests. Keep
@@ -62,16 +71,25 @@ export default async function handler(req, res, { apiKey } = {}) {
     // in batches before offering an inline player in Watch Mode.
     const batches = [];
     for (let start = 0; start < videos.length; start += 50) batches.push(videos.slice(start, start + 50));
-    const statusResults = await Promise.allSettled(batches.map(batch => youtube('videos', { part: 'status', id: batch.map(video => video.id).join(',') }, key)));
+    const statusResults = await Promise.allSettled(batches.map(batch => youtube('videos', { part: 'status,contentDetails', id: batch.map(video => video.id).join(',') }, key)));
     for (const [index, result] of statusResults.entries()) {
       if (result.status === 'rejected') console.error('Video embed status unavailable:', result.reason instanceof Error ? result.reason.message : 'unknown error');
-      const byId = new Map(result.status === 'fulfilled' ? (result.value.items ?? []).map(item => [item.id, item.status?.embeddable === true]) : []);
-      for (const video of batches[index]) video.embeddable = byId.get(video.id) === true;
+      const byId = new Map(result.status === 'fulfilled' ? (result.value.items ?? []).map(item => [item.id, item]) : []);
+      for (const video of batches[index]) {
+        const item = byId.get(video.id);
+        video.embeddable = item?.status?.embeddable === true;
+        const restriction = item?.contentDetails?.regionRestriction;
+        if (restriction && (Array.isArray(restriction.allowed) || Array.isArray(restriction.blocked))) {
+          video.regionRestriction = {
+            ...(Array.isArray(restriction.allowed) ? { allowed: restriction.allowed.filter(code => /^[A-Z]{2}$/.test(code)) } : {}),
+            ...(Array.isArray(restriction.blocked) ? { blocked: restriction.blocked.filter(code => /^[A-Z]{2}$/.test(code)) } : {}),
+          };
+        }
+      }
     }
     const body = { configured: true, sources: availableSources, videos };
     cache = { at: Date.now(), body };
-    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=600');
-    return res.status(200).json(body);
+    return sendCatalog(req, res, body);
   } catch (error) {
     console.error('NFL highlights metadata unavailable:', error instanceof Error ? error.message : 'unknown error');
     return res.status(502).json({ error: 'Official NFL video metadata unavailable' });

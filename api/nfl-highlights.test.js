@@ -71,3 +71,22 @@ it('keeps a working broadcaster on air when another source fails', async () => {
   expect(res.body.sources).toEqual(['NFL on FOX']);
   expect(res.body.videos).toEqual([{ id: 'FFFFFFFFFFF', title: 'FOX touchdown', publishedAt: '2026-11-08T20:00:00Z', source: 'NFL on FOX', embeddable: true }]);
 });
+
+it('includes regional availability only for a known viewer country without sharing that response', async () => {
+  process.env.YOUTUBE_API_KEY = 'private-test-key';
+  vi.stubGlobal('fetch', vi.fn(async url => {
+    const parsed = new URL(url);
+    const handle = parsed.searchParams.get('forHandle');
+    if (handle) return { ok: true, json: async () => ({ items: [{ contentDetails: { relatedPlaylists: { uploads: handle } } }] }) };
+    if (parsed.searchParams.get('playlistId')) return { ok: true, json: async () => ({ items: [{ contentDetails: { videoId: 'AAAAAAAAAAA', videoPublishedAt: '2026-11-08T20:00:00Z' }, snippet: { title: 'Touchdown' } }] }) };
+    return { ok: true, json: async () => ({ items: [{ id: 'AAAAAAAAAAA', status: { embeddable: true }, contentDetails: { regionRestriction: { blocked: ['IE'] } } }] }) };
+  }));
+  const run = await handler();
+  const ireland = response(), usa = response();
+  await run({ ...request, headers: { ...request.headers, 'cf-ipcountry': 'ie' } }, ireland);
+  await run({ ...request, headers: { ...request.headers, 'cf-ipcountry': 'US' } }, usa);
+  expect(ireland.body.viewerCountry).toBe('IE');
+  expect(usa.body.viewerCountry).toBe('US');
+  expect(ireland.body.videos[0].regionRestriction).toEqual({ blocked: ['IE'] });
+  expect(ireland.headers['Cache-Control']).toBe('private, max-age=300');
+});

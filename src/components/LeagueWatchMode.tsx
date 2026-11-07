@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { NFLTimeline } from '@/api/nflTimeline';
-import { fetchNFLHighlights, gameHighlightSearch, matchGameHighlights, matchGameHighlightsCandidates, matchPlayHighlight, matchPlayHighlightCandidates, nflChannelVideosUrl, nflEmbedUrl, nflVideoUrl, playHighlightSearch } from '@/api/nflHighlights';
+import { canPlayInRegion, fetchNFLHighlights, gameHighlightSearch, matchGameHighlights, matchGameHighlightsCandidates, matchPlayHighlight, matchPlayHighlightCandidates, nflChannelVideosUrl, nflEmbedUrl, nflVideoUrl, playHighlightSearch } from '@/api/nflHighlights';
 import type { HighlightCatalog, NFLVideo } from '@/api/nflHighlights';
 import type { GameDaySnapshot } from '@/types/gameDay';
 import type { ScoreChange } from '@/utils/broadcastControl';
@@ -49,11 +49,11 @@ function WatchStory({ alert, channel, now, playSearch, clip, onPlay, onHighlight
   </section>;
 }
 
-type YouTubePlayer = { destroy: () => void };
+type YouTubePlayer = { destroy: () => void; playVideo: () => void };
 type YouTubePlayerEvent = { data: number; target: { mute: () => void; playVideo: () => void } };
 declare global {
   interface Window {
-    YT?: { Player: new (element: HTMLIFrameElement, options: { events: { onReady: (event: YouTubePlayerEvent) => void; onError: (event: YouTubePlayerEvent) => void } }) => YouTubePlayer };
+    YT?: { Player: new (element: HTMLIFrameElement, options: { events: { onReady: (event: YouTubePlayerEvent) => void; onError: (event: YouTubePlayerEvent) => void; onStateChange: (event: YouTubePlayerEvent) => void; onAutoplayBlocked: () => void } }) => YouTubePlayer };
     onYouTubeIframeAPIReady?: () => void;
   }
 }
@@ -63,25 +63,46 @@ function loadYouTubePlayerApi(): Promise<void> {
   if (youtubeApiReady) return youtubeApiReady;
   youtubeApiReady = new Promise((resolve, reject) => {
     const previous = window.onYouTubeIframeAPIReady;
-    window.onYouTubeIframeAPIReady = () => { previous?.(); resolve(); };
+    const timeout = window.setTimeout(() => { youtubeApiReady = null; reject(new Error('YouTube player timed out')); }, 12000);
+    window.onYouTubeIframeAPIReady = () => { window.clearTimeout(timeout); previous?.(); resolve(); };
     const script = document.createElement('script');
     script.src = 'https://www.youtube.com/iframe_api';
-    script.onerror = () => { youtubeApiReady = null; reject(new Error('YouTube player unavailable')); };
+    script.onerror = () => { window.clearTimeout(timeout); youtubeApiReady = null; reject(new Error('YouTube player unavailable')); };
     document.head.appendChild(script);
   });
   return youtubeApiReady;
 }
 
-type VideoCue = { video: NFLVideo; automatic: boolean; remaining: NFLVideo[]; blocked?: boolean };
+type VideoPhase = 'loading' | 'ready' | 'playing' | 'paused' | 'start-delayed' | 'autoplay-blocked' | 'blocked' | 'unavailable';
+type VideoCue = { video: NFLVideo; automatic: boolean; remaining: NFLVideo[]; phase: VideoPhase; headline: string };
+const blockedStorageKey = 'witching-hour:blocked-youtube-embeds';
+function savedBlockedVideos(): Set<string> {
+  try { return new Set(JSON.parse(sessionStorage.getItem(blockedStorageKey) ?? '[]').filter((id: unknown) => typeof id === 'string' && /^[a-zA-Z0-9_-]{11}$/.test(id))); }
+  catch { return new Set(); }
+}
 
-function HighlightPlayer({ video, automatic, blocked, onBlocked, onBack }: { video: NFLVideo; automatic: boolean; blocked: boolean; onBlocked: () => void; onBack: () => void }) {
+function HighlightPlayer({ video, automatic, phase, headline, onPhase, onFailed, onEnded, onManualPlay, onBack }: {
+  video: NFLVideo; automatic: boolean; phase: VideoPhase; headline: string;
+  onPhase: (phase: VideoPhase) => void; onFailed: (blocked: boolean) => void; onEnded: () => void; onManualPlay: () => void; onBack: () => void;
+}) {
   const playerSlotRef = useRef<HTMLDivElement>(null);
-  const blockedRef = useRef(onBlocked);
-  blockedRef.current = onBlocked;
+  const playerRef = useRef<YouTubePlayer | null>(null);
+  const callbacks = useRef({ onPhase, onFailed, onEnded });
+  callbacks.current = { onPhase, onFailed, onEnded };
+  const automaticRef = useRef(automatic);
+  automaticRef.current = automatic;
+  const unavailable = phase === 'blocked' || phase === 'unavailable';
   useEffect(() => {
-    if (blocked) return;
+    if (unavailable) return;
     let disposed = false;
+    let failed = false;
     let player: YouTubePlayer | null = null;
+    let readyTimer = 0;
+    let startTimer = 0;
+    let stallTimer = 0;
+    let hasPlayed = false;
+    const clearTimers = () => { window.clearTimeout(readyTimer); window.clearTimeout(startTimer); window.clearTimeout(stallTimer); };
+    const fail = (blocked: boolean) => { if (!disposed && !failed) { failed = true; clearTimers(); callbacks.current.onFailed(blocked); } };
     const frame = document.createElement('iframe');
     frame.title = video.title;
     frame.src = `${nflEmbedUrl(video)}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`;
@@ -89,25 +110,50 @@ function HighlightPlayer({ video, automatic, blocked, onBlocked, onBack }: { vid
     frame.referrerPolicy = 'strict-origin-when-cross-origin';
     frame.allowFullscreen = true;
     playerSlotRef.current?.appendChild(frame);
+    readyTimer = window.setTimeout(() => fail(false), 15000);
     void loadYouTubePlayerApi().then(() => {
       if (disposed || !frame.isConnected || !window.YT?.Player) return;
       player = new window.YT.Player(frame, { events: {
-        onReady: event => { if (automatic) { event.target.mute(); event.target.playVideo(); } },
-        onError: () => blockedRef.current(),
+        onReady: event => {
+          if (disposed || failed) return;
+          window.clearTimeout(readyTimer);
+          if (automaticRef.current) {
+            event.target.mute();
+            try { event.target.playVideo(); }
+            catch { callbacks.current.onPhase('autoplay-blocked'); return; }
+            startTimer = window.setTimeout(() => { if (!disposed && !failed && !hasPlayed) callbacks.current.onPhase('start-delayed'); }, 12000);
+          } else callbacks.current.onPhase('ready');
+        },
+        onError: event => fail(event?.data === 100 || event?.data === 101 || event?.data === 150),
+        onStateChange: event => {
+          if (disposed || failed) return;
+          if (event.data === 1) { hasPlayed = true; clearTimers(); callbacks.current.onPhase('playing'); }
+          else if (event.data === 0) { clearTimers(); callbacks.current.onEnded(); }
+          else if (event.data === 2) { window.clearTimeout(stallTimer); callbacks.current.onPhase('paused'); }
+          else if (event.data === 3 && hasPlayed) {
+            window.clearTimeout(stallTimer);
+            stallTimer = window.setTimeout(() => fail(false), 15000);
+          }
+        },
+        onAutoplayBlocked: () => { if (!disposed && !failed) { window.clearTimeout(startTimer); callbacks.current.onPhase('autoplay-blocked'); } },
       } });
-    }).catch(() => { if (!disposed) blockedRef.current(); });
-    return () => { disposed = true; player?.destroy(); frame.remove(); };
-  }, [video, automatic, blocked]);
+      playerRef.current = player;
+    }).catch(() => fail(false));
+    return () => { disposed = true; clearTimers(); player?.destroy(); playerRef.current = null; frame.remove(); };
+  }, [video, unavailable]);
+  const status = phase === 'loading' ? 'CONNECTING TO OFFICIAL VIDEO…' : phase === 'ready' ? 'READY // PRESS PLAY IN THE PLAYER' : phase === 'playing' ? '● PLAYING' : phase === 'paused' ? 'PAUSED' : phase === 'autoplay-blocked' ? 'AUTOPLAY BLOCKED // PRESS PLAY TO WATCH' : phase === 'start-delayed' ? 'PLAYBACK DELAYED // PRESS PLAY TO WATCH' : phase === 'blocked' ? 'EMBED RESTRICTED' : 'PLAYER UNAVAILABLE';
   return <section className={styles.videoStage} aria-label="Official NFL highlight player">
     <div className={styles.videoHeading}><span>{automatic ? `● AUTO DIRECTOR // ${video.source ?? 'NFL'} PLAY MATCH` : `OFFICIAL ${video.source ?? 'NFL'} VIDEO · TITLE/DATE MATCH`}</span><button type="button" onClick={onBack}>← RETURN TO LIVE</button></div>
-    {blocked ? <div className={styles.videoPreview}>
+    <div className={styles.videoStory}><span>ON AIR // {video.source ?? 'NFL'}</span><strong>{headline}</strong><small>{video.title}</small></div>
+    <div className={styles.videoStatus} role="status">{status}{(phase === 'autoplay-blocked' || phase === 'start-delayed') && <button type="button" onClick={() => { onManualPlay(); playerRef.current?.playVideo(); }}>PLAY CLIP ▶</button>}</div>
+    {phase === 'blocked' || phase === 'unavailable' ? <div className={styles.videoPreview}>
       <span>OFFICIAL {video.source ?? 'NFL'} CLIP // EXTERNAL PLAYBACK</span>
       <strong>{video.title}</strong>
-      <p>This clip is blocked from playing here. Open it on YouTube while the live wire stays on this screen.</p>
+      <p>{phase === 'blocked' ? 'This clip is blocked from playing here.' : 'The video player could not load here.'} Open it on YouTube while the live wire stays on this screen.</p>
       <a href={nflVideoUrl(video)} target="_blank" rel="noopener noreferrer">WATCH ON YOUTUBE ↗</a>
     </div> : <div className={styles.videoPlayerSlot} ref={playerSlotRef} />}
     <div className={styles.videoCaption}><small>Published {syncTime(Date.parse(video.publishedAt))}. Title and date suggest a match; check the video to confirm it.</small></div>
-    {automatic && <p className={styles.autoCueNote}>{blocked ? 'CLIP UNAVAILABLE HERE · RETURNING TO THE LIVE WIRE IN 12 SECONDS' : 'MUTED AUTO CUE · RETURNING TO THE LIVE WIRE IN 40 SECONDS · UNMUTE IN THE PLAYER'}</p>}
+    {automatic && <p className={styles.autoCueNote}>{phase === 'blocked' || phase === 'unavailable' || phase === 'autoplay-blocked' || phase === 'start-delayed' ? 'RETURNING TO THE LIVE WIRE IN 12 SECONDS' : phase === 'playing' ? 'MUTED AUTO CUE · RETURNING TO LIVE AFTER THE CLIP OR IN 40 SECONDS' : 'WAITING FOR VIDEO PLAYBACK · RETURN TO LIVE AT ANY TIME'}</p>}
   </section>;
 }
 
@@ -142,8 +188,9 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
   const [catalog, setCatalog] = useState<HighlightCatalog | null>(null);
   const [highlightsOpen, setHighlightsOpen] = useState(false);
   const [playingVideo, setPlayingVideo] = useState<VideoCue | null>(null);
-  const [blockedVideoIds, setBlockedVideoIds] = useState<Set<string>>(() => new Set());
-  const playableVideos = useMemo(() => (catalog?.videos ?? []).filter(video => video.embeddable && !blockedVideoIds.has(video.id)), [catalog, blockedVideoIds]);
+  const [blockedVideoIds, setBlockedVideoIds] = useState(savedBlockedVideos);
+  const availableVideos = useMemo(() => (catalog?.videos ?? []).filter(video => !blockedVideoIds.has(video.id) && canPlayInRegion(video, catalog?.viewerCountry)), [catalog, blockedVideoIds]);
+  const playableVideos = useMemo(() => availableVideos.filter(video => video.embeddable), [availableVideos]);
   const active = channels.find(channel => channel.key === activeKey) ?? channels[0];
   const selectedIndex = channels.findIndex(channel => channel.key === active?.key);
   const latestAlert = allAlerts[0];
@@ -208,12 +255,14 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
     breakingHoldUntil.current = Date.now() + 40_000;
     setActiveKey(cue.alert.channelKey);
     setSelectedAlertId(cue.alert.id);
-    setPlayingVideo({ video: cue.candidates[0], remaining: cue.candidates.slice(1), automatic: true });
+    setPlayingVideo({ video: cue.candidates[0], remaining: cue.candidates.slice(1), automatic: true, phase: 'loading', headline: cue.alert.headline });
   }, [auto, playingVideo, allAlerts, now, data, playableVideos]);
 
   useEffect(() => {
     if (!playingVideo?.automatic) return;
-    const timer = window.setTimeout(() => setPlayingVideo(null), playingVideo.blocked ? 12_000 : 40_000);
+    const duration = playingVideo.phase === 'playing' ? 40_000 : ['blocked', 'unavailable', 'autoplay-blocked', 'start-delayed'].includes(playingVideo.phase) ? 12_000 : null;
+    if (duration === null) return;
+    const timer = window.setTimeout(() => setPlayingVideo(null), duration);
     return () => window.clearTimeout(timer);
   }, [playingVideo]);
 
@@ -226,17 +275,22 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
   const channelNumber = active ? snapshot.matchups.findIndex(match => match.id === active.match.id) + 1 : 0;
   const playEvent = activeAlert?.kind === 'play' ? data?.events.find(event => event.id === activeAlert.id) : undefined;
   const playCandidates = playEvent ? matchPlayHighlightCandidates(playEvent, playableVideos) : [];
-  const playClip = playCandidates[0] ?? (playEvent ? matchPlayHighlight(playEvent, (catalog?.videos ?? []).filter(video => !blockedVideoIds.has(video.id))) : null);
+  const playClip = playCandidates[0] ?? (playEvent ? matchPlayHighlight(playEvent, availableVideos) : null);
   const playSearch = playEvent ? playHighlightSearch(playEvent, playClip?.source) : null;
-  const playVideo = (video: NFLVideo, candidates: NFLVideo[] = playCandidates) => { setAuto(false); setPlayingVideo({ video, remaining: candidates.filter(candidate => candidate.id !== video.id), automatic: false }); };
-  const handleBlockedVideo = () => {
+  const playVideo = (video: NFLVideo, candidates: NFLVideo[] = playCandidates, headline = activeAlert?.headline ?? video.title) => { setAuto(false); setPlayingVideo({ video, remaining: candidates.filter(candidate => candidate.id !== video.id), automatic: false, phase: 'loading', headline }); };
+  const handleVideoFailure = (blocked: boolean) => {
     if (!playingVideo) return;
-    setBlockedVideoIds(previous => new Set(previous).add(playingVideo.video.id));
+    if (blocked) setBlockedVideoIds(previous => {
+      const next = new Set(previous).add(playingVideo.video.id);
+      try { sessionStorage.setItem(blockedStorageKey, JSON.stringify([...next])); } catch { /* Private storage may be unavailable. */ }
+      return next;
+    });
     breakingHoldUntil.current = Date.now() + 12_000;
     setPlayingVideo(current => current ? current.remaining.length
-      ? { ...current, video: current.remaining[0], remaining: current.remaining.slice(1), blocked: false }
-      : { ...current, blocked: true } : null);
+      ? { ...current, video: current.remaining[0], remaining: current.remaining.slice(1), phase: 'loading' }
+      : { ...current, phase: blocked ? 'blocked' : 'unavailable' } : null);
   };
+  const updateVideoPhase = (videoId: string, phase: VideoPhase) => setPlayingVideo(current => current?.video.id === videoId && current.phase !== 'blocked' && current.phase !== 'unavailable' ? { ...current, phase } : current);
 
   return createPortal(<div className={styles.overlay} ref={panelRef} role="dialog" aria-modal="true" aria-label={`${saved.name} watch mode`}>
     <header className={styles.header}><div className={styles.brand}><span className={styles.live}>● LIVE</span><div><strong>WITCHING HOUR // WATCH MODE</strong><small>{saved.name} · Week {snapshot.week} · {channels.length} {channels.length === 1 ? 'game' : 'games'}</small></div></div><div className={styles.headerActions}>
@@ -246,7 +300,7 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
       <button type="button" ref={closeRef} onClick={onClose} aria-label="Close watch mode">CLOSE ×</button>
     </div></header>
     <div className={styles.stage}><StudioMonitorFrame as="section" className={styles.feature} title={playingVideo ? `NFL HIGHLIGHTS // ${playingVideo.video.source ?? 'NFL'}` : active ? `CH ${String(channelNumber).padStart(2, '0')} // ${saved.name}` : saved.name} badge={playingVideo ? 'OFFICIAL NFL' : call}>
-      {playingVideo ? <HighlightPlayer video={playingVideo.video} automatic={playingVideo.automatic} blocked={!!playingVideo.blocked} onBlocked={handleBlockedVideo} onBack={() => setPlayingVideo(null)} /> : active ? <>
+      {playingVideo ? <HighlightPlayer video={playingVideo.video} automatic={playingVideo.automatic} phase={playingVideo.phase} headline={playingVideo.headline} onPhase={phase => updateVideoPhase(playingVideo.video.id, phase)} onFailed={handleVideoFailure} onEnded={() => setPlayingVideo(null)} onManualPlay={() => setPlayingVideo(current => current ? { ...current, automatic: false, phase: 'ready' } : null)} onBack={() => setPlayingVideo(null)} /> : active ? <>
         <WatchStory alert={activeAlert} channel={active} now={now} playSearch={playSearch} clip={playClip} onPlay={playVideo} onHighlights={() => setHighlightsOpen(true)} />
         <div className={styles.broadcastCanvas} aria-label="Featured matchup scorebug">
           <div className={styles.scorebug}><div className={styles.identity}><span>TEAM 1</span><strong title={active.first.name}>{active.first.name}</strong><small>PROJ. {active.first.projection} · {active.first.left === null ? 'STARTERS UNCONFIRMED' : `${active.first.left} LEFT`}</small></div><b>{points(active.first.points)}</b></div>
@@ -262,11 +316,11 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
         <div className={styles.alertList}>
           {active?.games.length ? active.games.map(game => {
             const candidates = matchGameHighlightsCandidates(game, playableVideos);
-            const video = candidates[0] ?? matchGameHighlights(game, (catalog?.videos ?? []).filter(candidate => !blockedVideoIds.has(candidate.id)));
+            const video = candidates[0] ?? matchGameHighlights(game, availableVideos);
             return <div className={styles.highlightCard} key={game.id}><span>{game.name} · {game.state === 'post' ? 'FINAL' : game.state === 'in' ? 'IN PROGRESS' : 'UPCOMING'}</span>
               <strong>{video?.title ?? 'GAME HIGHLIGHTS'}</strong>
               <small>{video ? `${video.source ?? 'NFL'} · likely match · uploaded ${syncTime(Date.parse(video.publishedAt))}` : 'No reliable title/date match yet.'}</small>
-              <div>{video?.embeddable ? <button type="button" onClick={() => playVideo(video, candidates)}>WATCH LIKELY MATCH ▶</button> : video ? <a href={nflVideoUrl(video)} target="_blank" rel="noopener noreferrer">CLIP ON YOUTUBE ↗</a> : null}<a href={gameHighlightSearch(game)} target="_blank" rel="noopener noreferrer">SEARCH @NFL ↗</a></div>
+              <div>{video?.embeddable ? <button type="button" onClick={() => playVideo(video, candidates, video.title)}>WATCH LIKELY MATCH ▶</button> : video ? <a href={nflVideoUrl(video)} target="_blank" rel="noopener noreferrer">CLIP ON YOUTUBE ↗</a> : null}<a href={gameHighlightSearch(game)} target="_blank" rel="noopener noreferrer">SEARCH @NFL ↗</a></div>
             </div>;
           }) : <p>NFL game details for this fantasy matchup are pending.</p>}
         </div>
