@@ -56,3 +56,18 @@ it('uses only confirmed score differences for opt-in lead and swing cues', () =>
   expect(scoreCueKind({ ...swing, beforeOwn: 20, beforeOpponent: 12 })).toBe('swing');
   expect(scoreCueKind({ ...swing, beforeOwn: 20, beforeOpponent: 12, ownDelta: 1, own: 21 })).toBeNull();
 });
+it('keeps league-wide score tape on the selected league while the all-leagues wall stays personal', () => {
+  const wholeLeague = (first: number, second: number, at: number) => {
+    const context = game(first, 12, at);
+    context.snapshot!.teams.push({ id: '3', name: 'Other A', roster: [] }, { id: '4', name: 'Other B', roster: [] });
+    context.snapshot!.matchups.push({ id: 'other', team1Id: '3', team2Id: '4', team1Points: second, team2Points: 3, period: 'Week 9' });
+    return context;
+  };
+  const before = wholeLeague(10, 5, start);
+  const after = wholeLeague(20, 15, start + 1000);
+  const baseline = captureScoreTape(emptyScoreTape(), [before, { ...before, myTeamId: '3' }]);
+  const scored = captureScoreTape(baseline, [after, { ...after, myTeamId: '3' }]);
+  expect(scored.changes).toHaveLength(2);
+  expect(currentScoreChanges(scored, [after])).toHaveLength(1);
+  expect(currentScoreChanges(scored, [after], true)).toHaveLength(2);
+});

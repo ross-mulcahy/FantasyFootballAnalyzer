@@ -69,3 +69,8 @@
 .panel[role="dialog"] .exposure { gap: 7px; margin-top: 7px; }
 .panel[role="dialog"] .owned, .panel[role="dialog"] .opponent, .panel[role="dialog"] .paradox { font-size: 10px; padding: 4px 6px; }
 .panel[role="dialog"] .playerExpanded { padding-top: 10px; }
+.leaguePulse { display: grid; gap: 8px; font: 11px/1.5 var(--font-mono); }
+.leaguePulse p { display: grid; gap: 3px; margin: 0; padding: 9px; background: #081024; border: 1px solid #1e3264; }
+.leaguePulse strong { color: #ffb800; font: 800 22px var(--font-mono); }
+.leaguePulse b { color: #f8fafc; font: 700 14px/1.2 var(--font-display); text-transform: uppercase; }
+.leaguePulse span, .leaguePulse small { color: #94a3b8; }

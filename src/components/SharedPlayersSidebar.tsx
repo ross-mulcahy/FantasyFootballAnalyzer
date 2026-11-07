@@ -5,7 +5,7 @@ import { sortMajorEvents, timelineCacheKey, type MajorEvent, type NFLTimeline } 
 import { useMatchupTimeline } from '@/hooks/useMatchupTimeline';
 import { useEventNotifications } from '@/hooks/useEventNotifications';
 import { liveStatusIsStale, playerGameStatus } from '@/utils/matchupGameStatus';
-import { eventImpact } from '@/utils/gameDayInsights';
+import { eventImpact, finiteScore, matchupMargin } from '@/utils/gameDayInsights';
 import { isStartingSlot } from '@/utils/playerWeek';
 import { canonicalTeam, normalizeName } from '@/utils/playerNames';
 import { playerIdentityIndex, sharedPlayers, type SharedLeagueContext, type SharedPlayer } from '@/utils/sharedPlayers';
@@ -44,9 +44,9 @@ function statsFor(player: SharedPlayer, data: NFLTimeline | null): { stats: Stat
 }
 
 type TimelineReport = (key: string, data: NFLTimeline | null, error: string | null, loading: boolean) => void;
-function SharedWeek({ players, contexts, season, week, refreshSignal, onTimeline }: { players: SharedPlayer[]; contexts: SharedLeagueContext[]; season: number; week: number; refreshSignal: number; onTimeline?: TimelineReport }) {
+function SharedWeek({ players, contexts, season, week, refreshSignal, onTimeline, allMatchups = false }: { players: SharedPlayer[]; contexts: SharedLeagueContext[]; season: number; week: number; refreshSignal: number; onTimeline?: TimelineReport; allMatchups?: boolean }) {
   const teams = [...new Set(contexts.flatMap(context => {
-    const relevant = context.snapshot?.matchups.filter(match => context.myTeamId && [match.team1Id, match.team2Id].includes(context.myTeamId)).flatMap(match => [match.team1Id, match.team2Id]) ?? [];
+    const relevant = context.snapshot?.matchups.filter(match => allMatchups || context.myTeamId && [match.team1Id, match.team2Id].includes(context.myTeamId)).flatMap(match => [match.team1Id, match.team2Id]) ?? [];
     return context.snapshot?.teams.filter(team => relevant.includes(team.id)).flatMap(team => team.roster?.filter(player => player.id !== '0' && isStartingSlot(player.slot)).map(player => player.nflTeam).filter(Boolean) ?? []) ?? [];
   }))];
   const refreshedAt = Math.max(0, ...contexts.map(context => context.snapshot?.fetchedAt ?? 0));
@@ -96,7 +96,7 @@ function SharedWeek({ players, contexts, season, week, refreshSignal, onTimeline
     {events.error && <p className={pageStyles.hint} role="status">Live updates unavailable. Showing saved details.</p>}
     {!!events.data?.warnings.length && <p className={pageStyles.hint}>Some NFL updates are unavailable.</p>}
     {notifications.problem && <p className={pageStyles.hint} role="status">{notifications.problem}</p>}
-    <ul className={styles.list} aria-label={`Shared starters · ${season} week ${week}`}>{entries.map(({ player, game, latest, stats }) => <li key={player.key} className={`${styles.player} ${changed.has(player.key) ? styles.changed : ''}`}>
+    {!allMatchups && <ul className={styles.list} aria-label={`Shared starters · ${season} week ${week}`}>{entries.map(({ player, game, latest, stats }) => <li key={player.key} className={`${styles.player} ${changed.has(player.key) ? styles.changed : ''}`}>
       <details className={styles.playerDetails}>
         <summary className={styles.playerSummary} aria-label={`${player.name}: ${pointsFor(player)}; ${player.owned} leagues on your team, ${player.opposing} against you. Show details.`}>
           <span className={styles.playerHeading}><span role="heading" aria-level={3} className={styles.playerTitle}>{player.name}</span><span className={styles.playerTotals}><span className={styles.points} aria-label={`${player.name} current fantasy points`}>{pointsFor(player)}</span><span className={styles.projection} aria-label={`${player.name} highest league projection`} title="Highest available league projection">Proj. {projectionFor(player)?.toFixed(2) ?? '—'}</span></span><span className={styles.expandMark} aria-hidden="true" /></span>
@@ -125,12 +125,12 @@ function SharedWeek({ players, contexts, season, week, refreshSignal, onTimeline
           </li>)}</ul>
         </div>
       </details>
-    </li>)}</ul>
+    </li>)}</ul>}
 
   </>;
 }
 
-export function SharedPlayersSidebar({ contexts, refreshSignal = 0, onCountChange, onConflictCountChange, onBiggestConflictChange, onTimeline }: { contexts: SharedLeagueContext[]; refreshSignal?: number; onCountChange?: (count: number) => void; onConflictCountChange?: (count: number) => void; onBiggestConflictChange?: (conflict: StudioConflict | null) => void; onTimeline?: TimelineReport }) {
+export function SharedPlayersSidebar({ contexts, refreshSignal = 0, onCountChange, onConflictCountChange, onBiggestConflictChange, onTimeline, allMatchups = false }: { contexts: SharedLeagueContext[]; refreshSignal?: number; onCountChange?: (count: number) => void; onConflictCountChange?: (count: number) => void; onBiggestConflictChange?: (conflict: StudioConflict | null) => void; onTimeline?: TimelineReport; allMatchups?: boolean }) {
   const [index, setIndex] = useState<ReturnType<typeof playerIdentityIndex> | null>(null);
   const [mappingFailed, setMappingFailed] = useState(false);
   useEffect(() => {
@@ -148,13 +148,18 @@ export function SharedPlayersSidebar({ contexts, refreshSignal = 0, onCountChang
   const weeks = [...new Set(contexts.flatMap(context => context.snapshot ? [`${context.snapshot.season}:${context.snapshot.week}`] : []))];
   useEffect(() => { onCountChange?.(groups.length); }, [groups.length, onCountChange]);
   const missing = contexts.filter(context => !context.snapshot || !context.myTeamId).length;
-  return <MatchupPanel studio popout title="ROOTING CONFLICTS" panelKey="shared-players" headingId="shared-players-heading" className={styles.panel}>
+  const league = allMatchups ? contexts[0] : null;
+  const leagueGames = league?.snapshot?.matchups ?? [];
+  const scoresReported = leagueGames.filter(match => [match.team1Points, match.team2Points].some(points => finiteScore(points) && points > 0)).length;
+  const closest = leagueGames.map(match => ({ match, margin: matchupMargin({ ...league!, myTeamId: match.team1Id }, match, 'projected', null) })).filter(row => row.margin !== null).sort((a, b) => Math.abs(a.margin!) - Math.abs(b.margin!))[0];
+  const teamName = (id: string | null) => league?.snapshot?.teams.find(team => team.id === id)?.name ?? 'TBD';
+  return <MatchupPanel studio popout title={allMatchups ? 'LEAGUE PULSE' : 'ROOTING CONFLICTS'} panelKey="shared-players" headingId="shared-players-heading" className={styles.panel}>
     {mappingFailed && <p className={pageStyles.hint}>Player IDs unavailable. Using unambiguous name, position and team matches.</p>}
     {!!missing && <p className={pageStyles.hint}>{missing} {missing === 1 ? 'league needs' : 'leagues need'} data or a My team selection in Settings.</p>}
-    {index === null ? <p className={pageStyles.hint}>Matching players across leagues…</p> : <>
+    {allMatchups ? league?.snapshot ? <div className={styles.leaguePulse}><p><strong>{leagueGames.length}</strong> matchups on the wall <span>{scoresReported} reporting points</span></p>{closest ? <p><small>CLOSEST PROJECTED LINE</small><b>{teamName(closest.match.team1Id)} vs {teamName(closest.match.team2Id)}</b><span>{Math.abs(closest.margin!).toFixed(2)} point spread</span></p> : <p>Projected lines are not available for this league yet.</p>}</div> : <p className={pageStyles.hint}>Waiting for this league’s matchup feed.</p> : index === null ? <p className={pageStyles.hint}>Matching players across leagues…</p> : <>
       {!groups.length && <p className={pageStyles.hint}>No shared starters in the loaded matchups.</p>}
-      {weeks.map(key => { const [season, week] = key.split(':').map(Number); return <SharedWeek key={key} season={season} week={week} contexts={contexts.filter(context => context.snapshot?.season === season && context.snapshot.week === week)} players={groups.filter(player => `${player.season}:${player.week}` === key)} refreshSignal={refreshSignal} onTimeline={onTimeline} />; })}
     </>}
+    {weeks.map(key => { const [season, week] = key.split(':').map(Number); return <SharedWeek key={key} season={season} week={week} contexts={contexts.filter(context => context.snapshot?.season === season && context.snapshot.week === week)} players={allMatchups ? [] : groups.filter(player => `${player.season}:${player.week}` === key)} refreshSignal={refreshSignal} onTimeline={onTimeline} allMatchups={allMatchups} />; })}
     {contexts.some(context => context.saved.platform === 'yahoo') && <p className={pageStyles.hint}>Fantasy data provided by Yahoo Fantasy.</p>}
   </MatchupPanel>;
 }

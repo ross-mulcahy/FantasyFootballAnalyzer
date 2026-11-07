@@ -58,6 +58,11 @@ it('shows every matchup in a selected league without labelling other teams as mi
   expect(screen.getAllByText('CH 01')).toHaveLength(1);
   expect(screen.getAllByText('CH 02')).toHaveLength(1);
   expect(screen.queryByText('Opponent B')).not.toBeInTheDocument();
+  const pulse = screen.getByRole('heading', { name: 'LEAGUE PULSE' }).closest('section')!;
+  expect(pulse).toHaveTextContent('matchups on the wall');
+  expect(pulse.querySelector('strong')).toHaveTextContent('2');
+  const desk = screen.getByRole('heading', { name: 'SUNDAY PRODUCTION DESK' }).closest('section')!;
+  expect(within(desk).getByText('Other A vs Other B')).toBeInTheDocument();
 });
 it('shows a selected league wall before the user identifies their team', () => {
   const unidentified = { ...a, teams: a.teams.map(team => ({ ...team, isMyTeam: false })) };

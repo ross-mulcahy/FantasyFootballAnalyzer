@@ -59,10 +59,11 @@ export function captureScoreTape(previous: ScoreTape, contexts: SharedLeagueCont
   return touched ? { baselines: Object.fromEntries(Object.entries(baselines).sort((a, b) => b[1].at - a[1].at).slice(0, 250)), changes: changes.sort((a, b) => b.at - a.at).slice(0, 150) } : previous;
 }
 export function saveScoreTape(tape: ScoreTape): void { safeLocalStorage.setItem(TAPE_KEY, JSON.stringify(tape)); }
-export function currentScoreChanges(tape: ScoreTape, contexts: SharedLeagueContext[]): ScoreChange[] {
+export function currentScoreChanges(tape: ScoreTape, contexts: SharedLeagueContext[], allMatchups = false): ScoreChange[] {
   const weeks = new Set(contexts.flatMap(context => context.snapshot ? [`${context.snapshot.season}:${context.snapshot.week}`] : []));
   const keys = new Set(contexts.map(context => savedLeagueKey(context.saved)));
-  return tape.changes.filter(row => keys.has(row.leagueKey) && weeks.has(`${row.season}:${row.week}`));
+  const matchKeys = contexts.flatMap(context => (allMatchups ? context.snapshot?.matchups ?? [] : myMatchups(context)).map(match => `${savedLeagueKey(context.saved)}:${context.snapshot?.week}:${matchupKey(match)}:`));
+  return tape.changes.filter(row => keys.has(row.leagueKey) && weeks.has(`${row.season}:${row.week}`) && matchKeys.some(key => row.id.startsWith(key)));
 }
 export interface ComebackRow { key: string; league: string; own: string; opponent: string; margin: number | null; ownLeft: number | null; opponentLeft: number | null; unknown: boolean }
 export function comebackWatch(contexts: SharedLeagueContext[], feeds: TimelineFeeds): ComebackRow[] {
@@ -100,7 +101,7 @@ export function directorCue(changes: ScoreChange[], events: { event: MajorEvent;
   return null;
 }
 export interface ShowSummary { phase: 'PREGAME' | 'HALFTIME' | 'FINAL'; title: string; record: string; swing: string; pine: string; paradox: string }
-export function studioShow(contexts: SharedLeagueContext[], feeds: TimelineFeeds, changes: ScoreChange[], conflict: StudioConflict | null, now: number): ShowSummary {
+export function studioShow(contexts: SharedLeagueContext[], feeds: TimelineFeeds, changes: ScoreChange[], conflict: StudioConflict | null, now: number, leagueMode = false): ShowSummary {
   const rows = buildRecap(contexts, feeds, now);
   const done = rows.filter(row => row.finished && finiteScore(row.ownPoints) && finiteScore(row.opponentPoints));
   const games = Object.values(feeds).flatMap(feed => feed.data?.games ?? []);
@@ -109,14 +110,16 @@ export function studioShow(contexts: SharedLeagueContext[], feeds: TimelineFeeds
   const lost = done.filter(row => row.ownPoints! < row.opponentPoints!).length;
   const swing = [...changes].sort((a, b) => Math.abs(b.ownDelta - b.opponentDelta) - Math.abs(a.ownDelta - a.opponentDelta))[0];
   const bench = contexts.flatMap(context => myMatchups(context).flatMap(match => {
-    const own = matchupSides(context, match).own;
-    const roster = own?.roster ?? [];
-    return roster.filter(player => player.id !== '0' && !isStartingSlot(player.slot) && finiteScore(player.points)).flatMap(player => {
-      const starter = roster.filter(other => other.id !== '0' && isStartingSlot(other.slot) && basePosition(other.position) === basePosition(player.position) && finiteScore(other.points)).sort((a, b) => a.points! - b.points!)[0];
-      return starter && player.points! > starter.points! ? [{ league: context.saved.name, bench: player.name, starter: starter.name, gap: player.points! - starter.points! }] : [];
+    const sides = matchupSides(context, match);
+    return [sides.own, ...(leagueMode ? [sides.opponent] : [])].flatMap(team => {
+      const roster = team?.roster ?? [];
+      return roster.filter(player => player.id !== '0' && !isStartingSlot(player.slot) && finiteScore(player.points)).flatMap(player => {
+        const starter = roster.filter(other => other.id !== '0' && isStartingSlot(other.slot) && basePosition(other.position) === basePosition(player.position) && finiteScore(other.points)).sort((a, b) => a.points! - b.points!)[0];
+        return starter && player.points! > starter.points! ? [{ league: context.saved.name, bench: player.name, starter: starter.name, gap: player.points! - starter.points! }] : [];
+      });
     });
   })).sort((a, b) => b.gap - a.gap)[0];
-  return { phase, title: `${phase} // SCOTT'S STUDIO SHOW`, record: `${won} final wins · ${lost} final losses · ${rows.length - done.length} pending`,
+  return { phase, title: `${phase} // ${leagueMode ? 'LEAGUE' : "SCOTT'S"} STUDIO SHOW`, record: leagueMode ? `${done.length} final matchups · ${rows.length - done.length} pending` : `${won} final wins · ${lost} final losses · ${rows.length - done.length} pending`,
     swing: swing ? `${swing.leagueName}: ${Math.abs(swing.ownDelta - swing.opponentDelta).toFixed(2)}-point net swing between score refreshes.` : 'No score swing in this browser’s saved tape yet.',
     pine: bench ? `${bench.bench} has ${bench.gap.toFixed(2)} more points than ${bench.starter} in ${bench.league} at the same listed position. Lineup eligibility may differ.` : 'No comparable bench-versus-starter outlier with known points yet.',
     paradox: conflict ? `${conflict.name}: yours in ${conflict.owned}, against you in ${conflict.opposing}.` : 'No cross-league rooting paradox detected.' };

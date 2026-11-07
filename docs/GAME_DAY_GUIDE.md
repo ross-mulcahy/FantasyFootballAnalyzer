@@ -33,6 +33,14 @@ it changes the loaded league there. The
 **All Leagues** button returns to the combined Hub. Opening a league from a
 matchup monitor still enters its detailed Game Day page.
 
+In a selected league, the monitors fill two columns. **League Pulse** replaces
+the cross-league Rooting Conflicts panel with the number of games reporting
+points and the closest available projected line. RedZone Wire follows NFL
+games involving starters across that league's matchups. The production desk's
+Comeback Watch and show card cover every matchup; its lead labels are neutral
+team names. All Leagues returns those tools to your own matchups and
+cross-league conflicts.
+
 **Refresh all** refreshes every visible league and the shared NFL feed.
 **Last updated** represents the oldest league snapshot. If a league cannot
 refresh, its saved scores remain visible with a reconnect link.

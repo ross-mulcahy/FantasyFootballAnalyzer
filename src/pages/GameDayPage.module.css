@@ -500,3 +500,8 @@
 .popoutPanel .panelHeader { flex: none; }
 .popoutPanel .panelToggle { min-width: 36px; }
 @media(max-width:600px) { .popoutPanel { width: calc(100vw - 16px); height: calc(100dvh - 44px); } }
+
+/* A selected league owns several channels: flatten its wrapper into the wall. */
+.homeGrid > .leagueMatchRow { display: contents; }
+.homeGrid > .leagueMatchRow > .monitorBay { min-width: 0; }
+.homeGrid > .standbyMonitor { height: auto; min-height: 220px; align-self: stretch; }
