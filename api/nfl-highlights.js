@@ -40,6 +40,14 @@ export default async function handler(req, res, { apiKey } = {}) {
       pageToken = result.nextPageToken ?? '';
       if (!pageToken) break;
     }
+    // Upload playlist entries do not include playback permissions. Check them
+    // in batches before offering an inline player in Watch Mode.
+    for (let start = 0; start < videos.length; start += 50) {
+      const batch = videos.slice(start, start + 50);
+      const details = await youtube('videos', { part: 'status', id: batch.map(video => video.id).join(',') }, key);
+      const byId = new Map((details.items ?? []).map(item => [item.id, item.status?.embeddable === true]));
+      for (const video of batch) video.embeddable = byId.get(video.id) === true;
+    }
     const body = { configured: true, source: 'NFL', videos };
     cache = { at: Date.now(), body };
     res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=600');

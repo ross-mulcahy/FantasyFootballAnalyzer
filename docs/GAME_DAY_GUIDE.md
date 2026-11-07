@@ -90,20 +90,23 @@ publish time; explicit yardage must agree. Recaps, previews, compilations,
 wrong-season titles and ambiguous same-player clips do not auto-match. This
 is a suggested clip, not a verified play-to-video association; check the video
 itself. While Auto Director
-is on, a fresh play with a likely match automatically cuts to the official
+is on, a fresh play with a likely embeddable match automatically cuts to the official
 video once. It starts muted, returns to the live wire after 40 seconds, and
 offers **Return to Live** at any time. Turning Auto Director off keeps the
 current clip open for manual viewing. Select **NFL
 Highlights** for game recaps related to the current matchup, or to search the
-official channel when no reliable title match is found. Manual video playback
-uses YouTube's privacy-enhanced embed. YouTube may
-restrict embedding for some uploads; **Open on YouTube** remains available.
+official channel when no reliable title match is found. Inline playback uses
+YouTube's privacy-enhanced embed. The metadata service checks each upload's
+embed permission, and the player catches playback errors that can still occur
+because of rights claims. Restricted clips keep a direct **Watch on YouTube**
+link; Auto Director returns to the live wire after 12 seconds in that case.
 
 For automatic title matching on Spacefast, add `YOUTUBE_API_KEY` as a Secret in
 the **Fantasy Game Day** Space's Variables. For local Vite development use
 `.env.local`; for the separate Vercel API use its server environment. Enable
 YouTube Data API v3 on that key. The server reads only the official `@NFL`
-channel's recent uploads and returns titles, IDs and publish times; the key
+channel's recent uploads and returns titles, IDs, publish times and embed
+permissions; the key
 never enters the browser bundle. If the key is absent or the metadata service
 is unavailable, channel searches still work. The Spacefast build uses its
 same-origin `/api/nfl-highlights` Function. A separately hosted metadata

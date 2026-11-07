@@ -1,7 +1,7 @@
 import type { MajorEvent, NFLGameStatus } from './nflTimeline';
 import { nflTeamInfo } from '@/data/nflTeams';
 
-export interface NFLVideo { id: string; title: string; publishedAt: string }
+export interface NFLVideo { id: string; title: string; publishedAt: string; embeddable?: boolean }
 export interface HighlightCatalog { status: 'ready' | 'unconfigured' | 'unavailable'; videos: NFLVideo[] }
 const URL = import.meta.env.VITE_NFL_HIGHLIGHTS_URL || (import.meta.env.DEV ? '/api/nfl-highlights' : 'https://fantasy-football-analyzer-mu.vercel.app/api/nfl-highlights');
 const NFL_CHANNEL = 'https://www.youtube.com/@NFL';
@@ -14,7 +14,8 @@ export async function fetchNFLHighlights(): Promise<HighlightCatalog> {
     if (body?.configured !== true) return { status: 'unconfigured', videos: [] };
     if (!Array.isArray(body.videos)) return { status: 'unavailable', videos: [] };
     const videos = body.videos.filter((video: NFLVideo) => video && /^[a-zA-Z0-9_-]{11}$/.test(video.id) &&
-      typeof video.title === 'string' && Number.isFinite(Date.parse(video.publishedAt))).slice(0, 150);
+      typeof video.title === 'string' && Number.isFinite(Date.parse(video.publishedAt))).slice(0, 150)
+      .map((video: NFLVideo) => ({ id: video.id, title: video.title, publishedAt: video.publishedAt, embeddable: video.embeddable === true }));
     return { status: 'ready', videos };
   } catch { return { status: 'unavailable', videos: [] }; }
 }
