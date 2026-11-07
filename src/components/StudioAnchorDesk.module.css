@@ -116,3 +116,10 @@
 @media(max-width:1000px) { .desk { grid-template-columns:minmax(250px,300px) minmax(0,1fr); gap:14px; } }
 @media(max-width:700px) { .desk { grid-template-columns:1fr; gap:14px; } .stage { width:min(100%,360px); justify-self:center; } }
 @media(prefers-reduced-motion:reduce) { .hazard .studioBeacon { animation:none; } }
+
+/* Keep the layered scene compact enough for the monitor wall to lead the page. */
+.desk { grid-template-columns: minmax(210px, 250px) minmax(0, 1fr); align-items: center; }
+.stage { align-self: center; }
+.dialogue { align-self: center; }
+@media(max-width:1000px) { .desk { grid-template-columns: 210px minmax(0, 1fr); } }
+@media(max-width:700px) { .desk { grid-template-columns: 1fr; } .stage { width: min(100%, 250px); } }

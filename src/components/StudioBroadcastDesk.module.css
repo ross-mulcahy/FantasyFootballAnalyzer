@@ -1,0 +1,38 @@
+.director { display:flex; align-items:center; gap:12px; padding:8px 10px; margin:0 0 12px; background:#13264a; border:2px solid #ffb800; box-shadow:4px 4px 0 #000; color:#f8fafc; }
+.live { flex:none; padding:5px 6px; background:#e11d48; color:#fff; font:7px var(--font-arcade); }
+.director > div { flex:1; min-width:0; }
+.director strong { display:block; font:700 15px var(--font-display); text-transform:uppercase; }
+.director p { margin:2px 0 0; font:11px/1.35 var(--font-mono); color:#cbd5e1; }
+.director button { flex:none; font-size:10px; }
+.desk { margin:18px 0 26px; }
+.tabs { display:flex; flex-wrap:wrap; gap:3px; padding:8px; background:#162752; border-bottom:2px solid #2a3f7a; }
+.tabs button { min-height:32px; padding:5px 10px; border:2px solid #3b5284; background:#1e293b; color:#cbd5e1; box-shadow:2px 2px 0 #000; cursor:pointer; font:8px var(--font-arcade); }
+.tabs button[aria-pressed="true"] { border-color:#ffb800; color:#ffdc80; background:#0b1733; }
+.tabs button:focus-visible, .playButtons button:focus-visible { outline:2px solid #ffb800; outline-offset:2px; }
+.content { padding:14px; background:#0d1836; color:#f8fafc; }
+.content h3 { margin:0 0 10px; color:#ffb800; font:10px var(--font-arcade); }
+.note { margin:0 0 10px; color:#94a3b8; font:11px/1.5 var(--font-mono); }
+.rows { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:8px; }
+.rows li { display:grid; gap:5px; padding:10px; background:#081024; border:1px solid #2a3f7a; }
+.rows li > div { display:grid; gap:3px; min-width:0; }
+.rows strong { color:#ffdc80; font:700 15px var(--font-display); text-transform:uppercase; }
+.rows span, .rows small { color:#94a3b8; font:10px var(--font-mono); }
+.rows b { font:700 14px var(--font-mono); }
+.behind { color:#ef4444; }.ahead { color:#10b981; }
+.replayGrid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.replayGrid > div { min-width:0; padding:12px; background:#081024; border:1px solid #2a3f7a; }
+.replayGrid input[type="range"] { width:100%; accent-color:#ffb800; }
+.replayScore { display:grid; gap:7px; margin:10px 0; }
+.replayScore span { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:5px; padding:8px; background:#0d1836; font:700 13px var(--font-display); text-transform:uppercase; }
+.replayScore strong, .replayScore b { font:700 12px var(--font-mono); }.replayScore b { color:#10b981; }
+.replayScore b.negative { color:#fb7185; }
+.playButtons { display:flex; flex-wrap:wrap; gap:5px; max-height:90px; overflow:auto; }
+.playButtons button { padding:5px; border:1px solid #3b5284; background:#172650; color:#cbd5e1; cursor:pointer; font:10px var(--font-mono); }
+.playButtons button[aria-pressed="true"] { border-color:#ffb800; color:#ffdc80; }
+.playDetail { padding:10px; margin-top:8px; border-left:3px solid #ffb800; background:#0d1836; }
+.playDetail strong { font:700 14px var(--font-display); }.playDetail p { margin:6px 0; color:#10b981; font:12px var(--font-mono); }.playDetail small { color:#94a3b8; font:10px var(--font-mono); }
+.showHeader { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+.showHeader h3 { margin:0; }.showGrid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-bottom:10px; }
+.showGrid > div { padding:10px; min-width:0; background:#081024; border:1px solid #2a3f7a; }.showGrid span { color:#ffb800; font:8px var(--font-arcade); }.showGrid p { margin:7px 0 0; font:700 14px/1.35 var(--font-display); text-transform:uppercase; }
+.audioControl { display:grid; grid-template-columns:18px 1fr; gap:3px 9px; max-width:600px; padding:9px; margin:6px 0; background:#081024; border:1px solid #2a3f7a; cursor:pointer; }.audioControl input { grid-row:span 2; accent-color:#10b981; }.audioControl span { font:700 13px var(--font-display); text-transform:uppercase; }.audioControl small { color:#94a3b8; font:10px var(--font-mono); }
+@media(max-width:700px) { .director { flex-wrap:wrap; }.director > div { flex-basis:calc(100% - 120px); }.director button { margin-left:auto; }.replayGrid,.showGrid { grid-template-columns:1fr; }.tabs button { flex:1 1 45%; font-size:7px; } }

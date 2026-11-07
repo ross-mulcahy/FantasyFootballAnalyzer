@@ -112,15 +112,19 @@
 
 .skillBarTrack {
   flex: 1;
-  height: 8px;
-  border: 1px solid var(--rule);
-  background: var(--ink-2);
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 2px;
+  min-width: 80px;
+  padding: 3px;
+  border: 2px solid #090f22;
+  background: #030b19;
+  box-shadow: inset 0 1px 0 #415578, 2px 2px 0 #000;
 }
 
-.skillBarFill {
-  height: 100%;
-  background: var(--lime);
-}
+.skillSegment { height: 10px; background: #192948; border-top: 1px solid #324463; }
+.skillSegmentLit { background: #10b981; border-top-color: #6ee7b7; box-shadow: inset 0 -2px 0 #047857; }
+.skillRow:nth-child(-n+3) .skillSegmentLit { background: #ffb800; border-top-color: #ffde72; box-shadow: inset 0 -2px 0 #a16207; }
 
 .skillScore {
   font-size: 0.95rem;

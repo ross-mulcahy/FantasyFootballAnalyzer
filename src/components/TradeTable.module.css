@@ -136,11 +136,18 @@
 }
 
 .tradeSides {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
+.breakingLabel { color: #f8fafc; background: #a91936; border: 2px solid #ffb800; padding: 4px 7px; font: 8px var(--font-arcade); box-shadow: 2px 2px 0 #000; }
+.swapBadge { position: absolute; z-index: 2; left: 50%; top: 22px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px; color: #101c3a; background: #ffb800; border: 2px solid #080e20; box-shadow: 3px 3px 0 #000; font: 7px var(--font-arcade); pointer-events: none; }
+.verdict { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #0b1733; border-top: 2px solid #2a3f7a; color: #e2e8f0; font: 700 12px var(--font-display); text-transform: uppercase; }
+.verdictLabel { flex: none; color: #ffb800; font: 8px var(--font-arcade); }
 @media (max-width: 768px) {
   .tradeSides { grid-template-columns: 1fr; }
+  .swapBadge { top: 50%; transform: translate(-50%, -50%); }
+  .verdict { flex-wrap: wrap; }
 }
 
 .tradeSide {

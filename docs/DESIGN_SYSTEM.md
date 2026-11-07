@@ -92,7 +92,17 @@ The App shell is a locked 100dvh flex column. Its upper command area contains th
 
 Each split monitor now uses two horizontal scorebug rows: truncated 20px franchise name and projection at left, 32px tabular score at right. Full names remain in title tooltips and link labels. VS is anchored to the green row's bottom seam; hazards, provider link and presser share one compact footer. The desktop title, week/leagues, cortisol and refresh occupy a 40px row; narrow layouts wrap.
 
-The desk uses a 176px silver portrait with a naturally sized cream dialogue and NEXT TAKE in the dialogue header. Scott's face has warm-peach skin, orange jaw shading, exactly two navy eyes with white catchlights, golden-brown eyebrows and a clean white grin. The headset runs around the outside of his cheek, clear of his nose and smile.
+The desk uses a layered SNES scene in a compact silver monitor (250px desktop column) with a naturally sized cream dialogue and NEXT TAKE in the dialogue header. The three assets show a calm mug pose, urgent pointing pose, and microphone sweat pose. The compact sub-page teleprompter uses a 64px portrait.
+
+## Final broadcast details
+
+The Teams Dossier Manager Skill Score is a ten-segment hardware meter; the number remains the precise score, while the lit segments show tens. Top-three rows use gold segments. Trade tickets carry a Breaking Trade Alert label, a central gold swap emblem, and Scott's verdict based on the existing PAR winner and margin; incomplete and unvalued deals retain their caveats. Award plaques use distinct integer-grid trophy, crown, horseshoe, dumpster and activity icons according to award category and outcome.
+
+The active route audit is captured in `docs/HANDOVER_2026-11-07.md`. The principal league data pages use studio framing and a compact teleprompter, except Game Day, which uses the larger anchor desk. Player headshots in scouting views are allowed; NFL team logos should be `NflTeamChip`. Some CSS modules retain older rules before later studio overrides, so consolidate them when changing those views again.
+
+## Sunday production desk
+
+The Game Day wall now has a compact Director's Cue for recent score changes and recognisable plays. It highlights the relevant league monitor and offers a Take Channel action without reordering the wall. The full-width Studio 02 production desk below the wall groups Comeback Watch, Instant Replay, Halftime / Final Show, and opt-in audio controls. Score tape is based on locally observed provider snapshots; the NFL play tape remains separate because event-to-fantasy-point attribution is not exact. Comeback Watch reports known scores and remaining starters, never a synthetic win probability. The show card is a downloadable, XML-escaped SVG. New lead-change and major-swing motifs are original Web Audio cues, off by default, and subordinate to the existing master mute.
 
 ## Shared studio primitives and route migration
 

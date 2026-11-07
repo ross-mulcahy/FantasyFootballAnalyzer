@@ -489,6 +489,7 @@
 .sharedSidebar .panelHeader { min-height: 0; padding: 6px 10px; }
 .sharedSidebar .studioPanel :global(.crt-screen) > .panelHeader { padding: 6px 10px; }
 .sharedSidebar .combinedEvents .studioPanel :global(.crt-screen) > div:last-child { max-height: clamp(100px, calc(100dvh - 800px), 220px); }
+.directorFocus { outline: 2px solid #ffb800; outline-offset: 3px; }
 
 /* Expanded right-hand monitors reuse their live contents in a full-size studio viewport. */
 .popoutBackdrop { position: fixed; inset: 0; z-index: 2000; background: #020617cc; backdrop-filter: blur(3px); }

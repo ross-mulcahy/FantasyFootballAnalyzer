@@ -52,6 +52,8 @@ export function useSounds() {
   const playNextTake = useCallback(() => sounds.playNextTake(), []);
   const playHazardStinger = useCallback(() => sounds.playHazardStinger(), []);
   const playCloseGamePulse = useCallback(() => sounds.playCloseGamePulse(), []);
+  const playLeadChange = useCallback(() => sounds.playLeadChange(), []);
+  const playMajorSwing = useCallback(() => sounds.playMajorSwing(), []);
   const playLoadComplete = useCallback(() => sounds.playLoadComplete(), []);
   const playExport = useCallback(() => sounds.playExport(), []);
   const playOnTheClock = useCallback(() => sounds.playOnTheClock(), []);
@@ -87,6 +89,8 @@ export function useSounds() {
     playNextTake,
     playHazardStinger,
     playCloseGamePulse,
+    playLeadChange,
+    playMajorSwing,
     playLoadComplete,
     playExport,
     playOnTheClock,

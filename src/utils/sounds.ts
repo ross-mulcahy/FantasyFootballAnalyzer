@@ -222,6 +222,23 @@ export function playCloseGamePulse(): void {
   ]);
 }
 
+// Opt-in live score cues. These are original synthesized motifs, not broadcast samples.
+export function playLeadChange(): void {
+  playPhrase([
+    { freq: 392, dur: 0.13, type: 'square', level: 0.34, pluck: true },
+    { freq: 587, at: 0.11, dur: 0.17, type: 'square', level: 0.38, pluck: true },
+    { freq: 784, at: 0.23, dur: 0.25, type: 'triangle', level: 0.48, release: 0.16 },
+  ]);
+}
+
+export function playMajorSwing(): void {
+  playPhrase([
+    { freq: 147, dur: 0.14, type: 'triangle', level: 0.55, pluck: true },
+    { freq: 220, at: 0.17, dur: 0.14, type: 'triangle', level: 0.55, pluck: true },
+    { freq: 440, at: 0.29, dur: 0.18, type: 'square', level: 0.26, release: 0.1 },
+  ]);
+}
+
 // Load complete - calm three-note arpeggio (C5, E5, G5)
 export function playLoadComplete(): void {
   playPhrase([

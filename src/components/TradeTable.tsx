@@ -3,6 +3,7 @@ import { StudioMonitorFrame } from '@/components/StudioMonitorFrame';
 import { useState, useMemo } from 'react';
 import type { Trade, Team } from '@/types';
 import { NflTeamChip } from './NflTeamChip';
+import { PixelStudioIcon } from './PixelStudioIcon';
 import { PosBadge } from './PosBadge';
 import { TeamLink } from './TeamLink';
 import styles from './TradeTable.module.css';
@@ -117,6 +118,7 @@ export function TradeTable({ trades, teams }: TradeTableProps) {
             return (
             <StudioMonitorFrame as="div" padded key={trade.id} className={`${styles.tradeCard} ${isIncomplete ? styles.incomplete : ''}`}>
               <div className={styles.tradeHeader}>
+                <span className={styles.breakingLabel}>BREAKING TRADE ALERT</span>
                 <span className={styles.tradeWeek}>Week {trade.week}</span>
                 <span className={styles.tradeDate}>{formatDate(trade.timestamp)}</span>
                 {trade.status === 'vetoed' && (
@@ -138,6 +140,7 @@ export function TradeTable({ trades, teams }: TradeTableProps) {
               </div>
 
               <div className={styles.tradeSides}>
+                {trade.teams.length === 2 && <div className={styles.swapBadge} aria-hidden="true"><PixelStudioIcon kind="swap" size={18} /><span>SWAP</span></div>}
                 {trade.teams.map((teamSide, index) => (
                   <div
                     key={teamSide.teamId}
@@ -246,6 +249,10 @@ export function TradeTable({ trades, teams }: TradeTableProps) {
                     )}
                   </div>
                 ))}
+              </div>
+              <div className={styles.verdict}>
+                <span className={styles.verdictLabel}>SCOTT'S VERDICT</span>
+                <span>{isIncomplete ? 'Tape incomplete: player data unavailable' : trade.winner && trade.winnerMargin !== undefined ? `${trade.teams.find(side => side.teamId === trade.winner)?.teamName ?? 'Winning side'} leads by ${trade.winnerMargin.toFixed(1)} PAR` : trade.verdictNote ?? 'No PAR winner on this tape'}</span>
               </div>
             </StudioMonitorFrame>
           );

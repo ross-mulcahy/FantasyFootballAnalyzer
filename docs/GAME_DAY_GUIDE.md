@@ -54,6 +54,34 @@ open a specific matchup for its score, starting lineups, stats and projections.
 **Rosters** opens the full roster view with a team selector, including bench and
 reserve slots. Browser Back returns through these views.
 
+## Use the production desk
+
+A **Director's Cue** appears after a recent, consequential score refresh or a
+recognisable NFL play involving your starters. **Take channel** scrolls to that
+league's monitor. A score cue reports the actual difference between two
+provider snapshots; a play cue reports only likely direction until your fantasy
+provider confirms the points. The highlighted channel remains in its normal
+place on the wall.
+
+The **Sunday Production Desk** sits below the monitor wall:
+
+- **Comeback Watch** shows the current lead or the points needed to take it,
+  plus the count of starters still live or yet to play on both sides. Unknown
+  roster or NFL status is labelled unconfirmed. It is not a win probability.
+- **Instant Replay** has a scrub-able score tape and a separate play tape.
+  Score tape records changes only between snapshots observed by this browser;
+  it cannot reconstruct earlier plays or attribute a particular score delta
+  to an NFL event. The play tape retains the existing cautious impact analysis.
+- **Halftime / Final** assembles the available record, biggest recorded swing,
+  a same-position bench comparison, and the largest rooting paradox. **Save
+  show card** downloads an SVG graphic. The bench comparison is a talking
+  point, not a claim that the players were interchangeable under league rules.
+- **Studio Audio** has separate opt-in switches for lead changes and net swings
+  of at least ten points. The sidebar audio switch is still the master mute.
+
+The score tape and cue preferences are local to this browser. Clearing site
+data removes them. Final results can change after provider corrections.
+
 ## Follow shared players
 
 **Rooting Conflicts** includes starters and defenses appearing across two or more of your
@@ -114,6 +142,8 @@ replay the same alert; hazard and close-game cues have 30- and 60-second
 cooldowns respectively. Hidden tabs update their baseline without sounding.
 Browser audio may wait for your first click or key press. These cues are
 generated in the app and contain no NFL broadcast recordings.
+The two additional live-score cues under **Studio Audio** are off by default;
+they play only for new confirmed score changes in a visible Game Day tab.
 
 ## Review your weekly recap
 

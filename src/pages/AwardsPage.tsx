@@ -222,10 +222,15 @@ export function AwardsPage({ league }: AwardsPageProps) {
 }
 
 function AwardCard({ award }: { award: Award }) {
+  const icon = /worst|bust|loser|low|infirmary|ghost|clogger|victim|slacker|avoider|heartbreak/i.test(award.id)
+    ? 'dumpster'
+    : award.category === 'luck' ? 'horseshoe'
+    : /best_record|most_points|king|champ|shark|steal|hero|best_week/i.test(award.id) ? 'crown'
+    : award.category === 'activity' ? 'activity' : 'award';
   return (
     <StudioMonitorFrame as="div" padded className={styles.awardCard} style={{ borderLeftColor: /worst|bust|loser|low|infirmary|ghost|clogger/i.test(award.id) ? 'var(--blood)' : 'var(--gold)' }}>
       <div className={styles.awardIcon}>
-        <PixelStudioIcon kind="award" />
+        <PixelStudioIcon kind={icon} size={20} />
       </div>
       <h3 className={styles.awardName}>{award.name}</h3>
       <div className={styles.awardWinner}>

@@ -158,8 +158,10 @@ export function TeamsPage({ league }: TeamsPageProps) {
                   >
                     D{s.components.draft} W{s.components.waivers}{s.components.trades === null ? '' : ` T${s.components.trades}`} R{s.components.results}
                   </span>
-                  <div className={styles.skillBarTrack}>
-                    <div className={styles.skillBarFill} style={{ width: `${s.score}%` }} />
+                  <div className={styles.skillBarTrack} role="meter" aria-label={`${s.teamName} manager skill score`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={s.score}>
+                    {Array.from({ length: 10 }, (_, segment) => (
+                      <span key={segment} className={`${styles.skillSegment} ${s.score >= (segment + 1) * 10 ? styles.skillSegmentLit : ''}`} />
+                    ))}
                   </div>
                   <span className={styles.skillScore}>{s.score}</span>
                 </div>
