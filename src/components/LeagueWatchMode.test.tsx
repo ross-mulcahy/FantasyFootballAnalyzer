@@ -61,6 +61,21 @@ it('puts a confirmed score swing on air ahead of the large matchup score', () =>
   expect(screen.getByRole('region', { name: 'On air story' })).toHaveTextContent('WAITING FOR THE NEXT CUT');
 });
 
+it('takes a rostered player play to that fantasy matchup from the wire', () => {
+  const routed: GameDaySnapshot = { ...snapshot, teams: [
+    { ...snapshot.teams[0], roster: [{ id: 'lamar', name: 'Lamar Jackson', position: 'QB', nflTeam: 'BAL', slot: 'QB' }] },
+    snapshot.teams[1],
+    { ...snapshot.teams[2], name: 'Move The Chains', roster: [{ id: 'hill', name: 'Justice Hill', position: 'RB', nflTeam: 'BAL', slot: 'RB' }] },
+    snapshot.teams[3],
+  ] };
+  const data = { fetchedAt: now, warnings: [], games: [{ id: 'ravens', name: 'JAX @ BAL', kickoff: '', teams: ['JAC', 'BAL'], state: 'in' as const, detail: 'Q2', quarter: 2, clock: '7:15' }],
+    events: [{ id: 'hill-td', gameId: 'ravens', game: 'JAX @ BAL', kickoff: '', occurredAt: new Date(now - 60_000).toISOString(), quarter: 2, clock: '7:15', kind: 'Rushing Touchdown', description: 'Justice Hill 65 Yd Rush (Jake Moody Kick)' }] };
+  render(<LeagueWatchMode saved={saved} snapshot={routed} data={data} changes={[]} hazards={0} now={now} onClose={vi.fn()} />);
+  fireEvent.click(screen.getByRole('button', { name: /JAX @ BAL \/\/ Rushing Touchdown/ }));
+  expect(screen.getByLabelText('Featured matchup scorebug')).toHaveTextContent('Move The Chains');
+  expect(screen.getByRole('region', { name: 'On air story' })).toHaveTextContent('Justice Hill 65 Yd Rush');
+});
+
 it('keeps a play without a clip focused on the wire and offers game highlights', () => {
   const withStarter: GameDaySnapshot = { ...snapshot, teams: [
     { ...snapshot.teams[0], roster: [{ id: 'p1', name: 'Puka Nacua', position: 'WR', nflTeam: 'LAR', slot: 'WR', points: 0, projection: 15 }] },

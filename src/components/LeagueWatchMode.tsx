@@ -35,7 +35,7 @@ function WatchStory({ alert, channel, now, match, blockedClip, lateClip, onPlay,
     <div className={styles.storyTop}><span>{alert ? fresh ? '● BREAKING NOW' : 'LAST VERIFIED UPDATE' : '● MONITORING THIS GAME'}</span><small>{alert?.at ? syncTime(alert.at) : 'AWAITING THE NEXT CONFIRMED UPDATE'}</small></div>
     {alert ? <><p className={styles.storyKicker}>{alert.kind === 'score' ? 'FANTASY SCORE TAPE' : 'NFL GAME WIRE // FANTASY IMPACT UNCONFIRMED'}</p>
       <h3>{alert.headline}</h3>
-      <p className={styles.storyDetail}>{alert.kind === 'play' ? alert.detail.replace(/ · NFL play involving a game with starters in this matchup; fantasy impact unconfirmed\.$/, '') : alert.detail}</p>
+      <p className={styles.storyDetail}>{alert.kind === 'play' ? alert.detail.replace(/ · (?:Player rostered in this matchup|NFL game involving starters in this matchup); fantasy impact unconfirmed\.$/, '') : alert.detail}</p>
       {alert.score && <div className={styles.scoreSwing} aria-label="Score change before and after provider refresh">
         <div><span>{alert.score.ownName}</span><strong>{points(alert.score.beforeOwn)} <i>→</i> {points(alert.score.own)}</strong><b>{alert.score.ownDelta >= 0 ? '+' : ''}{points(alert.score.ownDelta)}</b></div>
         <div><span>{alert.score.opponentName}</span><strong>{points(alert.score.beforeOpponent)} <i>→</i> {points(alert.score.opponent)}</strong><b>{alert.score.opponentDelta >= 0 ? '+' : ''}{points(alert.score.opponentDelta)}</b></div>

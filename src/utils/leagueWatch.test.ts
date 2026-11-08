@@ -58,6 +58,26 @@ it('uses projected starters before anyone scores and excludes bench players from
   expect(channel.first.featured).toMatchObject([{ name: 'Projected Starter', projection: 18 }]);
 });
 
+it('takes a shared NFL play to the player rostered in the matchup, even if another game is first', () => {
+  const withRavens: GameDaySnapshot = { ...snapshot, teams: [
+    { ...snapshot.teams[0], roster: [{ id: 'lamar', name: 'Lamar Jackson', position: 'QB', nflTeam: 'BAL', slot: 'QB' }] },
+    snapshot.teams[1],
+    { ...snapshot.teams[2], name: 'Move The Chains', roster: [{ id: 'hill', name: 'Justice Hill', position: 'RB', nflTeam: 'BAL', slot: 'RB' }] },
+    snapshot.teams[3],
+  ] };
+  const timeline: NFLTimeline = { fetchedAt: now, warnings: [], games: [
+    { id: 'ravens', name: 'JAX @ BAL', kickoff: '', teams: ['JAC', 'BAL'], state: 'in', detail: '', quarter: 2, clock: '7:15' },
+  ], events: [{ id: 'hill-td', gameId: 'ravens', game: 'JAX @ BAL', kickoff: '', occurredAt: new Date(now - 60000).toISOString(), quarter: 2, clock: '7:15', kind: 'Rushing Touchdown', description: 'Justice Hill 65 Yd Rush (Jake Moody Kick)' }] };
+  const channels = leagueWatchChannels(saved, withRavens, timeline, [], now);
+  expect(channels[0].first.name).toBe('The Close Game');
+  expect(curatedWatchAlerts(channels)[0]).toMatchObject({ id: 'hill-td', channelKey: channels[1].key, playerRelevance: 2, relatedChannels: 2 });
+
+  withRavens.teams[2].roster![0].slot = 'BN';
+  const benchChannels = leagueWatchChannels(saved, withRavens, timeline, [], now);
+  expect(curatedWatchAlerts(benchChannels)[0]).toMatchObject({ id: 'hill-td', channelKey: benchChannels.find(channel => channel.first.name === 'Move The Chains')?.key, playerRelevance: 1, relatedChannels: 2 });
+  expect(benchChannels.find(channel => channel.first.name === 'Move The Chains')?.games).toMatchObject([{ id: 'ravens' }]);
+});
+
 it('calibrates the playful stress scale for several cross-league conflicts', () => {
   expect(sweatBpm(0, 0)).toBe(72);
   expect(sweatBpm(1, 0)).toBe(82);
