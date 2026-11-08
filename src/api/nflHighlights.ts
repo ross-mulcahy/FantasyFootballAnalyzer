@@ -162,7 +162,16 @@ const channelUrl = (source?: NFLVideoSource) => source === 'NFL on FOX' ? 'https
   : source === 'NFL on CBS' ? 'https://www.youtube.com/@NFLonCBS' : NFL_CHANNEL;
 const channelSearch = (query: string, source?: NFLVideoSource) => `${channelUrl(source)}/search?query=${encodeURIComponent(query)}`;
 export function playHighlightSearch(event: MajorEvent, source?: NFLVideoSource): string {
-  return channelSearch(`${event.game} ${event.description.slice(0, 90)} ${event.kind}`, source);
+  const type = playType(event);
+  const actor = type ? playActor(event, type) : firstName(event.description);
+  const distance = yardage(event.description)[0];
+  const play = type === 'field-goal' ? 'field goal' : type === 'interception' ? 'interception'
+    : type === 'fumble' ? 'fumble' : 'touchdown';
+  // Channel search is broad and can return no results when ESPN's whole play
+  // description (including a PAT kicker) is passed as one query.
+  const query = actor ? `${actor} ${distance === undefined ? play : distance}`
+    : `${teams(event.game).join(' ')} ${play}`;
+  return channelSearch(query.trim(), source);
 }
 export function gameHighlightSearch(game: Pick<NFLGameStatus, 'name' | 'kickoff'>): string {
   const names = teams(game.name);

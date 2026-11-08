@@ -28,7 +28,7 @@ function ImpactStarters({ side }: { side: WatchSide }) {
 
 const freshAlert = (alert: WatchAlert | undefined, now: number) => !!alert?.at && now - alert.at >= 0 && now - alert.at < 2 * 60000;
 function durationLabel(seconds?: number) { return seconds === undefined ? '' : `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`; }
-function WatchStory({ alert, channel, now, playSearch, match, lateClip, onPlay, onHighlights }: { alert: WatchAlert | undefined; channel: WatchChannel; now: number; playSearch: string | null; match: HighlightMatch | null; lateClip: boolean; onPlay: (video: NFLVideo) => void; onHighlights: () => void }) {
+function WatchStory({ alert, channel, now, playSearch, match, blockedClip, lateClip, onPlay, onHighlights }: { alert: WatchAlert | undefined; channel: WatchChannel; now: number; playSearch: string | null; match: HighlightMatch | null; blockedClip: NFLVideo | null; lateClip: boolean; onPlay: (video: NFLVideo) => void; onHighlights: () => void }) {
   const fresh = freshAlert(alert, now);
   const clip = match?.video;
   return <section className={`${styles.story} ${alert?.kind === 'score' ? styles.scoreStory : alert ? styles.playStory : styles.quietStory}`} aria-label="On air story">
@@ -49,7 +49,8 @@ function WatchStory({ alert, channel, now, playSearch, match, lateClip, onPlay, 
       <div className={styles.storyActions}>
         {alert.kind === 'play' && clip?.embeddable && <button type="button" onClick={() => onPlay(clip)}>{match?.confidence === 'strong' ? 'WATCH LIKELY CLIP' : 'WATCH POSSIBLE CLIP'} ▶</button>}
         {alert.kind === 'play' && clip && !clip.embeddable && <a href={nflVideoUrl(clip)} target="_blank" rel="noopener noreferrer">CLIP ON YOUTUBE ↗</a>}
-        {alert.kind === 'play' && playSearch && <a href={playSearch} target="_blank" rel="noopener noreferrer">{clip ? `CHECK ${clip.source ?? 'NFL'} ↗` : 'FIND CLIP ON @NFL ↗'}</a>}
+        {alert.kind === 'play' && blockedClip && !clip && <a href={nflVideoUrl(blockedClip)} target="_blank" rel="noopener noreferrer">WATCH MATCH ON YOUTUBE ↗</a>}
+        {alert.kind === 'play' && playSearch && <a href={playSearch} target="_blank" rel="noopener noreferrer">{clip || blockedClip ? 'SEARCH CHANNEL ↗' : 'FIND CLIP ON @NFL ↗'}</a>}
         <button type="button" onClick={onHighlights}>GAME HIGHLIGHTS →</button>
       </div>
     </> : <><p className={styles.storyKicker}>DIRECTOR'S WATCH</p><h3>WAITING FOR THE NEXT CUT</h3><p className={styles.storyDetail}>{channel.currentGap !== null && channel.currentGap <= 10 ? `Only ${points(channel.currentGap)} points separate these teams. The director is watching for a confirmed score change.` : 'No confirmed score change or linked NFL play is available for this matchup yet.'}</p><p className={styles.storyFoot}>The wire will take this screen when a relevant update arrives.</p></>}
@@ -344,8 +345,9 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
   const catalogOptions = playEvent ? matchPlayHighlightOptions(playEvent, catalog?.videos ?? [], preferences.sourceSuccess) : [];
   const playOptions = playEvent ? matchPlayHighlightOptions(playEvent, availableVideos, preferences.sourceSuccess) : [];
   const playMatch = playOptions[0] ?? null;
+  const blockedClip = catalogOptions.find(match => blockedVideoIds.has(match.video.id) && !preferences.wrongIds.includes(match.video.id))?.video ?? null;
   const playCandidates = playOptions.filter(match => match.video.embeddable).map(match => match.video);
-  const playSearch = playEvent ? playHighlightSearch(playEvent, playMatch?.video.source) : null;
+  const playSearch = playEvent ? playHighlightSearch(playEvent, playMatch?.video.source ?? blockedClip?.source) : null;
   const playVideo = (video: NFLVideo, candidates: NFLVideo[] = playCandidates, headline = activeAlert?.headline ?? video.title) => { setAuto(false); setClipQueue([]); setPlayingVideo({ video, remaining: candidates.filter(candidate => candidate.id !== video.id), automatic: false, phase: 'loading', headline }); };
   const updatePreferences = (update: (previous: VideoPreferences) => VideoPreferences) => setPreferences(previous => { const next = update(previous); savePreferences(next); return next; });
   const markWrong = () => {
@@ -385,7 +387,7 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
     </div></header>
     <div className={styles.stage}><StudioMonitorFrame as="section" className={styles.feature} title={playingVideo ? `NFL HIGHLIGHTS // ${playingVideo.video.source ?? 'NFL'}` : active ? `CH ${String(channelNumber).padStart(2, '0')} // ${saved.name}` : saved.name} badge={playingVideo ? 'OFFICIAL NFL' : call}>
       {playingVideo ? <HighlightPlayer video={playingVideo.video} automatic={playingVideo.automatic} phase={playingVideo.phase} headline={playingVideo.headline} scoreline={active ? `${active.first.name} ${points(active.first.points)}  //  ${active.second.name} ${points(active.second.points)}` : 'LIVE SCORE PENDING'} worked={preferences.workedIds.includes(playingVideo.video.id)} onPhase={phase => { updateVideoPhase(playingVideo.video.id, phase); if (phase === 'playing' || phase === 'autoplay-blocked' || phase === 'start-delayed') setLastPlayback(`${phase.toUpperCase()} · ${playingVideo.video.source ?? 'NFL'} · ${playingVideo.video.title}`); }} onFailed={handleVideoFailure} onEnded={() => { setLastPlayback(`ENDED · ${playingVideo.video.source ?? 'NFL'} · ${playingVideo.video.title}`); setPlayingVideo(null); }} onManualPlay={() => setPlayingVideo(current => current ? { ...current, automatic: false, phase: 'ready' } : null)} onWrong={markWrong} onWorked={markWorked} onBack={() => setPlayingVideo(null)} /> : active ? <>
-        <WatchStory alert={activeAlert} channel={active} now={now} playSearch={playSearch} match={playMatch} lateClip={!!activeAlert && lateClipIds.has(activeAlert.id)} onPlay={playVideo} onHighlights={() => setHighlightsOpen(true)} />
+        <WatchStory alert={activeAlert} channel={active} now={now} playSearch={playSearch} match={playMatch} blockedClip={blockedClip} lateClip={!!activeAlert && lateClipIds.has(activeAlert.id)} onPlay={playVideo} onHighlights={() => setHighlightsOpen(true)} />
         <div className={styles.broadcastCanvas} aria-label="Featured matchup scorebug">
           <div className={styles.scorebug}><div className={styles.identity}><span>TEAM 1</span><strong title={active.first.name}>{active.first.name}</strong><small>PROJ. {active.first.projection} · {active.first.left === null ? 'STARTERS UNCONFIRMED' : `${active.first.left} LEFT`}</small></div><b>{points(active.first.points)}</b></div>
           <div className={styles.seam}>VS</div>

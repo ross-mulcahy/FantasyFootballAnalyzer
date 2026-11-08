@@ -128,6 +128,9 @@ it('replaces a rights-blocked inline clip with a YouTube link', async () => {
     expect(within(player).queryByTitle('Puka Nacua 65 Yard Rushing TD')).not.toBeInTheDocument();
     expect(within(player).getByRole('link', { name: 'WATCH ON YOUTUBE ↗' })).toHaveAttribute('href', 'https://www.youtube.com/watch?v=abc123XYZ09');
     expect(sessionStorage.getItem('witching-hour:blocked-youtube-embeds')).toContain('abc123XYZ09');
+    fireEvent.click(within(player).getByRole('button', { name: '← RETURN TO LIVE' }));
+    expect(screen.getByRole('link', { name: 'WATCH MATCH ON YOUTUBE ↗' })).toHaveAttribute('href', 'https://www.youtube.com/watch?v=abc123XYZ09');
+    expect(screen.getByRole('link', { name: 'SEARCH CHANNEL ↗' })).toHaveAttribute('href', expect.stringContaining('Puka%20Nacua%2065'));
     fireEvent.click(screen.getByRole('button', { name: 'DIRECTOR DIAGNOSTICS' }));
     expect(screen.getByText(/YOUTUBE ERROR 150 · NFL/)).toBeInTheDocument();
     expect(screen.getByText('SKIPPED · EMBED FAILED THIS SESSION')).toBeInTheDocument();

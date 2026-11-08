@@ -85,6 +85,8 @@ it('finds an official-channel game recap and provides searches when no metadata 
   expect(matchGameHighlights({ name: 'BUF @ KC', kickoff }, videos)).toBeNull();
   expect(gameHighlightSearch(game)).toContain('youtube.com/@NFL/search?query=');
   expect(playHighlightSearch(event)).toContain('Puka%20Nacua');
+  expect(decodeURIComponent(new URL(playHighlightSearch({ ...event, game: 'JAX @ BAL', kind: 'Rushing Touchdown', description: 'Justice Hill 65 Yd Rush (Jake Moody Kick)' })).searchParams.get('query') ?? ''))
+    .toBe('Justice Hill 65');
   expect(nflEmbedUrl(videos[0])).toBe('https://www.youtube-nocookie.com/embed/AAAAAAAAAAA');
 });
 
