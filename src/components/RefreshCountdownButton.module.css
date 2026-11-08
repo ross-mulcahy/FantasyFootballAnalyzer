@@ -1,0 +1,3 @@
+.button { position: relative; overflow: hidden; }
+.button.button::before { display: none; }
+.progress { position: absolute; inset: 0 auto auto 0; height: 3px; background: #10b981; box-shadow: 0 0 5px #10b98188; pointer-events: none; transition: width 1s linear; }

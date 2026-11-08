@@ -18,6 +18,8 @@ import { playerGameStatus, liveStatusIsStale, lineupProgress } from '@/utils/mat
 import { useGameDay } from '@/hooks/useGameDay';
 import { MatchupPollingNotice } from '@/components/MatchupPollingNotice';
 import { MatchupTimeline } from '@/components/MatchupTimeline';
+import { RefreshCountdownButton } from '@/components/RefreshCountdownButton';
+import { eventImpact } from '@/utils/gameDayInsights';
 import { isStartingSlot, lineupProjection, lineupProjectionCoverage, lineupProjectionEstimate, unprojectedStarters } from '@/utils/playerWeek';
 import { matchupHref, matchupKey, rosterHref } from '@/utils/gameDayLinks';
 import styles from './GameDayPage.module.css';
@@ -84,7 +86,7 @@ function GameDayView({ league, credentials }: Props) {
             <p className={styles.hint}>{stale ? 'This snapshot is over 15 minutes old. ' : ''}Refresh for the latest rosters and scores.</p></> : <p>{isRefreshing ? 'Loading rosters and matchups…' : 'No saved roster or matchup data yet.'}</p>}
         </div>
         <div className={styles.toolbarActions}>
-        <button className="btn btn-primary" onClick={() => { void refresh(); events.refresh(); }} disabled={isRefreshing} aria-busy={isRefreshing}>{isRefreshing ? 'Refreshing…' : 'Refresh rosters & scores'}</button>
+        <RefreshCountdownButton className="btn btn-primary" onClick={() => { void refresh(); events.refresh(); }} disabled={isRefreshing} aria-busy={isRefreshing} nextRefreshAt={polling?.nextRefreshAt} refreshStartedAt={polling?.refreshStartedAt}>{isRefreshing ? 'Refreshing…' : 'Refresh rosters & scores'}</RefreshCountdownButton>
         {matchup && <BrowserAlertsButton notifications={notifications} />}
         </div>
       </div>
@@ -163,6 +165,6 @@ function MatchupDetail({ snapshot, matchup, league, now, events }: { snapshot: G
     </div>
     <p className={styles.hint}>Player scores and stats cover week {snapshot.week} only. Team matchup totals above can cover multiple weeks or include commissioner adjustments. A dash means data was not returned.</p>
     <p className={styles.hint}>{snapshot.projectionNote ?? 'Player projections are weekly estimates, not live finish predictions. Missing starter projections are shown as zero-assumed estimates only when other starters have provider projections.'}</p>
-    {snapshot.detailVersion === 1 ? <MatchupTimeline week={snapshot.week} {...events} canRefresh={nflTeams.length > 0} /> : <p className={styles.hint}>Refresh rosters & scores to load current-week player details and the event timeline.</p>}
+    {snapshot.detailVersion === 1 ? <MatchupTimeline week={snapshot.week} {...events} canRefresh={nflTeams.length > 0} includeEvent={event => eventImpact(event, [{ saved: { platform: league.platform, leagueId: league.id, name: league.name, season: league.season }, snapshot: { ...snapshot, matchups: [matchup] }, myTeamId: matchup.team1Id ?? undefined, error: null }], events.data).length > 0} /> : <p className={styles.hint}>Refresh rosters & scores to load current-week player details and the event timeline.</p>}
   </section>;
 }

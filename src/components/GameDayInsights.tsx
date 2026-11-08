@@ -11,7 +11,7 @@ import styles from '@/pages/GameDayPage.module.css';
 
 export function EventImpactDetails({ event, contexts, data }: { event: MajorEvent; contexts: SharedLeagueContext[]; data: NFLTimeline | null }) {
   const impacts = eventImpact(event, contexts, data);
-  if (!impacts.length) return <p className={styles.impactUnknown}>Game event · Individual fantasy impact unconfirmed</p>;
+  if (!impacts.length) return null;
   const good = impacts.filter(i => i.good.length).length, bad = impacts.filter(i => i.bad.length).length;
   return <div className={styles.eventImpacts}>
     <p className={styles.impactSummary}>Likely impact{good > 0 && <span className={styles.goodImpact}> · Good for me in {good} {good === 1 ? 'league' : 'leagues'}</span>}{bad > 0 && <span className={styles.badImpact}> · Bad for me in {bad} {bad === 1 ? 'league' : 'leagues'}</span>}</p>

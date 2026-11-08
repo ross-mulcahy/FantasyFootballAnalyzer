@@ -9,6 +9,7 @@ export interface MatchupPollingStatus {
   paused: boolean;
   statusUnavailable: boolean;
   nextRefreshAt: number | null;
+  refreshStartedAt: number | null;
 }
 
 
@@ -35,8 +36,8 @@ export function useAdaptiveMatchupPolling({ enabled, identity, season, refresh, 
     let lastAttempt = 0;
     let statusUnavailable = false;
     const clearTimer = () => { if (timer !== undefined) clearTimeout(timer); timer = undefined; };
-    const publish = (nextRefreshAt: number | null) => {
-      if (!stopped) setStatus({ mode: activity ? activity.live ? 'live' : 'idle' : 'checking', paused: !available(), statusUnavailable, nextRefreshAt });
+    const publish = (nextRefreshAt: number | null, refreshStartedAt: number | null = null) => {
+      if (!stopped) setStatus({ mode: activity ? activity.live ? 'live' : 'idle' : 'checking', paused: !available(), statusUnavailable, nextRefreshAt, refreshStartedAt });
     };
     const tick = async () => {
       clearTimer();
@@ -64,7 +65,7 @@ export function useAdaptiveMatchupPolling({ enabled, identity, season, refresh, 
         // or the game state changes (including one final refresh at full-time).
         const statusDelay = statusUnavailable || !activity || activity.live ? LIVE_POLL_MS
           : activity.nextKickoff === null ? IDLE_POLL_MS : Math.min(IDLE_POLL_MS, Math.max(1000, activity.nextKickoff - now));
-        publish(due);
+        publish(due, Math.max(updatedRef.current(), lastAttempt));
         timer = setTimeout(() => void tick(), Math.max(1000, Math.min(due - now, statusDelay)));
       } finally {
         running = false;

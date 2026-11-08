@@ -43,7 +43,7 @@ function statsFor(player: SharedPlayer, data: NFLTimeline | null): { stats: Stat
   return { stats: occurrence?.player.stats?.slice(0, 5).map(stat => ({ label: stat.label, value: String(stat.value) })) ?? [], updatedAt: occurrence?.fetchedAt ?? 0, gameStats: false, cached: occurrence?.stale ?? false };
 }
 
-type TimelineReport = (key: string, data: NFLTimeline | null, error: string | null, loading: boolean) => void;
+type TimelineReport = (key: string, data: NFLTimeline | null, error: string | null, loading: boolean, nextRefreshAt?: number | null, refreshStartedAt?: number | null) => void;
 function SharedWeek({ players, contexts, season, week, refreshSignal, onTimeline, allMatchups = false }: { players: SharedPlayer[]; contexts: SharedLeagueContext[]; season: number; week: number; refreshSignal: number; onTimeline?: TimelineReport; allMatchups?: boolean }) {
   const teams = [...new Set(contexts.flatMap(context => {
     const relevant = context.snapshot?.matchups.filter(match => allMatchups || context.myTeamId && [match.team1Id, match.team2Id].includes(context.myTeamId)).flatMap(match => [match.team1Id, match.team2Id]) ?? [];
@@ -52,7 +52,8 @@ function SharedWeek({ players, contexts, season, week, refreshSignal, onTimeline
   const refreshedAt = Math.max(0, ...contexts.map(context => context.snapshot?.fetchedAt ?? 0));
   const events = useMatchupTimeline(season, week, teams, refreshedAt, true);
   const eventData = events.data, eventError = events.error, eventLoading = events.loading;
-  useEffect(() => { onTimeline?.(`${season}:${week}`, eventData, eventError, eventLoading); }, [season, week, eventData, eventError, eventLoading, onTimeline]);
+  const nextRefreshAt = events.nextRefreshAt, refreshStartedAt = events.refreshStartedAt;
+  useEffect(() => { onTimeline?.(`${season}:${week}`, eventData, eventError, eventLoading, nextRefreshAt, refreshStartedAt); }, [season, week, eventData, eventError, eventLoading, nextRefreshAt, refreshStartedAt, onTimeline]);
   const [now, setNow] = useState(Date.now);
   useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 30000); return () => clearInterval(timer); }, []);
   const lastSignal = useRef(refreshSignal);

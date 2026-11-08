@@ -9,6 +9,7 @@ import { loadCachedLeague } from '@/utils/leagueCache';
 import { lineupWarnings, matchupMargin, myMatchups } from '@/utils/gameDayInsights';
 import { leagueContextHref, leagueGameDayHref, studioWallName } from '@/utils/gameDayLinks';
 import { BroadcastIcon } from './BroadcastIcon';
+import { RefreshCountdownButton } from './RefreshCountdownButton';
 import styles from './Header.module.css';
 
 interface HeaderProps {
@@ -30,7 +31,7 @@ export function Header({ league, isGuest, onRefresh, isRefreshing, yearSelector 
   const [open, setOpen] = useState(false);
   const sidebar = useRef<HTMLElement>(null);
   const menu = useRef<HTMLButtonElement>(null);
-  const [sync, setSync] = useState<{ at: number | null; busy: boolean }>({ at: null, busy: false });
+  const [sync, setSync] = useState<{ at: number | null; busy: boolean; nextRefreshAt?: number | null; refreshStartedAt?: number | null }>({ at: null, busy: false });
   useEffect(() => {
     const update = (event: Event) => setSync((event as CustomEvent).detail);
     window.addEventListener('witching-hour:sync-status', update);
@@ -80,7 +81,7 @@ export function Header({ league, isGuest, onRefresh, isRefreshing, yearSelector 
       <p className={styles.tagline}>Where Losses Become Wins</p>
       <div className={styles.broadcast}><span className={styles.pulse} /> <b>ON AIR</b><span>{studioWallName(screenCount).replace('The ', '').toUpperCase()} // LIVE</span></div>
       <nav aria-label="Main navigation" className={styles.nav}>{groups.map(group => <div className={styles.group} key={group.title}><h2>{group.title}</h2>{group.items.map(([label, href, icon]) => <Link key={label} to={group.title !== 'CONTROL ROOM' && group.title !== 'THE VAULT' || ['/history', '/awards'].includes(href) ? analysisHref(href) : href} className={`${styles.navLink} ${active(href) && !(label === 'League Matchups' && !connected) ? styles.active : ''}`} onClick={navClick} aria-current={active(href) && !(label === 'League Matchups' && !connected) ? 'page' : undefined}><BroadcastIcon kind={icon} size={15} />{label}</Link>)}</div>)}</nav>
-      <div className={styles.footer}><button onClick={toggleMute} aria-label={isMuted ? 'Enable sounds' : 'Mute sounds'} aria-pressed={!isMuted} className={styles.audio}><BroadcastIcon kind="audio" />Audio alerts <span>{isMuted ? 'OFF' : 'ON'}</span></button><p>LAST SYNC <time>{lastSync ? new Date(lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Awaiting data'}</time></p><button className={`${styles.sync} studio-key`} disabled={!saved.length || (location.pathname === '/' && sync.busy)} onClick={() => { setOpen(false); if (location.pathname === '/') window.dispatchEvent(new Event('witching-hour:sync-all')); else navigate('/?sync=all'); }}><BroadcastIcon kind="sync" />{location.pathname === '/' && sync.busy ? 'Syncing leagues…' : 'Sync All Leagues'}</button></div>
+      <div className={styles.footer}><button onClick={toggleMute} aria-label={isMuted ? 'Enable sounds' : 'Mute sounds'} aria-pressed={!isMuted} className={styles.audio}><BroadcastIcon kind="audio" />Audio alerts <span>{isMuted ? 'OFF' : 'ON'}</span></button><p>LAST SYNC <time>{lastSync ? new Date(lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Awaiting data'}</time></p><RefreshCountdownButton className={`${styles.sync} studio-key`} disabled={!saved.length || (location.pathname === '/' && sync.busy)} nextRefreshAt={location.pathname === '/' ? sync.nextRefreshAt : gameDay?.polling?.nextRefreshAt} refreshStartedAt={location.pathname === '/' ? sync.refreshStartedAt : gameDay?.polling?.refreshStartedAt} onClick={() => { setOpen(false); if (location.pathname === '/') window.dispatchEvent(new Event('witching-hour:sync-all')); else navigate('/?sync=all'); }}><BroadcastIcon kind="sync" />{location.pathname === '/' && sync.busy ? 'Syncing leagues…' : 'Sync All Leagues'}</RefreshCountdownButton></div>
     </aside>
     <div className={styles.dock}><nav aria-label="League dock" className={styles.leagues}><Link className={`${styles.leaguePill} ${location.pathname === '/' && !new URLSearchParams(location.search).has('league') ? styles.selected : ''}`} to="/" onClick={() => { if (location.pathname !== '/' || new URLSearchParams(location.search).has('league')) playChannelSwitch(); }}>All Leagues</Link>{dockLeagues.map(row => {
       const identity = { platform: row.platform, id: row.leagueId, season: row.season };
@@ -94,6 +95,6 @@ export function Header({ league, isGuest, onRefresh, isRefreshing, yearSelector 
       const params = new URLSearchParams(location.search);
       const selected = params.get('league') === `${row.platform}:${row.leagueId}` && params.get('year') === String(row.season);
       return <Link key={`${row.platform}:${row.leagueId}:${row.season}`} to={leagueContextHref(location.pathname, location.search, identity)} onClick={() => { if (!selected) playChannelSwitch(); }} style={{ '--key-led': hazards.length ? 'var(--blood)' : close ? 'var(--gold)' : known ? 'var(--lime)' : 'var(--bone-dim)' } as import('react').CSSProperties} className={`${styles.leaguePill} ${selected ? styles.selected : ''}`}><i className={styles.statusDot} style={{ background: hazards.length ? 'var(--blood)' : close ? 'var(--gold)' : known ? 'var(--lime)' : 'var(--bone-dim)' }} aria-label={status} />{row.name}<span>· {row.platform === 'sleeper' ? 'SLP' : row.platform.toUpperCase()}</span></Link>;
-    })}</nav><div className={styles.contextControls}><div id="workspace-controls" className={styles.workspaceControls} />{yearSelector}{connected && onRefresh && <button className={styles.dockButton} onClick={onRefresh} disabled={isRefreshing} aria-label="Refresh league data"><BroadcastIcon kind="sync" /></button>}{!navLeague && <button className={styles.dockButton} onClick={() => navigate('/settings')}>Connect your league</button>}</div></div>
+    })}</nav><div className={styles.contextControls}><div id="workspace-controls" className={styles.workspaceControls} />{yearSelector}{connected && onRefresh && <RefreshCountdownButton className={styles.dockButton} onClick={onRefresh} disabled={isRefreshing} aria-label="Refresh league data" nextRefreshAt={gameDay?.polling?.nextRefreshAt} refreshStartedAt={gameDay?.polling?.refreshStartedAt}><BroadcastIcon kind="sync" /></RefreshCountdownButton>}{!navLeague && <button className={styles.dockButton} onClick={() => navigate('/settings')}>Connect your league</button>}</div></div>
   </header>;
 }

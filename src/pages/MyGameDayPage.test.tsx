@@ -169,13 +169,22 @@ it('defaults mobile to matchups and supports keyboard navigation between mounted
 
 it('shows one full-width RedZone Wire with newest-first events, including when idle', async () => {
   cacheLeague(a); rememberSavedLeague(a);
+  const current = snapshot(a);
+  current.teams[0].roster = [{ id: 'chase', name: "Ja'Marr Chase", position: 'WR', nflTeam: 'CIN', slot: 'WR' }, { id: 'burrow', name: 'Joe Burrow', position: 'QB', nflTeam: 'CIN', slot: 'QB' }];
+  vi.mocked(useGameDayState).mockReturnValue({ ...state(a), snapshot: current });
   const now = Date.now();
-  const data = { fetchedAt: now, warnings: [], games: [{ id: 'g', name: 'CIN @ PIT', teams: ['CIN', 'PIT'], kickoff: '', state: 'in' as const, detail: '2nd quarter', quarter: 2, clock: '8:22' }], events: [1, 2].map(quarter => ({ id: `e${quarter}`, gameId: 'g', game: 'CIN @ PIT', kickoff: '', occurredAt: null, quarter, clock: '8:22', kind: 'Touchdown' as const, description: `Score in quarter ${quarter}` })) };
+  const data = { fetchedAt: now, warnings: [], games: [{ id: 'g', name: 'CIN @ PIT', teams: ['CIN', 'PIT'], kickoff: '', state: 'in' as const, detail: '2nd quarter', quarter: 2, clock: '8:22' }], events: [
+    { id: 'e1', gameId: 'g', game: 'CIN @ PIT', kickoff: '', occurredAt: null, quarter: 1, clock: '8:22', kind: 'Passing Touchdown', description: "Ja'Marr Chase 24 Yd pass from Joe Burrow" },
+    { id: 'e2', gameId: 'g', game: 'CIN @ PIT', kickoff: '', occurredAt: null, quarter: 2, clock: '8:22', kind: 'Rushing Touchdown', description: 'Joe Burrow 4 Yd Rush' },
+    { id: 'e3', gameId: 'g', game: 'CIN @ PIT', kickoff: '', occurredAt: null, quarter: 3, clock: '8:22', kind: 'Rushing Touchdown', description: 'Unrostered Backup 8 Yd Rush' },
+  ] };
   vi.mocked(useMatchupTimeline).mockReturnValue({ data, loading: false, error: null, refresh: vi.fn() });
   const { rerender } = mount();
   await screen.findByRole('heading', { name: 'REDZONE WIRE' });
   const timeline = screen.getByRole('heading', { name: 'REDZONE WIRE' }).closest('section')!;
-  expect(within(timeline).getAllByRole('listitem')[0]).toHaveTextContent('Score in quarter 2');
+  expect(within(timeline).getAllByRole('listitem')[0]).toHaveTextContent('Joe Burrow 4 Yd Rush');
+  expect(within(timeline).queryByText('Unrostered Backup 8 Yd Rush')).not.toBeInTheDocument();
+  expect(within(timeline).queryByText(/Individual fantasy impact unconfirmed/)).not.toBeInTheDocument();
   expect(timeline.closest('[class*="wireRow"]')).toBeInTheDocument();
   expect(timeline.closest('[class*="wireRow"]')?.parentElement).toHaveClass(/homeLayout/);
   vi.mocked(useMatchupTimeline).mockReturnValue({ data: { ...data, games: data.games.map(game => ({ ...game, state: 'post' as const })) }, loading: false, error: null, refresh: vi.fn() });

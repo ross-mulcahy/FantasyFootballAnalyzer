@@ -12,7 +12,8 @@ import { reconnectHref } from '@/utils/experience';
 import { useKickoffReminders } from '@/hooks/useKickoffReminders';
 import { useStudioRivalries, type StudioRivalryTarget } from '@/hooks/useStudioRivalries';
 import { EventImpactDetails, GameDayRecapRecorder } from '@/components/GameDayInsights';
-import { lineupWarnings, matchupSides, matchupMargin, myMatchups } from '@/utils/gameDayInsights';
+import { eventImpact, lineupWarnings, matchupSides, matchupMargin, myMatchups } from '@/utils/gameDayInsights';
+import { RefreshCountdownButton } from '@/components/RefreshCountdownButton';
 import type { SharedLeagueContext } from '@/utils/sharedPlayers';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -25,6 +26,7 @@ import { MatchupTimeline } from '@/components/MatchupTimeline';
 import { SharedPlayersSidebar } from '@/components/SharedPlayersSidebar';
 import type { League } from '@/types';
 import { GameDayContext, useGameDayState } from '@/hooks/useGameDay';
+import type { MatchupPollingStatus } from '@/hooks/useAdaptiveMatchupPolling';
 import { useSavedLeagues } from '@/hooks/useSavedLeagues';
 import { loadCachedLeague } from '@/utils/leagueCache';
 import { savedLeagueKey, type SavedLeague } from '@/utils/savedLeagues';
@@ -37,7 +39,7 @@ import { safeLocalStorage } from '@/utils/safeStorage';
 import { useSounds } from '@/hooks/useSounds';
 import styles from './GameDayPage.module.css';
 
-type LeagueUpdate = { snapshot: GameDaySnapshot | null; myTeamId?: string; error: string | null; updatedAt: number | null; refreshing: boolean; refresh: () => Promise<void> };
+type LeagueUpdate = { snapshot: GameDaySnapshot | null; myTeamId?: string; error: string | null; updatedAt: number | null; refreshing: boolean; refresh: () => Promise<void>; polling: MatchupPollingStatus | null };
 type ReportUpdate = (key: string, update: LeagueUpdate | null) => void;
 const wallMatchups = (context: SharedLeagueContext, allMatchups: boolean) => allMatchups ? context.snapshot?.matchups ?? [] : myMatchups(context);
 const wallContext = (context: SharedLeagueContext, match: ScoreMatchup): SharedLeagueContext => ({ ...context, myTeamId: context.myTeamId && [match.team1Id, match.team2Id].includes(context.myTeamId) ? context.myTeamId : match.team1Id });
@@ -50,12 +52,12 @@ function LeagueMatchups({ saved, currentLeague, onUpdate, timelines, focus, clos
     teams: [], draftType: 'snake', scoringType: 'ppr', totalTeams: 0, isLoaded: true,
   } as League, [saved.platform, saved.leagueId, saved.season, saved.name]);
   const local = useGameDayState(metadata, null, { enabled: !(current && shared), poll: true });
-  const { snapshot, error, isRefreshing, refresh } = current && shared ? shared : local;
+  const { snapshot, error, isRefreshing, refresh, polling } = current && shared ? shared : local;
   const key = savedLeagueKey(saved);
   const updatedAt = snapshot?.fetchedAt ?? null;
   const identified = (current ? currentLeague : metadata)?.teams.find(team => team.isMyTeam)?.id;
   const myTeam = saved.teamId ?? identified ?? snapshot?.teams.find(team => saved.teamName && team.name === saved.teamName)?.id;
-  useEffect(() => { onUpdate(key, { snapshot, myTeamId: myTeam, error, updatedAt, refreshing: isRefreshing, refresh }); }, [key, snapshot, myTeam, error, updatedAt, isRefreshing, refresh, onUpdate]);
+  useEffect(() => { onUpdate(key, { snapshot, myTeamId: myTeam, error, updatedAt, refreshing: isRefreshing, refresh, polling }); }, [key, snapshot, myTeam, error, updatedAt, isRefreshing, refresh, polling, onUpdate]);
   useEffect(() => () => onUpdate(key, null), [key, onUpdate]);
   const context = { saved, snapshot, myTeamId: myTeam, error };
   const matches = wallMatchups(context, allMatchups);
@@ -138,9 +140,9 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
   const [rootingConflicts, setRootingConflicts] = useState(0);
   const [biggestConflict, setBiggestConflict] = useState<StudioConflict | null>(null);
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-  const [timelines, setTimelines] = useState<Record<string, { data: NFLTimeline | null; error: string | null; loading: boolean }>>({});
-  const onTimeline = useCallback((key: string, data: NFLTimeline | null, error: string | null, loading: boolean) => {
-    setTimelines(previous => previous[key]?.data === data && previous[key]?.error === error && previous[key]?.loading === loading ? previous : { ...previous, [key]: { data, error, loading } });
+  const [timelines, setTimelines] = useState<Record<string, { data: NFLTimeline | null; error: string | null; loading: boolean; nextRefreshAt?: number | null; refreshStartedAt?: number | null }>>({});
+  const onTimeline = useCallback((key: string, data: NFLTimeline | null, error: string | null, loading: boolean, nextRefreshAt?: number | null, refreshStartedAt?: number | null) => {
+    setTimelines(previous => previous[key]?.data === data && previous[key]?.error === error && previous[key]?.loading === loading && previous[key]?.nextRefreshAt === nextRefreshAt && previous[key]?.refreshStartedAt === refreshStartedAt ? previous : { ...previous, [key]: { data, error, loading, nextRefreshAt, refreshStartedAt } });
   }, []);
   const [now, setNow] = useState(Date.now);
   useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 30000); return () => clearInterval(timer); }, []);
@@ -165,7 +167,7 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
   const onUpdate = useCallback<ReportUpdate>((key, update) => {
     setUpdates(previous => {
       const old = previous[key];
-      if (update && old?.updatedAt === update.updatedAt && old.refreshing === update.refreshing && old.refresh === update.refresh && old.myTeamId === update.myTeamId && old.error === update.error) return previous;
+      if (update && old?.updatedAt === update.updatedAt && old.refreshing === update.refreshing && old.refresh === update.refresh && old.myTeamId === update.myTeamId && old.error === update.error && old.polling === update.polling) return previous;
       if (!update && !old) return previous;
       const next = { ...previous };
       if (update) next[key] = update; else delete next[key];
@@ -173,6 +175,7 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
     });
   }, []);
   const visible = leagues.map(league => updates[savedLeagueKey(league)]);
+  const nextLeagueRefresh = visible.flatMap(update => update?.polling && !update.polling.paused && update.polling.nextRefreshAt !== null ? [update.polling] : []).sort((a, b) => a.nextRefreshAt! - b.nextRefreshAt!)[0];
   const ready = visible.length > 0 && visible.every(Boolean);
   const refreshing = refreshingAll || visible.some(update => update?.refreshing);
   // The oldest visible snapshot is the time through which every league is current.
@@ -194,7 +197,7 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
     }
     return () => window.removeEventListener('witching-hour:sync-all', sync);
   }, [refreshAll, ready, shellParams, setShellParams]);
-  useEffect(() => { window.dispatchEvent(new CustomEvent('witching-hour:sync-status', { detail: { at: updatedAt, busy: !ready || refreshing } })); }, [updatedAt, ready, refreshing]);
+  useEffect(() => { window.dispatchEvent(new CustomEvent('witching-hour:sync-status', { detail: { at: updatedAt, busy: !ready || refreshing, nextRefreshAt: nextLeagueRefresh?.nextRefreshAt ?? null, refreshStartedAt: nextLeagueRefresh?.refreshStartedAt ?? null } })); }, [updatedAt, ready, refreshing, nextLeagueRefresh?.nextRefreshAt, nextLeagueRefresh?.refreshStartedAt]);
 
   const weeks = [...new Set(visible.flatMap(update => update?.snapshot ? [update.snapshot.week] : []))];
   const contexts: SharedLeagueContext[] = leagues.map(saved => ({ saved, snapshot: updates[savedLeagueKey(saved)]?.snapshot ?? null, myTeamId: updates[savedLeagueKey(saved)]?.myTeamId, error: updates[savedLeagueKey(saved)]?.error }));
@@ -267,7 +270,7 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
       <div className={styles.dashboardTools}>
         {!!leagues.length && <p role="status">{updatedAt !== null ? <>Last updated <time title={`Oldest league update: ${new Date(updatedAt).toLocaleString()}`} dateTime={new Date(updatedAt).toISOString()}>{new Date(updatedAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</time></> : 'Waiting for league updates'}</p>}
         {selectedLeague && <button ref={watchButton} className="btn studio-key" type="button" aria-haspopup="dialog" onClick={() => setWatchMode(true)} disabled={!watchSnapshot?.matchups.length}>WATCH MODE ↗</button>}
-        {!!leagues.length && <button className="btn studio-key" onClick={() => void refreshAll()} disabled={!ready || refreshing} aria-busy={refreshing}>{refreshing ? 'Refreshing…' : 'Refresh all'}</button>}
+        {!!leagues.length && <RefreshCountdownButton className="btn studio-key" onClick={() => void refreshAll()} disabled={!ready || refreshing} aria-busy={refreshing} nextRefreshAt={nextLeagueRefresh?.nextRefreshAt} refreshStartedAt={nextLeagueRefresh?.refreshStartedAt}>{refreshing ? 'Refreshing…' : 'Refresh all'}</RefreshCountdownButton>}
       </div>
     </div>
     {!!leagues.length && <StudioAnchorDesk warnings={warnings} closest={closest} conflict={biggestConflict} missing={missingRosters} record={projectedRecord} rivalries={rivalries} excuse={excuse} />}
@@ -289,7 +292,7 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
         <div id="matchups-panel" role={mobile ? 'tabpanel' : undefined} hidden={mobile && view !== 'matchups'} aria-labelledby={mobile ? 'matchups-tab' : 'quadbox-heading'} className={styles.matchupsColumn}><section className={styles.matchupsPanel}><WorkspaceControls><div className={styles.focusToolbar}><label>Sort matchups<select value={focus} onChange={event => setFocus(event.target.value as typeof focus)}><option value="league">League order</option><option value="projected">Closest projected margin</option><option value="current">Closest current margin</option></select></label><label className={styles.closeFilter}><input type="checkbox" checked={closeOnly} onChange={event => setCloseOnly(event.target.checked)} />Witching Hour margins only (≤10 pts)</label></div></WorkspaceControls>{closeOnly && !qualifying && <p className={styles.empty}>No close matchups with available {focus === 'current' ? 'current' : 'weekly projected'} margins.</p>}<div className={styles.homeGrid}>{sortedLeagues.map(league => <LeagueMatchups channel={leagues.findIndex(row => savedLeagueKey(row) === savedLeagueKey(league)) + 1} allMatchups={!!selectedLeague} focus={focus} closeOnly={closeOnly} cueLeagueKey={cue?.leagueKey ?? null} key={savedLeagueKey(league)} saved={league} currentLeague={currentLeague} onUpdate={onUpdate} timelines={timelines} />)}{activeScreens % 2 === 1 && !closeOnly && <div className={styles.standbyMonitor}><span>REDZONE // OPEN CHANNEL</span><strong>PUT ANOTHER GAME ON THE WALL</strong><p>Your next live matchup is one league away.</p><Link to={selectedLeague && saved.length > 1 ? '/' : '/settings'}>{selectedLeague && saved.length > 1 ? 'SHOW ALL LEAGUES ↗' : 'PATCH IN A LEAGUE ↗'}</Link></div>}</div></section></div>
         <div className={styles.wireRow}>
           {Object.entries(timelines).filter(([key]) => key.startsWith(`${season}:`) && weeks.includes(Number(key.split(':')[1]))).map(([key, feed]) => <div key={key} className={styles.combinedEvents}>
-            <MatchupTimeline popout week={Number(key.split(':')[1])} data={feed.data} error={feed.error} loading={feed.loading} refresh={() => setEventRefreshSignal(value => value + 1)} canRefresh={true} renderImpact={event => <EventImpactDetails event={event} contexts={contexts.filter(context => `${context.snapshot?.season}:${context.snapshot?.week}` === key)} data={feed.data} />} idPrefix={`home-${key}-`} />
+            <MatchupTimeline popout week={Number(key.split(':')[1])} data={feed.data} error={feed.error} loading={feed.loading} nextRefreshAt={feed.nextRefreshAt} refreshStartedAt={feed.refreshStartedAt} refresh={() => setEventRefreshSignal(value => value + 1)} canRefresh={true} includeEvent={event => eventImpact(event, broadcastContexts.filter(context => `${context.snapshot?.season}:${context.snapshot?.week}` === key), feed.data).length > 0} renderImpact={event => <EventImpactDetails event={event} contexts={contexts.filter(context => `${context.snapshot?.season}:${context.snapshot?.week}` === key)} data={feed.data} />} idPrefix={`home-${key}-`} />
           </div>)}
         </div></div>}
     {!!leagues.length && <GameDayRecapRecorder contexts={contexts} feeds={timelines} now={now} />}

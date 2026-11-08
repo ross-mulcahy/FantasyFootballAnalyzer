@@ -5,12 +5,22 @@ import { useBrowserAlertsEnabled } from '@/utils/browserAlerts';
 export const LIVE_EVENTS_MS = 15000;
 export const IDLE_EVENTS_MS = 3 * 60 * 60 * 1000;
 
-export function useMatchupTimeline(season: number, week: number, teams: string[], refreshedAt: number, needPlayerStats = false) {
+interface TimelineResult {
+  data: NFLTimeline | null;
+  error: string | null;
+  loading: boolean;
+  refresh: () => void;
+  nextRefreshAt?: number | null;
+  refreshStartedAt?: number | null;
+}
+
+export function useMatchupTimeline(season: number, week: number, teams: string[], refreshedAt: number, needPlayerStats = false): TimelineResult {
   const key = timelineCacheKey(season, week, teams);
   const background = useBrowserAlertsEnabled();
   const [result, setResult] = useState<{ key: string; data: NFLTimeline | null }>({ key, data: readTimelineCache(key) });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [pollSchedule, setPollSchedule] = useState<{ next: number; started: number } | null>(null);
   const run = useRef<(force?: boolean) => void>(() => {});
   const refresh = useCallback(() => run.current(true), []);
   useEffect(() => {
@@ -24,22 +34,27 @@ export function useMatchupTimeline(season: number, week: number, teams: string[]
     const clear = () => { if (timer !== undefined) clearTimeout(timer); timer = undefined; };
     const schedule = () => {
       clear();
-      if (!active || !available() || !teams.length) return;
+      if (!active || !available() || !teams.length) { setPollSchedule(null); return; }
       const now = Date.now();
       let delay = Math.max(current?.fetchedAt ?? 0, lastAttempt) + interval() - now;
+      let started = Math.max(current?.fetchedAt ?? 0, lastAttempt);
       // Wake at the next relevant kickoff. Delayed starts get a status check each minute.
       for (const game of current?.games ?? []) {
         const kickoff = Date.parse(game.kickoff);
         if (game.state === 'pre' && Number.isFinite(kickoff) && !/CANCEL|POSTPON|SUSPEND/i.test(game.detail)) {
-          delay = Math.min(delay, kickoff > now ? kickoff - now : 60000);
+          const kickoffDelay = kickoff > now ? kickoff - now : 60000;
+          if (kickoffDelay < delay) { delay = kickoffDelay; started = now; }
         }
       }
-      timer = setTimeout(() => void tick(true), Math.max(1000, delay));
+      const wait = Math.max(1000, delay);
+      setPollSchedule({ next: now + wait, started });
+      timer = setTimeout(() => void tick(true), wait);
     };
     const tick = async (force = false) => {
       if (!active) return;
       if (busy) { forceQueued ||= force; return; }
       clear();
+      setPollSchedule(null);
       if (!available() || !teams.length) return;
       const age = Date.now() - Math.max(current?.fetchedAt ?? 0, lastAttempt);
       const validCache = current?.games && (!needPlayerStats || current.playerStats !== undefined) && age < interval();
@@ -70,7 +85,7 @@ export function useMatchupTimeline(season: number, week: number, teams: string[]
     setError(null);
     setLoading(false);
     run.current = force => void tick(force);
-    const wake = () => { clear(); if (available()) void tick(); };
+    const wake = () => { clear(); if (available()) void tick(); else setPollSchedule(null); };
     document.addEventListener('visibilitychange', wake);
     window.addEventListener('online', wake);
     window.addEventListener('offline', wake);
@@ -87,5 +102,5 @@ export function useMatchupTimeline(season: number, week: number, teams: string[]
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, background, needPlayerStats]);
   useEffect(() => { run.current(); }, [refreshedAt]);
-  return { data: result.key === key ? result.data : null, error, loading, refresh };
+  return { data: result.key === key ? result.data : null, error, loading, refresh, nextRefreshAt: pollSchedule?.next ?? null, refreshStartedAt: pollSchedule?.started ?? null };
 }
