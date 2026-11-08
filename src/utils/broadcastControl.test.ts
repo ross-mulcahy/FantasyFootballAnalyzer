@@ -36,6 +36,18 @@ it('reports comeback needs and remaining starters without presenting a win proba
   expect(row).toMatchObject({ margin: -2, ownLeft: 1, opponentLeft: 1, unknown: false });
   expect(comebackWatch([game(10, 12)], {})[0].ownLeft).toBeNull();
 });
+it('explains unequal remaining-starter counts with played and empty slots', () => {
+  const context = game(10, 12);
+  context.snapshot!.teams[0].roster!.push({ id: 'extra', name: 'Extra', position: 'RB', nflTeam: 'LAR', slot: 'RB' });
+  context.snapshot!.teams[1].roster!.push({ id: 'finished', name: 'Finished', position: 'WR', nflTeam: 'SEA', slot: 'WR' });
+  context.snapshot!.teams[1].roster!.push({ id: '0', name: 'Empty slot', position: '', nflTeam: '', slot: 'FLEX' });
+  const finishedFeed = { '2026:9': { data: { ...feed['2026:9'].data, games: [
+    ...feed['2026:9'].data.games,
+    { id: 'g3', name: 'SF @ SEA', kickoff: '', teams: ['SF', 'SEA'], state: 'post' as const, detail: '', quarter: 4, clock: '0:00' },
+  ] }, error: null } };
+  const row = comebackWatch([context], finishedFeed)[0];
+  expect(row).toMatchObject({ ownLeft: 2, opponentLeft: 1, opponentPlayed: 1, opponentEmpty: 1 });
+});
 it('directs to a recent real score change and keeps the recap pending while games run', () => {
   const scored = captureScoreTape(captureScoreTape(emptyScoreTape(), [game(10, 12)]), [game(20, 12, start + 1000)]);
   const cue = directorCue(scored.changes, [], [game(20, 12, start + 1000)], start + 2000);

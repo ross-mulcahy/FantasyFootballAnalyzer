@@ -19,7 +19,7 @@ import { playerGameStatus, liveStatusIsStale, lineupProgress } from '@/utils/mat
 import { useGameDay } from '@/hooks/useGameDay';
 import { MatchupPollingNotice } from '@/components/MatchupPollingNotice';
 import { MatchupTimeline } from '@/components/MatchupTimeline';
-import { isStartingSlot, lineupProjection, lineupProjectionCoverage, unprojectedStarters } from '@/utils/playerWeek';
+import { isStartingSlot, lineupProjection, lineupProjectionCoverage, lineupProjectionEstimate, unprojectedStarters } from '@/utils/playerWeek';
 import { matchupHref, matchupKey, rosterHref } from '@/utils/gameDayLinks';
 import styles from './GameDayPage.module.css';
 
@@ -139,8 +139,8 @@ function MatchupDetail({ snapshot, matchup, league, now, events }: { snapshot: G
         return <div key={index} className={styles.scoreSide}>
         <span className={styles.teamName}>{teamName(side.id)}</span>
         <strong>{score(side.points)}</strong>
-        <p className={styles.period}>Projection <span className={styles.projectionValue}>{projection !== null ? score(projection) : coverage?.known ? `${score(coverage.total)} partial` : 'pending'}</span></p>
-        {missing.length > 0 && <p className={styles.hint}>No provider projection for {missing.map(player => `${player.name}${player.availability ? ` (${player.availability})` : ''}`).join(', ')}. {coverage?.known ? `The partial sum excludes ${missing.length === 1 ? 'this starter' : 'these starters'}.` : 'No lineup total is available yet.'}</p>}
+        <p className={styles.period}>Projection <span className={styles.projectionValue}>{projection !== null ? score(projection) : coverage?.known ? `${score(coverage.total)} est.` : 'pending'}</span></p>
+        {missing.length > 0 && <p className={styles.hint}>No provider projection for {missing.map(player => `${player.name}${player.availability ? ` (${player.availability})` : ''}`).join(', ')}. {coverage?.known ? `The estimate assumes ${missing.length === 1 ? 'this starter scores' : 'these starters score'} zero.` : 'No lineup estimate is available yet.'}</p>}
         {progress ? <>
           <dl className={styles.playerCounts} aria-label={`${teamName(side.id)} player progress`}>
             <div><dt>Played</dt><dd>{progress.played}</dd></div>
@@ -157,14 +157,14 @@ function MatchupDetail({ snapshot, matchup, league, now, events }: { snapshot: G
       {sides.map((side, index) => <MatchupPanel title={side.id === null ? 'Opponent lineup' : `${teamName(side.id)} lineup`} panelKey={`lineup-${index + 1}`} key={side.id ?? `unpaired-${index}`}>
         {side.id !== null ? <>
           <p className={styles.hint}>Starting lineup · Current-week player stats</p>
-          <p className={styles.period}>Week {snapshot.week} lineup projection: {score(lineupProjection(snapshot.teams.find(t => t.id === side.id)))}</p>
+          <p className={styles.period}>Week {snapshot.week} lineup projection: {(() => { const estimate = lineupProjectionEstimate(snapshot.teams.find(t => t.id === side.id)); return estimate.value === null ? '—' : `${score(estimate.value)}${estimate.assumedZero ? ` est. (${estimate.assumedZero} × 0 assumed)` : ''}`; })()}</p>
           <RosterTable team={snapshot.teams.find(t => t.id === side.id)} week={snapshot.week} timeline={events.data} statusStale={statusStale} startersOnly />
           <Link className={styles.rosterLink} to={rosterHref(side.id, league)}>View full roster →</Link><ProviderLink league={{ platform: league.platform, leagueId: league.id, season: league.season }} teamId={side.id} />
         </> : <p className={styles.hint}>No opposing team was listed by the platform.</p>}
       </MatchupPanel>)}
     </div>
     <p className={styles.hint}>Player scores and stats cover week {snapshot.week} only. Team matchup totals above can cover multiple weeks or include commissioner adjustments. A dash means data was not returned.</p>
-    <p className={styles.hint}>{snapshot.projectionNote ?? 'Player projections are weekly estimates, not live finish predictions. Lineup projections sum available starter projections only when every starter has one.'}</p>
+    <p className={styles.hint}>{snapshot.projectionNote ?? 'Player projections are weekly estimates, not live finish predictions. Missing starter projections are shown as zero-assumed estimates only when other starters have provider projections.'}</p>
     {snapshot.detailVersion === 1 ? <MatchupTimeline week={snapshot.week} {...events} canRefresh={nflTeams.length > 0} /> : <p className={styles.hint}>Refresh rosters & scores to load current-week player details and the event timeline.</p>}
   </section>;
 }

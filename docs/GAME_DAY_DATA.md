@@ -166,9 +166,13 @@ only while the status is fresh. With no relevant game live it pauses, leaving
 previous events in the full timeline. Desktop event notifications likewise only
 cover currently live games. The notification preference can stay on between games.
 
-The score panel shows the provider matchup projection when supplied, otherwise
-the sum of all available starting-lineup weekly projections (unavailable if any
-starter lacks one). Played, In play, and Still to play count actual roster entries
+The score panel shows the provider matchup projection when supplied. When a
+starter lacks a weekly provider projection but other starters have one, the
+visible team total and studio line use zero for that starter and are labelled
+as estimates; the player's own projection remains a dash. If no starter has a
+projection, the total remains pending. The stricter complete-lineup calculation
+remains available for features that require an unqualified projection.
+Played, In play, and Still to play count actual roster entries
 in starting slots according to final, live, and scheduled NFL game status.
 Bench, IR, taxi and empty placeholder slots are excluded. Byes/no scheduled game
 and unavailable statuses are separate; a zero fantasy score does not infer that
@@ -306,6 +310,8 @@ The combined scoreboard offers league order, closest projected margin and
 closest current margin, plus a 10-point close-only filter. Unknown margins sort
 last and are excluded from that filter; unstarted 0–0 games do not qualify by
 current score. Weekly projection sums are not compared with multiweek totals.
+Comeback Watch labels each team's remaining count separately and shows played,
+empty and bye slots when known, so unequal counts are not mistaken for a ratio.
 Filtering only affects matchup rows: every connected league keeps polling and
 still contributes to alerts, warnings, shared players and recaps.
 

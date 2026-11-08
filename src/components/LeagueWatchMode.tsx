@@ -186,7 +186,7 @@ function WatchTaleOfTape({ channel, fetchedAt, nflFetchedAt }: { channel: WatchC
   const { first, second } = channel;
   const scored = first.points !== null && second.points !== null && (first.points !== 0 || second.points !== 0);
   const current = !scored ? 'AWAITING SCORES' : first.points === second.points ? 'TIED' : `${first.points! > second.points! ? first.name : second.name} +${points(channel.currentGap)}`;
-  const projected = first.projectedValue === null || second.projectedValue === null ? 'PROJECTION PENDING' : first.projectedValue === second.projectedValue ? 'EVEN' : `${first.projectedValue > second.projectedValue ? first.name : second.name} +${points(channel.projectedGap)}`;
+  const projected = first.projectedValue === null || second.projectedValue === null ? 'PROJECTION PENDING' : `${first.assumedZero || second.assumedZero ? 'EST. ' : ''}${first.projectedValue === second.projectedValue ? 'EVEN' : `${first.projectedValue > second.projectedValue ? first.name : second.name} +${points(channel.projectedGap)}`}`;
   const live = first.live + second.live;
   const remaining = first.left === null || second.left === null ? null : first.left + second.left;
   return <section className={styles.tape} aria-label="Matchup tale of the tape">

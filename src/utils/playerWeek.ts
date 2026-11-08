@@ -16,6 +16,15 @@ export function lineupProjectionCoverage(team: RosterTeam | undefined): { total:
   return { total: projected.reduce((sum, player) => sum + player.projection!, 0), missing: starters.length - projected.length, known: projected.length };
 }
 
+// A display estimate when some starters lack provider projections. Never
+// invent a whole lineup from zeroes if the provider returned no projections.
+export function lineupProjectionEstimate(team: RosterTeam | undefined): { value: number | null; assumedZero: number } {
+  const exact = lineupProjection(team);
+  if (exact !== null) return { value: exact, assumedZero: 0 };
+  const coverage = lineupProjectionCoverage(team);
+  return { value: coverage.known ? coverage.total : null, assumedZero: coverage.known ? coverage.missing : 0 };
+}
+
 export function unprojectedStarters(team: RosterTeam | undefined): NonNullable<RosterTeam['roster']> {
   return team?.roster?.filter(player => player.id !== '0' && isStartingSlot(player.slot)
     && (typeof player.projection !== 'number' || !Number.isFinite(player.projection))) ?? [];

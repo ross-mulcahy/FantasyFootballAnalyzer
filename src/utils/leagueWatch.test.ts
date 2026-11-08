@@ -33,8 +33,9 @@ it('prioritises a fresh confirmed score change over a close game and labels NFL 
   expect(channels[0].first.name).toBe('The Other Game');
   expect(channels[0].alerts[0]).toMatchObject({ kind: 'score', headline: 'SCORE SWING // 3.00 PTS' });
   expect(channels[0].alerts[0].score).toMatchObject({ beforeOwn: 0, own: 3, ownDelta: 3 });
-  expect(channels[0].first.projection).toBe('20.00 partial');
-  expect(channels[0].projectedGap).toBeNull();
+  expect(channels[0].first.projection).toBe('20.00 est. (1 × 0)');
+  expect(channels[0].first.assumedZero).toBe(1);
+  expect(channels[0].projectedGap).toBe(2);
   const close = channels.find(channel => channel.first.name === 'The Close Game')!;
   expect(close.alerts[0].detail).toContain('fantasy impact unconfirmed');
   expect(close.currentGap).toBe(2);

@@ -18,7 +18,7 @@ import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'r
 import { Link, useSearchParams } from 'react-router-dom';
 import type { NFLTimeline } from '@/api/nflTimeline';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { lineupProjection, lineupProjectionCoverage, unprojectedStarters } from '@/utils/playerWeek';
+import { lineupProjection, lineupProjectionCoverage, lineupProjectionEstimate, unprojectedStarters } from '@/utils/playerWeek';
 import { lineupProgress, liveStatusIsStale } from '@/utils/matchupGameStatus';
 import type { GameDaySnapshot, ScoreMatchup } from '@/types/gameDay';
 import { MatchupAlerts } from '@/components/MatchupAlerts';
@@ -87,22 +87,36 @@ function LeagueMatchups({ saved, currentLeague, onUpdate, timelines, focus, clos
         const missing = projection === null ? unprojectedStarters(team) : [];
         const progress = lineupProgress(team, timeline?.data ?? null);
         const missingNames = missing.map(player => `${player.name}${player.availability ? ` (${player.availability})` : ''}`).join(', ');
-        return <span title={missing.length ? `No provider projection: ${missingNames}. Displayed sum is partial.` : undefined}>Proj. {projection !== null ? score(projection) : coverage?.known ? `${score(coverage.total)} partial` : 'pending'}{missing.length > 0 && ` · ${missing.length} unprojected`}{progress && !progress.unknown && <> · {progress.toPlay} left{!stale && progress.inPlay > 0 && <span className={styles.rowLive}> · {progress.inPlay} live</span>}{progress.unscheduled > 0 && ` · ${progress.unscheduled} bye`}</>}</span>;
+        return <span title={missing.length ? `No provider projection: ${missingNames}. Zero is assumed for the displayed estimate.` : undefined}>Proj. {projection !== null ? score(projection) : coverage?.known ? `${score(coverage.total)} est.` : 'pending'}{missing.length > 0 && ` · ${missing.length} × 0 assumed`}{progress && !progress.unknown && <> · {progress.toPlay} left{!stale && progress.inPlay > 0 && <span className={styles.rowLive}> · {progress.inPlay} live</span>}{progress.unscheduled > 0 && ` · ${progress.unscheduled} bye`}</>}</span>;
       };
       const teamInfo = (side: typeof opponent, first: boolean) => <div className={first ? styles.ownTeam : styles.opponentTeam}><div className={styles.zoneIdentity}><span className={styles.teamRole}>{featured ? first ? 'Your team' : 'Opponent' : first ? 'Team 1' : 'Team 2'}</span><span className={styles.rowTeamName} title={name(side.id)}>{name(side.id)}</span><div className={styles.zoneProjection}>{telemetry(side)}</div></div><strong className={styles.zoneScore}>{score(side.points)}</strong>{first && <span className={styles.splitVs}>VS</span>}</div>;
       const difference = matchupMargin(displayContext, match, 'projected', data);
+      const projectedSides = [own, opponent].map(side => {
+        const team = snapshot?.teams.find(candidate => candidate.id === side.id);
+        return typeof side.projection === 'number' && Number.isFinite(side.projection)
+          ? { value: side.projection, assumedZero: 0 } : lineupProjectionEstimate(team);
+      });
+      const estimatedDifference = !/Weeks /i.test(match.period) && projectedSides.every(side => side.value !== null)
+        ? projectedSides[0].value! - projectedSides[1].value! : null;
+      const lineDifference = difference ?? estimatedDifference;
+      const assumedZero = difference === null && projectedSides.some(side => side.assumedZero > 0);
+      const assumedCount = projectedSides.reduce((sum, side) => sum + side.assumedZero, 0);
+      const lineLabel = lineDifference !== null ? `${assumedZero ? 'EST. ' : ''}${Math.abs(lineDifference) < 1 ? 'TOSS-UP' : `LINE: ${-lineDifference > 0 ? '+' : ''}${(-lineDifference).toFixed(1)}`}`
+        : /Weeks /i.test(match.period) ? 'LINE: MULTIWEEK' : 'LINE: PENDING';
+      const lineTitle = assumedZero ? `Studio estimate: ${assumedCount} starter projection${assumedCount === 1 ? '' : 's'} missing; zero assumed. Not sportsbook odds.`
+        : difference !== null ? 'Projection-derived studio line. Entertainment, not sportsbook odds.'
+          : /Weeks /i.test(match.period) ? 'This matchup spans multiple weeks; weekly lineup projections cannot form one comparable line.' : 'A projection is not available for enough starters to estimate both teams.';
       const sweat = difference !== null && Math.abs(difference) <= 10;
-      const sides = matchupSides(displayContext, match);
       const hazards = featured ? lineupWarnings([context], { [`${snapshot?.season}:${snapshot?.week}`]: timeline ?? { data: null, error: null } }, Date.now()) : [];
       const byes = hazards.filter(w => /Bye/i.test(w.message)).length;
       const outs = hazards.filter(w => /Out|IR|Injured reserve|Inactive/i.test(w.message)).length;
       const presserReady = featured && !!studioExcuseCandidate(context, match, data);
       return <article id={allMatchups && index === 0 ? `studio-channel-${key}` : undefined} className={`${styles.monitorBay} ${sweat ? styles.sweat : ''} ${cueLeagueKey === key && allMatchups && index === 0 ? styles.directorFocus : ''}`} key={matchupKey(match)}><StudioMonitorFrame>
-        <div className={styles.channelBezel}><i className={`${styles.channelLed} ${hazards.length ? styles.hazardLed : sweat ? styles.sweatLed : ''}`} aria-hidden="true" /><h3><LeagueLink league={{ platform: saved.platform, id: saved.leagueId, season: saved.season }}><span className={styles.channelBadge}>CH {String(channel + index).padStart(2, '0')}</span> {saved.name}</LeagueLink></h3><span className={styles.studioLine} title="Projection-derived studio line. Entertainment, not sportsbook odds.">{difference === null ? 'LINE: OFF' : Math.abs(difference) < 1 ? 'TOSS-UP' : `LINE: ${-difference > 0 ? '+' : ''}${(-difference).toFixed(1)}`}</span></div>
+        <div className={styles.channelBezel}><i className={`${styles.channelLed} ${hazards.length ? styles.hazardLed : sweat ? styles.sweatLed : ''}`} aria-hidden="true" /><h3><LeagueLink league={{ platform: saved.platform, id: saved.leagueId, season: saved.season }}><span className={styles.channelBadge}>CH {String(channel + index).padStart(2, '0')}</span> {saved.name}</LeagueLink></h3><span className={styles.studioLine} title={lineTitle}>{lineLabel}</span></div>
         <div className={styles.monitorStatus}><span>{saved.platform.toUpperCase()} // WEEK {snapshot?.week ?? '—'}</span>{sweat && <b>WITCHING HOUR SWEAT</b>}</div>
         <Link to={leagueGameDayHref({ platform: saved.platform, id: saved.leagueId, season: saved.season })} className={styles.monitorCanvas} aria-label={`View matchup: ${name(own.id)} vs ${name(opponent.id)}`}>
           {teamInfo(own, true)}{teamInfo(opponent, false)}
-        </Link><div className={styles.splitTelemetry}><div className={styles.hazardTags}>{byes > 0 && <span>{byes} ON BYE</span>}{outs > 0 && <span>{outs} OUT / IR</span>}{hazards.length > byes + outs && <span>{hazards.length - byes - outs} HAZARD{hazards.length - byes - outs === 1 ? '' : 'S'}</span>}</div><div className={styles.monitorActions}><ProviderLink compact league={saved} teamId={featured ? myTeam : undefined} />{presserReady && <MatchupPresser own={name(own.id)} opponent={name(opponent.id)} />}</div></div><ProjectionBar own={sides.ownProjection} opponent={sides.opponentProjection} />
+        </Link><div className={styles.splitTelemetry}><div className={styles.hazardTags}>{byes > 0 && <span>{byes} ON BYE</span>}{outs > 0 && <span>{outs} OUT / IR</span>}{hazards.length > byes + outs && <span>{hazards.length - byes - outs} HAZARD{hazards.length - byes - outs === 1 ? '' : 'S'}</span>}</div><div className={styles.monitorActions}><ProviderLink compact league={saved} teamId={featured ? myTeam : undefined} />{presserReady && <MatchupPresser own={name(own.id)} opponent={name(opponent.id)} />}</div></div><ProjectionBar own={projectedSides[0].value} opponent={projectedSides[1].value} />
       </StudioMonitorFrame>
       </article>;
     })}

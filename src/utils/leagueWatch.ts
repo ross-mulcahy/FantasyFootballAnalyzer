@@ -5,13 +5,13 @@ import { finiteScore } from './gameDayInsights';
 import { matchupKey } from './gameDayLinks';
 import { lineupProgress, playerGameStatus } from './matchupGameStatus';
 import { normalizeName } from './playerNames';
-import { isStartingSlot, lineupProjection, lineupProjectionCoverage } from './playerWeek';
+import { isStartingSlot, lineupProjectionEstimate } from './playerWeek';
 import { savedLeagueKey, type SavedLeague } from './savedLeagues';
 
 export interface WatchScoreSwing { ownName: string; opponentName: string; beforeOwn: number; beforeOpponent: number; own: number; opponent: number; ownDelta: number; opponentDelta: number }
 export interface WatchAlert { id: string; channelKey: string; at: number; kind: 'score' | 'play'; headline: string; detail: string; gameId?: string; relatedChannels?: number; playerRelevance?: 0 | 1 | 2; score?: WatchScoreSwing }
 export interface WatchPlayer { id: string; name: string; position: string; nflTeam: string; points: number | null; projection: number | null; game: string }
-export interface WatchSide { name: string; points: number | null; projection: string; projectedValue: number | null; left: number | null; live: number; featured: WatchPlayer[]; featuredMode: 'scorers' | 'up next' | 'unavailable' }
+export interface WatchSide { name: string; points: number | null; projection: string; projectedValue: number | null; assumedZero?: number; left: number | null; live: number; featured: WatchPlayer[]; featuredMode: 'scorers' | 'up next' | 'unavailable' }
 export interface WatchChannel { key: string; match: ScoreMatchup; first: WatchSide; second: WatchSide; projectedGap: number | null; currentGap: number | null; priority: number; alerts: WatchAlert[]; games: NFLGameStatus[] }
 
 /** One NFL play can reach several matchups; take it to the rostered player first. */
@@ -48,11 +48,10 @@ function eventPlayerRelevance(event: NFLTimeline['events'][number], teams: (Rost
   return relevance;
 }
 
-function projection(team: RosterTeam | undefined, provider: number | null | undefined): { value: number | null; label: string } {
-  const complete = finiteScore(provider) ? provider : lineupProjection(team);
-  if (complete !== null) return { value: complete, label: complete.toFixed(2) };
-  const coverage = lineupProjectionCoverage(team);
-  return { value: null, label: coverage.known ? `${coverage.total.toFixed(2)} partial` : 'pending' };
+function projection(team: RosterTeam | undefined, provider: number | null | undefined): { value: number | null; label: string; assumedZero: number } {
+  if (finiteScore(provider)) return { value: provider, label: provider.toFixed(2), assumedZero: 0 };
+  const estimate = lineupProjectionEstimate(team);
+  return { value: estimate.value, label: estimate.value === null ? 'pending' : `${estimate.value.toFixed(2)}${estimate.assumedZero ? ` est. (${estimate.assumedZero} × 0)` : ''}`, assumedZero: estimate.assumedZero };
 }
 
 export function leagueWatchChannels(saved: SavedLeague, snapshot: GameDaySnapshot | null, data: NFLTimeline | null, changes: ScoreChange[], now: number): WatchChannel[] {
@@ -64,7 +63,7 @@ export function leagueWatchChannels(saved: SavedLeague, snapshot: GameDaySnapsho
     const secondTeam = snapshot.teams.find(team => team.id === match.team2Id);
     const firstProjection = projection(firstTeam, match.team1Projection);
     const secondProjection = projection(secondTeam, match.team2Projection);
-    const side = (team: RosterTeam | undefined, points: number | null, projected: { value: number | null; label: string }): WatchSide => {
+    const side = (team: RosterTeam | undefined, points: number | null, projected: { value: number | null; label: string; assumedZero: number }): WatchSide => {
       const progress = lineupProgress(team, data);
       const starters = team?.roster?.filter(player => player.id !== '0' && isStartingSlot(player.slot)) ?? [];
       const scorers = starters.filter(player => finiteScore(player.points) && player.points !== 0);
@@ -79,7 +78,7 @@ export function leagueWatchChannels(saved: SavedLeague, snapshot: GameDaySnapsho
         return { id: player.id, name: player.name, position: player.position, nflTeam: player.nflTeam,
           points: finiteScore(player.points) ? player.points : null, projection: finiteScore(player.projection) ? player.projection : null, game: gameLabel };
       });
-      return { name: team?.name ?? 'Awaiting opponent', points, projection: projected.label, projectedValue: projected.value,
+      return { name: team?.name ?? 'Awaiting opponent', points, projection: projected.label, projectedValue: projected.value, assumedZero: projected.assumedZero,
         left: progress && !progress.unknown ? progress.inPlay + progress.toPlay : null, live: progress?.inPlay ?? 0, featured, featuredMode };
     };
     const involvedGames = new Set([firstTeam, secondTeam].flatMap(team => team?.roster?.filter(player => player.id !== '0' && isStartingSlot(player.slot)).map(player => playerGameStatus(player.nflTeam, data)?.id).filter((id): id is string => !!id) ?? []));

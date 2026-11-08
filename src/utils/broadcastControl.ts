@@ -65,7 +65,7 @@ export function currentScoreChanges(tape: ScoreTape, contexts: SharedLeagueConte
   const matchKeys = contexts.flatMap(context => (allMatchups ? context.snapshot?.matchups ?? [] : myMatchups(context)).map(match => `${savedLeagueKey(context.saved)}:${context.snapshot?.week}:${matchupKey(match)}:`));
   return tape.changes.filter(row => keys.has(row.leagueKey) && weeks.has(`${row.season}:${row.week}`) && matchKeys.some(key => row.id.startsWith(key)));
 }
-export interface ComebackRow { key: string; league: string; own: string; opponent: string; margin: number | null; ownLeft: number | null; opponentLeft: number | null; unknown: boolean }
+export interface ComebackRow { key: string; league: string; own: string; opponent: string; margin: number | null; ownLeft: number | null; opponentLeft: number | null; ownPlayed: number; opponentPlayed: number; ownEmpty: number; opponentEmpty: number; ownUnscheduled: number; opponentUnscheduled: number; unknown: boolean }
 export function comebackWatch(contexts: SharedLeagueContext[], feeds: TimelineFeeds): ComebackRow[] {
   return contexts.flatMap(context => myMatchups(context).map(match => {
     const sides = matchupSides(context, match);
@@ -74,6 +74,10 @@ export function comebackWatch(contexts: SharedLeagueContext[], feeds: TimelineFe
     return { key: `${savedLeagueKey(context.saved)}:${matchupKey(match)}`, league: context.saved.name, own: sides.own?.name ?? 'Your team', opponent: sides.opponent?.name ?? 'Opponent',
       margin: finiteScore(sides.ownPoints) && finiteScore(sides.opponentPoints) ? sides.ownPoints - sides.opponentPoints : null,
       ownLeft: own && !own.unknown ? own.inPlay + own.toPlay : null, opponentLeft: opponent && !opponent.unknown ? opponent.inPlay + opponent.toPlay : null,
+      ownPlayed: own?.played ?? 0, opponentPlayed: opponent?.played ?? 0,
+      ownEmpty: sides.own?.roster?.filter(player => player.id === '0' && isStartingSlot(player.slot)).length ?? 0,
+      opponentEmpty: sides.opponent?.roster?.filter(player => player.id === '0' && isStartingSlot(player.slot)).length ?? 0,
+      ownUnscheduled: own?.unscheduled ?? 0, opponentUnscheduled: opponent?.unscheduled ?? 0,
       unknown: !data || !!feeds[`${context.snapshot?.season}:${context.snapshot?.week}`]?.error };
   })).sort((a, b) => Math.abs(a.margin ?? Infinity) - Math.abs(b.margin ?? Infinity));
 }
