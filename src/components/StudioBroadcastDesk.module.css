@@ -1,4 +1,4 @@
-.director { display:flex; align-items:center; gap:12px; padding:8px 10px; margin:0 0 12px; background:#13264a; border:2px solid #ffb800; box-shadow:4px 4px 0 #000; color:#f8fafc; }
+.director { position:sticky; top:0; z-index:30; display:flex; align-items:center; gap:12px; padding:8px 10px; margin:0 0 12px; background:#13264a; border:2px solid #ffb800; box-shadow:4px 4px 0 #000; color:#f8fafc; }
 .live { flex:none; padding:5px 6px; background:#e11d48; color:#fff; font:7px var(--font-arcade); }
 .director > div { flex:1; min-width:0; }
 .director strong { display:block; font:700 15px var(--font-display); text-transform:uppercase; }

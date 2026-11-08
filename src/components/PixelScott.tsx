@@ -12,7 +12,7 @@ const descriptions: Record<AnchorState, string> = {
 export function PixelScott({ state, compact = false }: { state: AnchorState; compact?: boolean }) {
   return <div className={`${styles.pixelStage} ${compact ? styles.pixelPortrait : ''} ${styles[state]}`} role="img" aria-label={`Pixel Scott: ${descriptions[state]}`}>
     <img className={styles.stageBackdrop} src={art('studio-backdrop')} alt="" aria-hidden="true" draggable={false} />
-    <img className={styles.anchorSprite} src={art(`anchor-${state}`)} alt="" aria-hidden="true" draggable={false} />
-    {!compact && <><img className={styles.deskSprite} src={art('studio-desk')} alt="" aria-hidden="true" draggable={false} /><span className={styles.deskLogo} aria-hidden="true">OCTOBOX // LIVE</span><span className={styles.studioBeacon} aria-hidden="true" /></>}
+    <img className={styles.anchorSprite} src={art(state === 'sweat' ? 'anchor-sweat-handheld' : `anchor-${state}`)} alt="" aria-hidden="true" draggable={false} />
+    {!compact && <><img className={styles.deskSprite} src={art('studio-desk-no-mic')} alt="" aria-hidden="true" draggable={false} /><span className={styles.deskLogo} aria-hidden="true">OCTOBOX // LIVE</span><span className={styles.studioBeacon} aria-hidden="true" /></>}
   </div>;
 }
