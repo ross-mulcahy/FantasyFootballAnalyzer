@@ -59,6 +59,17 @@ it('ranks stronger play evidence ahead of source preference', () => {
   ]);
 });
 
+it('prefers an embeddable clip when play evidence has the same confidence', () => {
+  const publishedAt = '2026-11-08T18:01:00Z';
+  const options = matchPlayHighlightOptions({ ...event, occurredAt: '2026-11-08T17:59:00Z' }, [
+    { id: 'nfl123XYZ09', title: 'Puka Nacua 65 Yard Rushing TD Rams vs 49ers', publishedAt, source: 'NFL', embeddable: false },
+    { id: 'fox123XYZ09', title: 'Puka Nacua 65 Yard Rushing TD', publishedAt, source: 'NFL on FOX', embeddable: true },
+  ]);
+  expect(options.map(option => [option.video.source, option.confidence])).toEqual([
+    ['NFL on FOX', 'strong'], ['NFL', 'strong'],
+  ]);
+});
+
 it('keeps a vague title manual-only and uses local source success for tied evidence', () => {
   const eventAt = { ...event, occurredAt: '2026-11-08T17:59:00Z' };
   const publishedAt = '2026-11-08T18:01:00Z';

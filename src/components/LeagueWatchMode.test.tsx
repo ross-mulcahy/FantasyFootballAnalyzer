@@ -61,7 +61,7 @@ it('puts a confirmed score swing on air ahead of the large matchup score', () =>
   expect(screen.getByRole('region', { name: 'On air story' })).toHaveTextContent('WAITING FOR THE NEXT CUT');
 });
 
-it('offers official-channel searches for a live play and its game without a video key', () => {
+it('keeps a play without a clip focused on the wire and offers game highlights', () => {
   const withStarter: GameDaySnapshot = { ...snapshot, teams: [
     { ...snapshot.teams[0], roster: [{ id: 'p1', name: 'Puka Nacua', position: 'WR', nflTeam: 'LAR', slot: 'WR', points: 0, projection: 15 }] },
     ...snapshot.teams.slice(1),
@@ -70,7 +70,8 @@ it('offers official-channel searches for a live play and its game without a vide
   const data = { fetchedAt: now, warnings: [], games: [{ id: 'g1', name: 'LAR @ SF', kickoff, teams: ['LAR', 'SF'], state: 'in' as const, detail: 'Q2', quarter: 2, clock: '7:30' }],
     events: [{ id: 'play-1', gameId: 'g1', game: 'LAR @ SF', kickoff, occurredAt: new Date(now - 60_000).toISOString(), quarter: 2, clock: '7:30', kind: 'Touchdown', description: 'Puka Nacua 65 Yd Rush (Kick)' }] };
   render(<LeagueWatchMode saved={saved} snapshot={withStarter} data={data} changes={[]} hazards={0} now={now} onClose={vi.fn()} />);
-  expect(screen.getByRole('link', { name: 'FIND CLIP ON @NFL ↗' })).toHaveAttribute('href', expect.stringContaining('youtube.com/@NFL/search'));
+  expect(screen.queryByRole('link', { name: /SEARCH CHANNEL|FIND CLIP ON @NFL/ })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'GAME HIGHLIGHTS →' })).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'NFL HIGHLIGHTS' }));
   expect(screen.getByText('GAME HIGHLIGHTS')).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'SEARCH @NFL ↗' })).toHaveAttribute('href', expect.stringContaining('Rams%20vs%2049ers'));
@@ -129,8 +130,8 @@ it('replaces a rights-blocked inline clip with a YouTube link', async () => {
     expect(within(player).getByRole('link', { name: 'WATCH ON YOUTUBE ↗' })).toHaveAttribute('href', 'https://www.youtube.com/watch?v=abc123XYZ09');
     expect(sessionStorage.getItem('witching-hour:blocked-youtube-embeds')).toContain('abc123XYZ09');
     fireEvent.click(within(player).getByRole('button', { name: '← RETURN TO LIVE' }));
-    expect(screen.getByRole('link', { name: 'WATCH MATCH ON YOUTUBE ↗' })).toHaveAttribute('href', 'https://www.youtube.com/watch?v=abc123XYZ09');
-    expect(screen.getByRole('link', { name: 'SEARCH CHANNEL ↗' })).toHaveAttribute('href', expect.stringContaining('Puka%20Nacua%2065'));
+    expect(screen.getByRole('link', { name: 'WATCH HIGHLIGHT ON YOUTUBE ↗' })).toHaveAttribute('href', 'https://www.youtube.com/watch?v=abc123XYZ09');
+    expect(screen.queryByRole('link', { name: 'SEARCH CHANNEL ↗' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'DIRECTOR DIAGNOSTICS' }));
     expect(screen.getByText(/YOUTUBE ERROR 150 · NFL/)).toBeInTheDocument();
     expect(screen.getByText('SKIPPED · EMBED FAILED THIS SESSION')).toBeInTheDocument();

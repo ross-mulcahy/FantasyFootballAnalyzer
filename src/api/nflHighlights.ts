@@ -139,7 +139,7 @@ export function matchPlayHighlightOptions(event: MajorEvent, videos: NFLVideo[],
     if (group[0]) ordered.push(group[0]);
   }
   return ordered.sort((a, b) => (a.confidence === 'strong' ? 1 : 0) === (b.confidence === 'strong' ? 1 : 0)
-    ? b.score - a.score || Math.min(2, sourceSuccess[b.video.source ?? 'NFL'] ?? 0) - Math.min(2, sourceSuccess[a.video.source ?? 'NFL'] ?? 0) || sourcePriority(a.video) - sourcePriority(b.video)
+    ? Number(b.video.embeddable === true) - Number(a.video.embeddable === true) || b.score - a.score || Math.min(2, sourceSuccess[b.video.source ?? 'NFL'] ?? 0) - Math.min(2, sourceSuccess[a.video.source ?? 'NFL'] ?? 0) || sourcePriority(a.video) - sourcePriority(b.video)
     : a.confidence === 'strong' ? -1 : 1);
 }
 export const matchPlayHighlightCandidates = (event: MajorEvent, videos: NFLVideo[], sourceSuccess?: Partial<Record<NFLVideoSource, number>>) => matchPlayHighlightOptions(event, videos, sourceSuccess).filter(match => match.confidence === 'strong').map(match => match.video);
