@@ -507,3 +507,12 @@
 .wireRow .popoutPanel .timeline { max-height: none; }
 @media (max-width: 1100px) { .wireRow { margin-top: 16px; } .wireRow .timeline { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 650px) { .wireRow .timeline { grid-template-columns: 1fr; } }
+
+/* Let the scorebox grid set the row height; the rooting monitor fills that row. */
+@media (min-width: 1101px) {
+  .sharedSidebar { position: relative; align-self: stretch; display: block; min-height: 0; }
+  .sharedSidebar > section:not(.popoutPanel) { position: absolute; inset: 0; height: 100%; }
+  .sharedSidebar > section:not(.popoutPanel) :global(.crt-frame) { display: flex; flex-direction: column; height: 100%; }
+  .sharedSidebar > section:not(.popoutPanel) :global(.crt-screen) { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+  .sharedSidebar > section:not(.popoutPanel) :global(.crt-screen) > div:last-child { flex: 1; min-height: 0; max-height: none; overflow-y: auto; }
+}
