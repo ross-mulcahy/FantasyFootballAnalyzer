@@ -4,6 +4,7 @@ import type { MajorEvent, NFLTimeline } from '@/api/nflTimeline';
 import type { SharedLeagueContext } from '@/utils/sharedPlayers';
 import { buildRecap, eventImpact, finiteScore, lineupWarnings, loadRecaps, mergeRecaps, saveRecaps, type TimelineFeeds } from '@/utils/gameDayInsights';
 import { savedLeagueKey } from '@/utils/savedLeagues';
+import { formatLocalDateTime } from '@/utils/localTime';
 import { LeagueLink } from './LeagueLink';
 import { MatchupPanel } from './MatchupPanel';
 import { Link } from 'react-router-dom';
@@ -85,7 +86,7 @@ export function GameDayRecap({ contexts, feeds, now, readOnly = false }: { conte
             <div><dt>Top contributor</dt><dd>{row.topOwn ? <><span>{row.topOwn.name}</span><strong>{row.topOwn.points.toFixed(2)} pts</strong></> : 'Unavailable'}</dd></div>
             <div><dt>Top opponent</dt><dd>{row.topOpponent ? <><span>{row.topOpponent.name}</span><strong>{row.topOpponent.points.toFixed(2)} pts</strong></> : 'Unavailable'}</dd></div>
           </dl>
-          <div className={styles.recapCardFooter}><p>{row.period} · {settled ? 'Finished lineups' : 'In progress / awaiting data'}{row.saved ? ' · Saved scores' : ''}</p>{readOnly && <p>Saved snapshot: {new Date(row.fetchedAt).toLocaleString()}</p>}</div>
+          <div className={styles.recapCardFooter}><p>{row.period} · {settled ? 'Finished lineups' : 'In progress / awaiting data'}{row.saved ? ' · Saved scores' : ''}</p>{readOnly && <p>Saved snapshot: {formatLocalDateTime(row.fetchedAt)}</p>}</div>
         </li>;
       })}</ul>
     </>}

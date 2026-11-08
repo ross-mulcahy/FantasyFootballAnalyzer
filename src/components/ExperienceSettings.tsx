@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { createBackup, parseBackup, restoreBackup, type PersonalBackup } from '@/utils/backup';
 import { readExperience, saveExperience, useExperiencePreferences } from '@/utils/experience';
 import { useEventNotifications } from '@/hooks/useEventNotifications';
+import { formatLocalDateTime } from '@/utils/localTime';
 import styles from '@/pages/GameDayPage.module.css';
 export function ExperienceSettings() {
   const preferences = useExperiencePreferences();
@@ -37,7 +38,7 @@ export function ExperienceSettings() {
       if (file.size > 2_000_000) { setNotice('Backup exceeds the 2 MB limit.'); return; }
       setReading(true); try { setPreview(parseBackup(await file.text())); setNotice('Review the backup below before restoring.'); } catch (error) { setNotice(error instanceof Error ? error.message : 'Could not read this backup.'); } finally { setReading(false); }
     }} /></label>
-    {preview && <div className={styles.backupPreview}><p>{preview.leagues.length} leagues · {preview.recaps.length} recap entries · Created {new Date(preview.createdAt).toLocaleString()}</p><ul>{preview.leagues.map(league => <li key={`${league.platform}:${league.leagueId}:${league.season}`}>{league.name} · {league.platform} · {league.season}</li>)}</ul><p>Merge into this browser. Existing team choices are kept; Game Day preferences are restored from the file. No browser login is changed.</p><button className="btn btn-primary" onClick={() => { try { restoreBackup(preview); setNotice('Backup restored. Open Game Day to refresh scores; reconnect private leagues if needed.'); setPreview(null); } catch (error) { setNotice(error instanceof Error ? error.message : 'Restore failed.'); } }}>Restore this backup</button><button className="btn" onClick={() => setPreview(null)}>Cancel restore</button></div>}
+    {preview && <div className={styles.backupPreview}><p>{preview.leagues.length} leagues · {preview.recaps.length} recap entries · Created {formatLocalDateTime(preview.createdAt)}</p><ul>{preview.leagues.map(league => <li key={`${league.platform}:${league.leagueId}:${league.season}`}>{league.name} · {league.platform} · {league.season}</li>)}</ul><p>Merge into this browser. Existing team choices are kept; Game Day preferences are restored from the file. No browser login is changed.</p><button className="btn btn-primary" onClick={() => { try { restoreBackup(preview); setNotice('Backup restored. Open Game Day to refresh scores; reconnect private leagues if needed.'); setPreview(null); } catch (error) { setNotice(error instanceof Error ? error.message : 'Restore failed.'); } }}>Restore this backup</button><button className="btn" onClick={() => setPreview(null)}>Cancel restore</button></div>}
     {notice && <p role="status" className={styles.hint}>{notice}</p>}
   </section>;
 }

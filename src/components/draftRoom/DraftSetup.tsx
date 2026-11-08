@@ -16,6 +16,7 @@ import {
 } from '@/utils/keeperGuess';
 import { keeperSetupProblem } from '@/utils/draftEngine';
 import { loadDraftArchive, removeFromDraftArchive } from '@/utils/draftRoomCache';
+import { formatLocalDateTime } from '@/utils/localTime';
 import {
   deletePreset,
   loadPresets,
@@ -422,7 +423,7 @@ export function DraftSetup({ room, league }: DraftSetupProps) {
             <span className={styles.resumeKicker}>Saved draft found</span>
             <span className={styles.resumeDetail}>
               {resumable.events.length} picks logged
-              {savedAt ? `, saved ${savedAt.toLocaleString()}` : ''}
+              {savedAt ? `, saved ${formatLocalDateTime(savedAt)}` : ''}
             </span>
           </div>
           <div className={styles.resumeActions}>
@@ -924,7 +925,7 @@ export function DraftSetup({ room, league }: DraftSetupProps) {
                   {session.config.draftType === 'auction' ? '$' : 'S'}
                 </span>
                 <span className={styles.archiveLabel}>
-                  {new Date(session.savedAt).toLocaleString()} ·{' '}
+                  {formatLocalDateTime(session.savedAt)} ·{' '}
                   {session.config.mode === 'mock' ? 'mock' : 'live'} ·{' '}
                   {session.events.length} picks
                 </span>

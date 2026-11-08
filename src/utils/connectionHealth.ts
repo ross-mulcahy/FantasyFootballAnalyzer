@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import type { SavedLeague } from './savedLeagues';
 import { savedLeagueKey } from './savedLeagues';
+import { formatLocalTime } from './localTime';
 export const HEALTH_KEY = 'ffa:connection-health:v1';
 const changed = 'ffa-connection-health-changed';
 export interface ConnectionHealth { checkedAt: number; lastSuccessAt: number | null; state: 'ok' | 'login' | 'unavailable' | 'setup' }
@@ -29,5 +30,5 @@ export function useConnectionHealth() {
 export function healthLabel(health: ConnectionHealth | undefined, online: boolean): string {
   if (!online) return 'Offline · Saved data';
   if (!health) return 'Not checked yet';
-  return health.state === 'ok' ? `Last refreshed ${new Date(health.lastSuccessAt!).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : health.state === 'login' ? 'Reconnect needed' : health.state === 'setup' ? 'Connection setup needed' : 'Refresh failed · Saved data';
+  return health.state === 'ok' ? `Last refreshed ${formatLocalTime(health.lastSuccessAt!)}` : health.state === 'login' ? 'Reconnect needed' : health.state === 'setup' ? 'Connection setup needed' : 'Refresh failed · Saved data';
 }

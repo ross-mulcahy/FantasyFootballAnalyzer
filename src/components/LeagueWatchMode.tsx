@@ -11,10 +11,11 @@ import type { SavedLeague } from '@/utils/savedLeagues';
 import { StudioMonitorFrame } from './StudioMonitorFrame';
 import { PixelScott } from './PixelScott';
 import { ProjectionBar } from './ProjectionBar';
+import { formatLocalDateTime } from '@/utils/localTime';
 import styles from './LeagueWatchMode.module.css';
 
 const points = (value: number | null) => value === null ? '—' : value.toFixed(2);
-const syncTime = (value: number) => new Date(value).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+const syncTime = (value: number) => formatLocalDateTime(value, { year: undefined });
 
 function ImpactStarters({ side }: { side: WatchSide }) {
   return <div className={styles.impactSide}>

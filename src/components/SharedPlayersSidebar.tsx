@@ -9,6 +9,7 @@ import { eventImpact, finiteScore, matchupMargin } from '@/utils/gameDayInsights
 import { isStartingSlot } from '@/utils/playerWeek';
 import { canonicalTeam, normalizeName } from '@/utils/playerNames';
 import { playerIdentityIndex, sharedPlayers, type SharedLeagueContext, type SharedPlayer } from '@/utils/sharedPlayers';
+import { formatLocalTime, localKickoff } from '@/utils/localTime';
 import { MatchupPanel } from './MatchupPanel';
 import { LeagueLink } from './LeagueLink';
 import { NflTeamChip } from './NflTeamChip';
@@ -110,13 +111,13 @@ function SharedWeek({ players, contexts, season, week, refreshSignal, onTimeline
           <span className={styles.pointsNote}>{[new Set(player.occurrences.filter(o => typeof o.player.points === 'number').map(o => o.player.points)).size > 1 && 'Varies by league', player.occurrences.some(o => typeof o.player.points !== 'number') && 'Some points unavailable', player.occurrences.some(o => o.stale) && 'Saved scores'].filter(Boolean).join(' · ')}</span>
           {game?.state === 'in' ? <span className={stale ? pageStyles.cachedBadge : pageStyles.liveBadge}>{stale ? 'Last seen live' : 'LIVE'} · {game.name} · {game.detail || game.clock}</span>
             : game?.state === 'post' ? <span className={styles.statusLine}>Final · {game.name}{stats.stats.length ? ` · ${stats.stats.slice(0, 2).map(stat => `${stat.value} ${stat.label.replace(/^(passing|rushing|receiving|defensive) /i, '')}`).join(' · ')}` : ''}</span>
-            : game?.state === 'pre' ? <span className={styles.statusLine}>{game.name} · {game.detail || 'Scheduled'}</span>
+            : game?.state === 'pre' ? <span className={styles.statusLine}>{game.name} · {/CANCEL|POSTPON|SUSPEND/i.test(game.detail) ? game.detail : localKickoff(game.kickoff, game.detail)}</span>
             : !game && events.data?.games && player.nflTeam ? <span className={styles.statusLine}>Bye / no game scheduled</span>
             : <span className={styles.statusLine}>{events.loading ? 'Checking game status…' : 'Game status unavailable'}</span>}
           {latest && (latest.personal || player.defense) && game?.state === 'in' && !stale && <span className={styles.previewEvent}>{latest.event.description}</span>}
         </summary>
         <div className={styles.playerExpanded}>
-          {!!stats.stats.length && <div className={styles.stats} aria-label={`${player.name} stats`}><p className={styles.meta}>{stats.gameStats ? 'NFL game stats' : `Week ${week} stats`}{stats.cached ? ' · Saved' : ''}</p><dl>{stats.stats.map(stat => <div key={stat.label}><dt>{stat.label}</dt><dd>{stat.value}</dd></div>)}</dl><p className={styles.meta}>As of {new Date(stats.updatedAt).toLocaleTimeString()}</p></div>}
+          {!!stats.stats.length && <div className={styles.stats} aria-label={`${player.name} stats`}><p className={styles.meta}>{stats.gameStats ? 'NFL game stats' : `Week ${week} stats`}{stats.cached ? ' · Saved' : ''}</p><dl>{stats.stats.map(stat => <div key={stat.label}><dt>{stat.label}</dt><dd>{stat.value}</dd></div>)}</dl><p className={styles.meta}>As of {formatLocalTime(stats.updatedAt)}</p></div>}
           {latest && <div className={styles.event} aria-live={game?.state === 'in' && !stale ? 'polite' : 'off'}><p className={styles.meta}>{latest.personal ? 'Player event' : 'Game event'} · Q{latest.event.quarter} {latest.event.clock}</p><p>{latest.event.description}</p></div>}
           <p className={styles.breakdownTitle}>League breakdown · {player.matchupCount} matchups</p>
           <ul className={styles.leagues}>{player.occurrences.map((occurrence, i) => <li key={`${occurrence.matchup}:${occurrence.role}:${i}`}>

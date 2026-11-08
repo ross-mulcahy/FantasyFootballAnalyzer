@@ -4,6 +4,7 @@ import type { League, LeagueCredentials, Team } from '@/types';
 import { useGameDay } from '@/hooks/useGameDay';
 import { MatchupPollingNotice } from '@/components/MatchupPollingNotice';
 import { TeamDetail } from './TeamDetail';
+import { formatLocalDateTime } from '@/utils/localTime';
 import styles from './GameDayPage.module.css';
 
 // All full-roster entry points use the existing team-detail layout.
@@ -18,7 +19,7 @@ export function TeamRosterView({ league, team, credentials = null, onBack }: {
     <StudioTeleprompterBar league={league} view="rosters" team={team} />
     <div className={styles.toolbar}>
       <div role="status" aria-live="polite">
-        {snapshot ? <p>Roster week {snapshot.week} · <time dateTime={new Date(snapshot.fetchedAt).toISOString()}>Updated {new Date(snapshot.fetchedAt).toLocaleString()}</time></p> : <p>{isRefreshing ? 'Loading current roster…' : 'No current roster snapshot yet.'}</p>}
+        {snapshot ? <p>Roster week {snapshot.week} · <time dateTime={new Date(snapshot.fetchedAt).toISOString()}>Updated {formatLocalDateTime(snapshot.fetchedAt)}</time></p> : <p>{isRefreshing ? 'Loading current roster…' : 'No current roster snapshot yet.'}</p>}
       </div>
       <button className="btn btn-primary" onClick={() => void refresh()} disabled={isRefreshing} aria-busy={isRefreshing}>{isRefreshing ? 'Refreshing…' : 'Refresh rosters & scores'}</button>
     </div>

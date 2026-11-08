@@ -20,6 +20,7 @@ import { MatchupPollingNotice } from '@/components/MatchupPollingNotice';
 import { MatchupTimeline } from '@/components/MatchupTimeline';
 import { RefreshCountdownButton } from '@/components/RefreshCountdownButton';
 import { eventImpact } from '@/utils/gameDayInsights';
+import { formatLocalDateTime, localKickoff } from '@/utils/localTime';
 import { isStartingSlot, lineupProjection, lineupProjectionCoverage, lineupProjectionEstimate, unprojectedStarters } from '@/utils/playerWeek';
 import { matchupHref, matchupKey, rosterHref } from '@/utils/gameDayLinks';
 import styles from './GameDayPage.module.css';
@@ -42,7 +43,7 @@ function RosterTable({ team, week, timeline, statusStale, startersOnly = false }
       return <tr key={`${p.id}-${i}`} className={game?.state === 'in' && !statusStale ? styles.livePlayer : undefined}><td><span className={styles.playerIdentity}><strong>{p.name}</strong>{!empty && <span className={styles.playerIdentityMeta}>{p.position && <PosBadge pos={p.position} />}{p.nflTeam && <NflTeamChip team={p.nflTeam} />}</span>}</span>
       {game?.state === 'in' && <span className={statusStale ? styles.cachedBadge : styles.liveBadge} title="This player's NFL game is in progress. This does not indicate the player is on the field.">{statusStale ? 'Last seen live' : 'Game live'}{game.detail ? ` · ${game.detail}` : ''}</span>}
       {game?.state === 'post' && <span className={styles.playerMeta}>Final · {game.name}</span>}
-      {game?.state === 'pre' && <span className={styles.playerMeta}>{game.detail || 'Scheduled'} · {game.name}</span>}
+      {game?.state === 'pre' && <span className={styles.playerMeta}>{/CANCEL|POSTPON|SUSPEND/i.test(game.detail) ? game.detail : localKickoff(game.kickoff, game.detail)} · {game.name}</span>}
       {noGame && <span className={styles.byeBadge}>Bye / no game scheduled</span>}
       {!empty && !game && !noGame && <span className={styles.playerMeta}>Game status unavailable</span>}
       {empty ? <span className={styles.playerMeta}>No player selected</span> : p.stats?.length ? <details className={styles.playerStats}><summary>Week {week} stats</summary><dl>{p.stats.map((stat, statIndex) => <div key={`${stat.label}-${statIndex}`}><dt>{stat.label}</dt><dd>{stat.value}</dd></div>)}</dl></details> : noGame ? null : <span className={styles.playerMeta}>Stats not returned</span>}
@@ -82,7 +83,7 @@ function GameDayView({ league, credentials }: Props) {
       </div>
       <div className={styles.toolbar}>
         <div role="status" aria-live="polite">
-          {snapshot ? <><p>Week {snapshot.week} · <time dateTime={new Date(snapshot.fetchedAt).toISOString()}>Updated {new Date(snapshot.fetchedAt).toLocaleString()}</time></p>
+          {snapshot ? <><p>Week {snapshot.week} · <time dateTime={new Date(snapshot.fetchedAt).toISOString()}>Updated {formatLocalDateTime(snapshot.fetchedAt)}</time></p>
             <p className={styles.hint}>{stale ? 'This snapshot is over 15 minutes old. ' : ''}Refresh for the latest rosters and scores.</p></> : <p>{isRefreshing ? 'Loading rosters and matchups…' : 'No saved roster or matchup data yet.'}</p>}
         </div>
         <div className={styles.toolbarActions}>

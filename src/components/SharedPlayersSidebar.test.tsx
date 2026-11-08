@@ -73,7 +73,7 @@ it('reports the existing weekly feed even when no players are shared', async () 
   const onTimeline = vi.fn();
   render(<MemoryRouter><SharedPlayersSidebar contexts={[contexts[0]]} onTimeline={onTimeline} /></MemoryRouter>);
   await screen.findByText('No shared starters in the loaded matchups.');
-  expect(onTimeline).toHaveBeenCalledWith('2026:8', data, null, false);
+  expect(onTimeline).toHaveBeenCalledWith('2026:8', data, null, false, undefined, undefined);
   expect(vi.mocked(useMatchupTimeline).mock.calls.at(-1)?.[2]).toEqual(expect.arrayContaining(['CIN', 'BAL']));
 });
 

@@ -33,6 +33,7 @@ import { savedLeagueKey, type SavedLeague } from '@/utils/savedLeagues';
 import { LeagueLink } from '@/components/LeagueLink';
 import { leagueGameDayHref, matchupKey, studioWallName } from '@/utils/gameDayLinks';
 import { StudioAudioEvents } from '@/utils/studioAudioEvents';
+import { formatLocalDateTime } from '@/utils/localTime';
 import { captureScoreTape, comebackWatch, currentScoreChanges, directorCue, loadScoreTape, saveScoreTape, scoreCueKind, studioShow } from '@/utils/broadcastControl';
 import { DirectorCueBar, StudioBroadcastDesk, type CuePreferences } from '@/components/StudioBroadcastDesk';
 import { safeLocalStorage } from '@/utils/safeStorage';
@@ -268,7 +269,7 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
       <div className={styles.dashboardHeading}><h1 id="quadbox-heading">{wallName}</h1><p>{weeks.length ? `${weeks.length === 1 ? 'Week' : 'Weeks'} ${weeks.join(' / ')} · ` : ''}{leagues.length} {leagues.length === 1 ? 'league' : 'leagues'}</p></div>
       <CortisolMeter compact lineupHazards={warnings.length} rootingConflicts={rootingConflicts} />
       <div className={styles.dashboardTools}>
-        {!!leagues.length && <p role="status">{updatedAt !== null ? <>Last updated <time title={`Oldest league update: ${new Date(updatedAt).toLocaleString()}`} dateTime={new Date(updatedAt).toISOString()}>{new Date(updatedAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</time></> : 'Waiting for league updates'}</p>}
+        {!!leagues.length && <p role="status">{updatedAt !== null ? <>Last updated <time title={`Oldest league update: ${formatLocalDateTime(updatedAt)}`} dateTime={new Date(updatedAt).toISOString()}>{formatLocalDateTime(updatedAt, { year: undefined })}</time></> : 'Waiting for league updates'}</p>}
         {selectedLeague && <button ref={watchButton} className="btn studio-key" type="button" aria-haspopup="dialog" onClick={() => setWatchMode(true)} disabled={!watchSnapshot?.matchups.length}>WATCH MODE ↗</button>}
         {!!leagues.length && <RefreshCountdownButton className="btn studio-key" onClick={() => void refreshAll()} disabled={!ready || refreshing} aria-busy={refreshing} nextRefreshAt={nextLeagueRefresh?.nextRefreshAt} refreshStartedAt={nextLeagueRefresh?.refreshStartedAt}>{refreshing ? 'Refreshing…' : 'Refresh all'}</RefreshCountdownButton>}
       </div>
