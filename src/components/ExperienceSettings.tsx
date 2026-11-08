@@ -14,7 +14,7 @@ export function ExperienceSettings() {
     <h2 id="experience-heading" className={styles.sectionTitle}>Game Day preferences</h2>
     <div className={styles.experienceFields}>
       <label>Alert priority<select value={preferences.alertPriority} onChange={event => update({ alertPriority: event.target.value as typeof preferences.alertPriority })}><option value="all">All events · newest first</option><option value="impact">My lineup impact only</option><option value="close">Close matchups first</option></select></label>
-      <p className={styles.hint}>Applies to Latest Alerts and browser notifications. The full timeline always stays newest first. Close matchups use a margin of 10 points or less.</p>
+      <p className={styles.hint}>Applies to browser notifications. RedZone Wire always stays newest first. Close matchups use a margin of 10 points or less.</p>
       <label className={styles.closeFilter}><input type="checkbox" checked={preferences.kickoffAlerts} onChange={event => update({ kickoffAlerts: event.target.checked })} />Pre-kickoff lineup checks</label>
       <p className={styles.hint}>Recheck lineups in the 15 minutes before a starter’s game. Remind you about empty slots, byes and injury flags. Keep Game Day open; browser delivery requires permission and may be delayed in background tabs.</p>
       <button className="btn" disabled={alerts.requesting || alerts.permission === 'unsupported'} onClick={() => void alerts.toggle()}>{alerts.requesting ? 'Requesting permission…' : alerts.enabled ? 'Disable browser alerts' : 'Enable browser alerts'}</button>

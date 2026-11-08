@@ -125,29 +125,27 @@ it('shows weekly points, projections, zero-valued stats, and the timeline', () =
   expect(screen.getByRole('heading', { name: 'REDZONE WIRE' })).toBeInTheDocument();
 });
 
-it('places alerts above lineups and marks a player whose NFL game is live', () => {
+it('shows the wire below lineups and marks a player whose NFL game is live', () => {
   vi.mocked(useMatchupTimeline).mockReturnValue({ data: { fetchedAt: Date.now(), events: [], warnings: [], games: [{ id: 'g1', name: 'BUF @ KC', kickoff: '', teams: ['BUF', 'KC'], state: 'in', quarter: 2, clock: '8:22', detail: '8:22 - 2nd' }] }, loading: false, error: null, refresh: vi.fn() });
+  vi.mocked(useGameDay).mockReturnValue({ refresh, isRefreshing: false, error: null, cacheWarning: false, snapshot: { ...snapshot, detailVersion: 1 } });
   renderAt(matchupHref(snapshot.matchups[0]));
-  const alerts = screen.getByRole('region', { name: 'Latest Alerts' });
+  const wire = screen.getByRole('region', { name: 'REDZONE WIRE' });
   const table = screen.getByRole('table', { name: 'Home Team starting lineup' });
-  expect(alerts.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(table.compareDocumentPosition(wire) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   expect(within(table).getByText(/Game live/)).toHaveAttribute('title', expect.stringContaining('does not indicate the player is on the field'));
   expect(within(screen.getByRole('table', { name: 'Away Team starting lineup' })).queryByText(/Game live/)).not.toBeInTheDocument();
 });
 
-it('places the score above alerts and player breakdowns below, with independent persistent minimisation', () => {
+it('keeps score, lineups, and wire independently minimisable', () => {
   vi.mocked(useMatchupTimeline).mockReturnValue({ data: { fetchedAt: Date.now(), events: [], warnings: [], games: [{ id: 'live', name: 'BUF @ KC', kickoff: '', teams: ['BUF'], state: 'in', detail: 'Live', quarter: 2, clock: '8:00' }] }, loading: false, error: null, refresh: vi.fn() });
   const enriched = { ...snapshot, detailVersion: 1 as const };
   vi.mocked(useGameDay).mockReturnValue({ refresh, isRefreshing: false, error: null, cacheWarning: false, snapshot: enriched });
   const { unmount } = renderAt(matchupHref(snapshot.matchups[0]));
   const score = screen.getByRole('region', { name: 'Matchup score' });
-  const alerts = screen.getByRole('region', { name: 'Latest Alerts' });
+  const wire = screen.getByRole('region', { name: 'REDZONE WIRE' });
   const lineup = screen.getByRole('region', { name: 'Home Team lineup' });
-  expect(score.compareDocumentPosition(alerts) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-  expect(alerts.compareDocumentPosition(lineup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: 'Minimise Latest Alerts' }));
-  expect(screen.getByRole('button', { name: 'Expand Latest Alerts' })).toHaveAttribute('aria-expanded', 'false');
-  expect(within(alerts).queryByRole('link', { name: /Full timeline/ })).not.toBeInTheDocument();
+  expect(score.compareDocumentPosition(lineup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(lineup.compareDocumentPosition(wire) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   expect(screen.getByRole('table', { name: 'Home Team starting lineup' })).toBeVisible();
   fireEvent.click(screen.getByRole('button', { name: 'Minimise Home Team lineup' }));
   expect(screen.queryByRole('table', { name: 'Home Team starting lineup' })).not.toBeInTheDocument();
@@ -157,9 +155,9 @@ it('places the score above alerts and player breakdowns below, with independent 
   fireEvent.click(screen.getByRole('button', { name: 'Minimise REDZONE WIRE' }));
   unmount();
   renderAt(matchupHref(snapshot.matchups[0]));
-  expect(screen.getByRole('button', { name: 'Expand Latest Alerts' })).toHaveAttribute('aria-expanded', 'false');
-  fireEvent.click(screen.getByRole('button', { name: 'Expand Latest Alerts' }));
-  expect(screen.getByRole('link', { name: /Full timeline/ })).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Expand REDZONE WIRE' })).toHaveAttribute('aria-expanded', 'false');
+  fireEvent.click(screen.getByRole('button', { name: 'Expand REDZONE WIRE' }));
+  expect(screen.getByRole('button', { name: 'Minimise REDZONE WIRE' })).toHaveAttribute('aria-expanded', 'true');
 });
 
 it('shows weekly projection and player game counts in the score box with a provider projection override', () => {
@@ -181,12 +179,13 @@ it('shows weekly projection and player game counts in the score box with a provi
   expect(away.querySelectorAll('dd')[1]?.textContent).toBe('1');
 });
 
-it('hides idle alerts and the removed note, while preserving empty slots and marking unscheduled players', () => {
+it('keeps the wire available when idle while preserving empty slots and marking unscheduled players', () => {
   const enriched = structuredClone(snapshot);
+  enriched.detailVersion = 1;
   enriched.teams[0].roster!.push({ id: '0', name: 'Empty slot', position: '', nflTeam: '', slot: 'D/ST', points: 0, projection: 0 });
   vi.mocked(useGameDay).mockReturnValue({ refresh, isRefreshing: false, error: null, cacheWarning: false, snapshot: enriched });
   renderAt(matchupHref(enriched.matchups[0]));
-  expect(screen.queryByRole('region', { name: 'Latest Alerts' })).not.toBeInTheDocument();
+  expect(screen.getByRole('region', { name: 'REDZONE WIRE' })).toBeInTheDocument();
   expect(screen.queryByText(/Starting lineup only. Counts follow/)).not.toBeInTheDocument();
   const home = within(screen.getByRole('table', { name: 'Home Team starting lineup' }));
   expect(home.getByText('Empty slot')).toBeInTheDocument();

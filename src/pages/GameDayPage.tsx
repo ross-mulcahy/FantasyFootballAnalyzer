@@ -14,7 +14,6 @@ import { PosBadge } from '@/components/PosBadge';
 import { useEventNotifications } from '@/hooks/useEventNotifications';
 import { timelineCacheKey } from '@/api/nflTimeline';
 import { BrowserAlertsButton } from '@/components/BrowserAlertsButton';
-import { MatchupAlerts } from '@/components/MatchupAlerts';
 import { playerGameStatus, liveStatusIsStale, lineupProgress } from '@/utils/matchupGameStatus';
 import { useGameDay } from '@/hooks/useGameDay';
 import { MatchupPollingNotice } from '@/components/MatchupPollingNotice';
@@ -152,7 +151,6 @@ function MatchupDetail({ snapshot, matchup, league, now, events }: { snapshot: G
         </> : <p className={styles.hint}>Player progress unavailable</p>}
       </div>; })}</div>
     </MatchupPanel>
-    <MatchupAlerts data={events.data} loading={events.loading} error={events.error} now={now} />
     <div className={styles.detailGrid}>
       {sides.map((side, index) => <MatchupPanel title={side.id === null ? 'Opponent lineup' : `${teamName(side.id)} lineup`} panelKey={`lineup-${index + 1}`} key={side.id ?? `unpaired-${index}`}>
         {side.id !== null ? <>

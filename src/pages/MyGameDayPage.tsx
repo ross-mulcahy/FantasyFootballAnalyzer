@@ -8,7 +8,7 @@ import { WorkspaceControls } from '@/components/WorkspaceControls';
 import { ProjectionBar } from '@/components/ProjectionBar';
 import { ProviderLink } from '@/components/ConnectionHealth';
 import { TacticalLoading } from '@/components/TacticalLoading';
-import { useExperiencePreferences, prioritizeEvents, reconnectHref } from '@/utils/experience';
+import { reconnectHref } from '@/utils/experience';
 import { useKickoffReminders } from '@/hooks/useKickoffReminders';
 import { useStudioRivalries, type StudioRivalryTarget } from '@/hooks/useStudioRivalries';
 import { EventImpactDetails, GameDayRecapRecorder } from '@/components/GameDayInsights';
@@ -21,7 +21,6 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { lineupProjection, lineupProjectionCoverage, lineupProjectionEstimate, unprojectedStarters } from '@/utils/playerWeek';
 import { lineupProgress, liveStatusIsStale } from '@/utils/matchupGameStatus';
 import type { GameDaySnapshot, ScoreMatchup } from '@/types/gameDay';
-import { MatchupAlerts } from '@/components/MatchupAlerts';
 import { MatchupTimeline } from '@/components/MatchupTimeline';
 import { SharedPlayersSidebar } from '@/components/SharedPlayersSidebar';
 import type { League } from '@/types';
@@ -259,7 +258,6 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
     else if (cue === 'close') playCloseGamePulse();
   }, [contexts, timelines, warnings, playHazardStinger, playCloseGamePulse]);
   const missingRosters = contexts.filter(context => !context.snapshot?.teams.find(team => team.id === context.myTeamId)?.roster).length;
-  const experience = useExperiencePreferences();
   const refreshLeague = useCallback(async (key: string) => { setEventRefreshSignal(value => value + 1); await updates[key]?.refresh(); }, [updates]);
   const kickoff = useKickoffReminders(contexts, timelines, now, refreshLeague);
   return <div className={`${styles.page} ${styles.dashboardPage}`}><div className="container">
@@ -287,14 +285,14 @@ export function MyGameDayPage({ currentLeague = null }: { currentLeague?: League
     </div>}
     {!leagues.length ? <div className={styles.empty}><p>No leagues connected yet.</p><Link className="btn btn-primary" to="/settings">Connect leagues in Settings</Link></div>
       : <div className={styles.homeLayout}>
-        <aside id="players-panel" role={mobile ? 'tabpanel' : undefined} hidden={mobile && view !== 'players'} className={styles.sharedSidebar} aria-labelledby={mobile ? 'players-tab' : 'shared-players-heading'}><SharedPlayersSidebar allMatchups={!!selectedLeague} onBiggestConflictChange={setBiggestConflict} onConflictCountChange={setRootingConflicts} onCountChange={setSharedCount} onTimeline={onTimeline} refreshSignal={eventRefreshSignal} contexts={contexts} />
-          {Object.entries(timelines).filter(([key]) => key.startsWith(`${season}:`) && weeks.includes(Number(key.split(':')[1]))).map(([key, feed]) => <div key={key} className={styles.combinedEvents}><MatchupAlerts data={feed.data} error={feed.error} loading={feed.loading} now={now} rankEvents={events => prioritizeEvents(events, experience.alertPriority, contexts.filter(context => `${context.snapshot?.season}:${context.snapshot?.week}` === key), feed.data, now)} renderImpact={event => <EventImpactDetails event={event} contexts={contexts.filter(context => `${context.snapshot?.season}:${context.snapshot?.week}` === key)} data={feed.data} />} idPrefix={`home-${key}-`} /></div>)}
+        <aside id="players-panel" role={mobile ? 'tabpanel' : undefined} hidden={mobile && view !== 'players'} className={styles.sharedSidebar} aria-labelledby={mobile ? 'players-tab' : 'shared-players-heading'}><SharedPlayersSidebar allMatchups={!!selectedLeague} onBiggestConflictChange={setBiggestConflict} onConflictCountChange={setRootingConflicts} onCountChange={setSharedCount} onTimeline={onTimeline} refreshSignal={eventRefreshSignal} contexts={contexts} /></aside>
+        <div id="matchups-panel" role={mobile ? 'tabpanel' : undefined} hidden={mobile && view !== 'matchups'} aria-labelledby={mobile ? 'matchups-tab' : 'quadbox-heading'} className={styles.matchupsColumn}><section className={styles.matchupsPanel}><WorkspaceControls><div className={styles.focusToolbar}><label>Sort matchups<select value={focus} onChange={event => setFocus(event.target.value as typeof focus)}><option value="league">League order</option><option value="projected">Closest projected margin</option><option value="current">Closest current margin</option></select></label><label className={styles.closeFilter}><input type="checkbox" checked={closeOnly} onChange={event => setCloseOnly(event.target.checked)} />Witching Hour margins only (≤10 pts)</label></div></WorkspaceControls>{closeOnly && !qualifying && <p className={styles.empty}>No close matchups with available {focus === 'current' ? 'current' : 'weekly projected'} margins.</p>}<div className={styles.homeGrid}>{sortedLeagues.map(league => <LeagueMatchups channel={leagues.findIndex(row => savedLeagueKey(row) === savedLeagueKey(league)) + 1} allMatchups={!!selectedLeague} focus={focus} closeOnly={closeOnly} cueLeagueKey={cue?.leagueKey ?? null} key={savedLeagueKey(league)} saved={league} currentLeague={currentLeague} onUpdate={onUpdate} timelines={timelines} />)}{activeScreens % 2 === 1 && !closeOnly && <div className={styles.standbyMonitor}><span>REDZONE // OPEN CHANNEL</span><strong>PUT ANOTHER GAME ON THE WALL</strong><p>Your next live matchup is one league away.</p><Link to={selectedLeague && saved.length > 1 ? '/' : '/settings'}>{selectedLeague && saved.length > 1 ? 'SHOW ALL LEAGUES ↗' : 'PATCH IN A LEAGUE ↗'}</Link></div>}</div></section>
+          <GameDayRecapRecorder contexts={contexts} feeds={timelines} now={now} />
+        </div>
+        <div className={styles.wireRow}>
           {Object.entries(timelines).filter(([key]) => key.startsWith(`${season}:`) && weeks.includes(Number(key.split(':')[1]))).map(([key, feed]) => <div key={key} className={styles.combinedEvents}>
             <MatchupTimeline popout week={Number(key.split(':')[1])} data={feed.data} error={feed.error} loading={feed.loading} refresh={() => setEventRefreshSignal(value => value + 1)} canRefresh={true} renderImpact={event => <EventImpactDetails event={event} contexts={contexts.filter(context => `${context.snapshot?.season}:${context.snapshot?.week}` === key)} data={feed.data} />} idPrefix={`home-${key}-`} />
           </div>)}
-        </aside>
-        <div id="matchups-panel" role={mobile ? 'tabpanel' : undefined} hidden={mobile && view !== 'matchups'} aria-labelledby={mobile ? 'matchups-tab' : 'quadbox-heading'} className={styles.matchupsColumn}><section className={styles.matchupsPanel}><WorkspaceControls><div className={styles.focusToolbar}><label>Sort matchups<select value={focus} onChange={event => setFocus(event.target.value as typeof focus)}><option value="league">League order</option><option value="projected">Closest projected margin</option><option value="current">Closest current margin</option></select></label><label className={styles.closeFilter}><input type="checkbox" checked={closeOnly} onChange={event => setCloseOnly(event.target.checked)} />Witching Hour margins only (≤10 pts)</label></div></WorkspaceControls>{closeOnly && !qualifying && <p className={styles.empty}>No close matchups with available {focus === 'current' ? 'current' : 'weekly projected'} margins.</p>}<div className={styles.homeGrid}>{sortedLeagues.map(league => <LeagueMatchups channel={leagues.findIndex(row => savedLeagueKey(row) === savedLeagueKey(league)) + 1} allMatchups={!!selectedLeague} focus={focus} closeOnly={closeOnly} cueLeagueKey={cue?.leagueKey ?? null} key={savedLeagueKey(league)} saved={league} currentLeague={currentLeague} onUpdate={onUpdate} timelines={timelines} />)}{activeScreens % 2 === 1 && !closeOnly && <div className={styles.standbyMonitor}><span>REDZONE // OPEN CHANNEL</span><strong>PUT ANOTHER GAME ON THE WALL</strong><p>Your next live matchup is one league away.</p><Link to={selectedLeague && saved.length > 1 ? '/' : '/settings'}>{selectedLeague && saved.length > 1 ? 'SHOW ALL LEAGUES ↗' : 'PATCH IN A LEAGUE ↗'}</Link></div>}</div></section>
-          <GameDayRecapRecorder contexts={contexts} feeds={timelines} now={now} />
         </div></div>}
     {!!leagues.length && <StudioBroadcastDesk leagueMode={!!selectedLeague} changes={scoreChanges} comebacks={comebackRows} events={playEvents} contexts={broadcastContexts} show={show} cues={cuePrefs} onCuesChange={updateCuePrefs} />}
     {watchMode && selectedLeague && watchSnapshot && <LeagueWatchMode saved={selectedLeague} snapshot={watchSnapshot} data={watchTimeline} changes={scoreChanges} hazards={warnings.length} now={now} onClose={closeWatch} />}

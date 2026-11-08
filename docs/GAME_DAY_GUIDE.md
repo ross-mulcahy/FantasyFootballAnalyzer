@@ -230,8 +230,7 @@ starter warnings, and provider coverage limits the injury information available.
 
 ## Follow alerts and the timeline
 
-**Latest Alerts** appears only when relevant games are live and the feed is fresh.
-The timeline remains available when idle, with the newest major event first.
+**RedZone Wire** remains available when idle, with the newest major event first.
 It includes published scoring plays and turnovers from games involving starters.
 
 **Good for me / Bad for me** estimates which leagues a recognisable event helps
@@ -310,7 +309,7 @@ reminders. Saved-data warnings are marked. Keep Game Day open; the browser may
 throttle background activity, and no operating-system scheduler runs while closed.
 
 Choose All events, My lineup impact only, or Close matchups first. This affects
-Latest Alerts and browser event notifications; the full Major Events timeline
+browser event notifications; the full RedZone Wire timeline
 always stays newest first. Close means a current margin within 10 points, falling
 back to a valid projected margin when current progress is unavailable. Personalised
 priority considers recent events and does not replay older events when changed.

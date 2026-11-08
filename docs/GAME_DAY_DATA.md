@@ -123,8 +123,8 @@ are upgraded once without blanking their saved event history.
 
 ### Matchup layout and browser alerts
 
-The matchup score sits above Latest Alerts, followed by the two starting lineups
-and newest-first event timeline. Score, alerts, each lineup, timeline, and the
+The matchup score sits above the two starting lineups and newest-first RedZone
+Wire event timeline. Score, each lineup, timeline, and the
 all-matchups list have independent Minimise/Expand controls. Their state is saved
 only in this browser (`ffa:matchup-panel:*`). Minimising keeps the event watcher
 mounted, so it does not stop alerts.
@@ -161,10 +161,9 @@ relevant scheduled kickoff and rechecks delayed starts each minute. Unknown
 status retries each minute. Hidden tabs pause unless browser alerts are enabled;
 offline tabs always pause. Source publication and browser throttling can add delay.
 
-Latest Alerts shows only events from relevant games currently in progress and
-only while the status is fresh. With no relevant game live it pauses, leaving
-previous events in the full timeline. Desktop event notifications likewise only
-cover currently live games. The notification preference can stay on between games.
+RedZone Wire remains available between games and keeps the full event timeline.
+Desktop event notifications only cover currently live games. The notification
+preference can stay on between games.
 
 The score panel shows the provider matchup projection when supplied. When a
 starter lacks a weekly provider projection but other starters have one, the
@@ -193,10 +192,9 @@ the same height with equal row space. A missing fixture for a player with an
 NFL team is labeled “Bye / no game scheduled”; unavailable game status stays
 explicit. Empty slots do not count as players.
 
-Latest Alerts is now completely hidden unless a relevant game is live and its
-status is fresh. The event watcher remains mounted to resume at kickoff, and
-historical events remain accessible in Major Events. The score-box explanatory
-paragraph has been removed.
+The event watcher remains mounted to resume at kickoff, and historical events
+remain accessible in RedZone Wire. The score-box explanatory paragraph has been
+removed.
 
 
 ### Unified homepage and Settings
@@ -299,10 +297,10 @@ pop-up views; minimising them preserves their event watchers.
 
 Shared-player rows show current fantasy points without expansion, preserving
 zero scores. Different league scoring produces a min–max range, never a sum;
-missing and saved scores are identified. The combined dashboard also reuses
-the weekly NFL feed for collapsible Latest Alerts and Major Events panels below
-the matchup scores. Alerts only appear for fresh live games; the full timeline
-remains available while idle, newest first. Each week's panel IDs are unique.
+missing and saved scores are identified. The combined dashboard reuses the
+weekly NFL feed for one full-width RedZone Wire panel below the matchup wall.
+The timeline remains available while idle, newest first. Each week's panel ID
+is unique.
 
 ### Game Day focus, impact and recaps
 
@@ -369,9 +367,8 @@ failed cached connections bypass metadata-cache hydration on the next load.
 automatically submitting or dropping the saved team choice.
 
 `ffa:experience:v1` persists kickoff checks and all/impact/close alert preference.
-The preference is shared by the combined Latest Alerts and browser event batches;
-standalone matchup alerts retain their existing chronological behavior. Notification
-baselines record all seen events before preference filtering, preventing replay.
+The preference applies to browser event batches. Notification baselines record
+all seen events before preference filtering, preventing replay.
 The full timeline is never reprioritized. Close priority uses current margin, with
 projected fallback, and the existing multiweek/missing-data guards.
 

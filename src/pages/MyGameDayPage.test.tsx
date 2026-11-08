@@ -167,19 +167,20 @@ it('defaults mobile to matchups and supports keyboard navigation between mounted
   expect(matchups).toHaveAttribute('aria-selected', 'true');
 });
 
-it('reuses one weekly feed for live alerts and newest-first combined events, then hides alerts when idle', async () => {
+it('shows one full-width RedZone Wire with newest-first events, including when idle', async () => {
   cacheLeague(a); rememberSavedLeague(a);
   const now = Date.now();
   const data = { fetchedAt: now, warnings: [], games: [{ id: 'g', name: 'CIN @ PIT', teams: ['CIN', 'PIT'], kickoff: '', state: 'in' as const, detail: '2nd quarter', quarter: 2, clock: '8:22' }], events: [1, 2].map(quarter => ({ id: `e${quarter}`, gameId: 'g', game: 'CIN @ PIT', kickoff: '', occurredAt: null, quarter, clock: '8:22', kind: 'Touchdown' as const, description: `Score in quarter ${quarter}` })) };
   vi.mocked(useMatchupTimeline).mockReturnValue({ data, loading: false, error: null, refresh: vi.fn() });
   const { rerender } = mount();
-  await screen.findByRole('heading', { name: 'Latest Alerts' });
+  await screen.findByRole('heading', { name: 'REDZONE WIRE' });
   const timeline = screen.getByRole('heading', { name: 'REDZONE WIRE' }).closest('section')!;
   expect(within(timeline).getAllByRole('listitem')[0]).toHaveTextContent('Score in quarter 2');
-  expect(screen.getByRole('link', { name: /Full timeline/ })).toHaveAttribute('href', '#home-2026:8-timeline-heading');
+  expect(timeline.closest('[class*="wireRow"]')).toBeInTheDocument();
+  expect(timeline.closest('[class*="wireRow"]')?.parentElement).toHaveClass(/homeLayout/);
   vi.mocked(useMatchupTimeline).mockReturnValue({ data: { ...data, games: data.games.map(game => ({ ...game, state: 'post' as const })) }, loading: false, error: null, refresh: vi.fn() });
   rerender(<MemoryRouter><MyGameDayPage /></MemoryRouter>);
-  await waitFor(() => expect(screen.queryByRole('heading', { name: 'Latest Alerts' })).not.toBeInTheDocument());
+  expect(screen.queryByRole('heading', { name: 'Latest Alerts' })).not.toBeInTheDocument();
   expect(screen.getByRole('heading', { name: 'REDZONE WIRE' })).toBeInTheDocument();
 });
 
