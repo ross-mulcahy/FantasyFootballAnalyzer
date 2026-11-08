@@ -3,6 +3,7 @@ import { lineupPosition } from '@/utils/lineups';
 import { loadLastConnection } from '@/utils/lastConnection';
 import { logger } from '@/utils/logger';
 import { decideTradeWinner } from '@/utils/tradeVerdict';
+import { singleFlight } from '@/utils/singleFlight';
 import {
   parseSleeperRosterPositions,
   calculateReplacementLevels,
@@ -31,13 +32,20 @@ const SLEEPER_IDP_POSITIONS = new Set(['DL', 'LB', 'DB', 'IDP_FLEX']);
 // Promise-based cache for player data to prevent race conditions
 // Using a Promise cache ensures concurrent calls share the same request
 let playerCachePromise: Promise<Record<string, SleeperAPI.Player>> | null = null;
+const pendingReads = new Map<string, Promise<unknown>>();
 
-async function fetchJSON<T>(endpoint: string): Promise<T> {
-  const response = await fetch(`${BASE_URL}${endpoint}`);
-  if (!response.ok) {
-    throw new Error(`Sleeper API error: ${response.status} ${response.statusText}`);
-  }
-  return response.json();
+function fetchJSON<T>(endpoint: string): Promise<T> {
+  return singleFlight(pendingReads, endpoint, async () => {
+    const response = await fetch(`${BASE_URL}${endpoint}`);
+    if (!response.ok) {
+      throw new Error(`Sleeper API error: ${response.status} ${response.statusText}`);
+    }
+    return response.json() as Promise<T>;
+  });
+}
+
+export function getWeeklyProjections(season: number | string, week: number): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/projections/nfl/regular/${season}/${week}`);
 }
 
 // What Sleeper's own UI shows: the team name the manager set for this

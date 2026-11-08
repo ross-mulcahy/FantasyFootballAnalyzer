@@ -87,6 +87,21 @@ the previous snapshot. Hidden/offline tabs pause until visibility/connectivity
 returns. Old-season snapshots do not treat another season's games as live.
 Yahoo and private ESPN account verification still requires authenticated leagues.
 
+Provider reads also use per-tab in-flight request sharing. Concurrent callers
+for the same Sleeper endpoint, ESPN query, or Yahoo endpoint receive one request;
+the result is removed as soon as it settles, including on failure. Sleeper's
+weekly projections are shared across league cards for the same season/week.
+ESPN request identity includes private cookies, and Yahoo identity includes the
+access token, so authenticated responses cannot cross accounts. Yahoo's separate
+concurrency and retry controls still apply to distinct requests. This does not
+reuse a completed live score or roster response: manual and scheduled refreshes
+still contact the provider. The shared Sleeper player catalogue retains its
+existing session cache because it is a large, league-independent download.
+
+This sharing is local to one browser tab. It does not reduce identical reads
+made by different visitors; that would require a server-side cache for public
+data, with explicit freshness rules and isolation for authenticated providers.
+
 
 ## Matchup alerts and game status
 

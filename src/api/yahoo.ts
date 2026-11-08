@@ -6,6 +6,7 @@ import { calculateGamesPAR, calculateReplacementLevels } from '@/utils/par';
 import { seasonOverByCalendar } from '@/utils/leaguePhase';
 import { safeLocalStorage, safeSessionStorage } from '@/utils/safeStorage';
 import { pacedYahooFetch } from './yahooPacing';
+import { singleFlight } from '@/utils/singleFlight';
 
 // Backend API URL - Vercel deployment
 const API_BASE = (import.meta.env.VITE_YAHOO_API_URL || '').replace(/\/+$/, '');
@@ -311,6 +312,8 @@ export function yahooPosition(p: { display_position?: string; primary_position?:
 // throttles. Nothing here should call fetch() for Yahoo directly.
 
 // Make authenticated API request
+const pendingReads = new Map<string, Promise<unknown>>();
+
 export async function yahooFetch<T>(endpoint: string): Promise<T> {
   // Check if token needs refresh
   if (isTokenExpired()) {
@@ -322,6 +325,13 @@ export async function yahooFetch<T>(endpoint: string): Promise<T> {
     throw new Error('Not authenticated with Yahoo (401)');
   }
 
+  // Coalesce only reads for the same authenticated account. The existing
+  // Yahoo pacer still controls distinct requests and handles throttling.
+  return singleFlight(pendingReads, JSON.stringify([accessToken, endpoint]),
+    () => yahooFetchUnshared<T>(endpoint, accessToken));
+}
+
+async function yahooFetchUnshared<T>(endpoint: string, accessToken: string): Promise<T> {
   const response = await pacedYahooFetch(
     `${API_BASE}/api/yahoo-api?endpoint=${encodeURIComponent(endpoint)}`,
     {

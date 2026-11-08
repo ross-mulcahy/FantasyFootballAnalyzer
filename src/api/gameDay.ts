@@ -215,10 +215,7 @@ export async function loadGameDay(league: League, credentials: LeagueCredentials
       if (!Array.isArray(rosters) || !Array.isArray(matches)) throw new Error('Sleeper did not return rosters and matchups.');
       const [stats, projections] = await Promise.allSettled([
         sleeper.getSeasonStats(String(league.season), week),
-        fetch(`https://api.sleeper.app/v1/projections/nfl/regular/${league.season}/${week}`).then(response => {
-          if (!response.ok) throw new Error(`Sleeper projections: ${response.status}`);
-          return response.json() as Promise<Record<string, unknown>>;
-        }),
+        sleeper.getWeeklyProjections(league.season, week),
       ]);
       return {
         ...mapSleeperSnapshot(league, raw, users, rosters, players, matches, week, stats.status === 'fulfilled' ? stats.value : {}, projections.status === 'fulfilled' ? object(projections.value) : {}),

@@ -4,6 +4,7 @@ import { logger } from '@/utils/logger';
 import { decideTradeWinner } from '@/utils/tradeVerdict';
 import { calculateReplacementLevels } from '@/utils/par';
 import { seasonOverByCalendar } from '@/utils/leaguePhase';
+import { singleFlight } from '@/utils/singleFlight';
 
 // Direct ESPN API for public leagues
 const ESPN_DIRECT_URL = 'https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons';
@@ -60,7 +61,21 @@ interface FetchOptions {
   extend?: string;
 }
 
-export async function fetchESPN<T>(
+const pendingReads = new Map<string, Promise<unknown>>();
+
+export function fetchESPN<T>(
+  season: number,
+  leagueId: string,
+  views: string[],
+  options?: FetchOptions,
+): Promise<T> {
+  // Credentials are part of the transient key: private leagues must never
+  // share a response between distinct ESPN sessions.
+  const key = JSON.stringify([season, leagueId, views, options]);
+  return singleFlight(pendingReads, key, () => fetchESPNUnshared<T>(season, leagueId, views, options));
+}
+
+async function fetchESPNUnshared<T>(
   season: number,
   leagueId: string,
   views: string[],
