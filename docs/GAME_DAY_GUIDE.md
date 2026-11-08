@@ -120,6 +120,12 @@ a clip in this browser and tries another official candidate when available;
 when future candidates have comparable play evidence. This feedback stays in
 local browser storage and is never sent to the metadata service.
 
+**Director Diagnostics** in Watch Mode shows the current metadata feed, queue,
+last player state or error, and why each title match is automatic, manual, or
+skipped. It is local to the open browser session. If YouTube blocks an embed
+despite an allowed embed flag, its video ID is excluded for the rest of that
+session and the direct YouTube link remains available.
+
 For automatic title matching on Spacefast, add `YOUTUBE_API_KEY` as a Secret in
 the **Fantasy Game Day** Space's Variables. For local Vite development use
 `.env.local`; for the separate Vercel API use its server environment. Enable

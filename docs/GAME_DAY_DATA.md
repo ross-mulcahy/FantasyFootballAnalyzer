@@ -58,6 +58,8 @@ matches for older plays are called out for manual viewing. Wrong-play feedback
 excludes a video locally; successful playback provides a small source preference
 only among candidates with comparable play evidence. Video files are neither
 copied nor proxied by this app.
+The Watch Mode diagnostics panel displays candidate and playback decisions
+locally; it sends no playback or feedback telemetry to the server.
 
 ## Refresh and cache
 
