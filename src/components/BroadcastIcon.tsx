@@ -16,6 +16,26 @@ export function BroadcastIcon({ kind = 'grid', size = 14 }: { kind?: string; siz
     sync: 'M20 7a8 8 0 0 0-14-2L3 8 M3 3v5h5 M4 17a8 8 0 0 0 14 2l3-3 M21 21v-5h-5',
     menu: 'M3 6h18 M3 12h18 M3 18h18',
     alert: 'M12 3 2 21h20z M12 9v5 M12 17v1',
+    // Sidebar hardware symbols use only straight segments so they stay legible at 17px.
+    'monitor-wall': 'M2 3h9v8H2z M13 3h9v8h-9z M2 13h9v8H2z M13 13h9v8h-9z M4 9h5 M15 9h5 M4 19h5 M15 19h5',
+    matchup: 'M2 5h8v14H2z M14 5h8v14h-8z M4 9h4 M4 13h3 M16 9h4 M17 13h3 M11 10l1 2 1-2 M11 15h2',
+    lineup: 'M4 3h16v18H4z M7 7h3v3H7z M12 8h5 M7 12h3v3H7z M12 13h5 M7 17h3v2H7z M12 18h5',
+    claim: 'M3 4h18v5c-2 0-2 6 0 6v5H3v-5c2 0 2-6 0-6z M12 6v9 M9 12l3 3 3-3 M6 4v3 M18 17v3',
+    'medical-tent': 'M2 19 12 4l10 15z M7 19l5-8 5 8 M12 12v5 M10 14h4 M4 21h16',
+    'trade-cards': 'M2 4h7v7H2z M15 13h7v7h-7z M11 7h10l-3-3 M21 7l-3 3 M13 17H3l3-3 M3 17l3 3',
+    'scout-card': 'M4 2h16v20H4z M12 5h1v1h-1z M9 9h6v2H9z M7 17v-2l2-2h6l2 2v2z M8 20h8',
+    dossier: 'M3 3v18 M4 4h13l-3 4 3 4H4z M6 16h15v5H6z M9 18h2 M13 18h2 M17 18h2',
+    'report-card': 'M4 2h16v20H4z M7 6h5 M7 10h5 M7 14h4 M15 10l2-4 2 4 M15.5 8.5h3 M14 17h4',
+    'lucky-die': 'M3 3h18v18H3z M7 7h2 M15 7h2 M11 12h2 M7 17h2 M15 17h2',
+    'draft-board': 'M3 3h18v18H3z M4 9h16 M4 15h16 M10 4v16 M6 6h2 M13 6h5 M6 12h2 M13 12h5 M6 18h2 M13 18h5',
+    'archive-tape': 'M2 5h20v14H2z M6 9h4v4H6z M14 9h4v4h-4z M8 13l2 3h4l2-3 M5 17h14',
+    'pixel-trophy': 'M7 3h10v7l-2 3H9l-2-3z M7 5H3v4l4 3 M17 5h4v4l-4 3 M12 13v5 M8 18h8v3H8z',
+    replay: 'M19 7V3l3 4-3 4V8a8 8 0 1 0 1 8 M10 8l6 4-6 4z',
+    mixer: 'M3 6h18 M3 12h18 M3 18h18 M7 3v6 M5 4h4v4H5z M16 9v6 M14 10h4v4h-4z M10 15v6 M8 16h4v4H8z',
+    podium: 'M2 21V13h6v8 M9 21V6h6v15 M16 21v-10h6v10 M2 21h20 M11 10h2 M18 14h2 M4 16h2',
+    'price-tag': 'M3 4h11l7 8-7 8H3z M7 8h2v2H7z M12 9v6 M10 11h4 M10 14h4',
+    steps: 'M2 21h20 M3 18h4v-5h5V9h5V4h4 M17 4h4v4',
   };
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[kind] ?? paths.grid} /></svg>;
+  const pixel = ['monitor-wall', 'matchup', 'lineup', 'claim', 'medical-tent', 'trade-cards', 'scout-card', 'dossier', 'report-card', 'lucky-die', 'draft-board', 'archive-tape', 'pixel-trophy', 'replay', 'mixer', 'podium', 'price-tag', 'steps'].includes(kind);
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap={pixel ? 'square' : 'round'} strokeLinejoin={pixel ? 'miter' : 'round'} aria-hidden="true"><path d={paths[kind] ?? paths.grid} /></svg>;
 }

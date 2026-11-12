@@ -218,6 +218,9 @@
 
 .settingsPage :global(.container) { max-width: 896px; }
 .settingsPage .card + .card { margin-top: 1rem; }
+.spacefastCredit { display: flex; align-items: center; justify-content: center; gap: .65rem; width: fit-content; margin: 1.5rem auto 0; padding: .4rem .75rem; border: 1px solid #2a3f7a; background: #0d1836; color: #cbd5e1; font: .7rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; text-decoration: none; }
+.spacefastCredit:hover, .spacefastCredit:focus-visible { border-color: #ffb800; color: #f8fafc; }
+.spacefastCredit img { display: block; width: 120px; height: auto; }
 .experienceFields .closeFilter input { appearance: none; position: relative; width: 2.5rem; height: 1.4rem; border: 1px solid var(--rule); border-radius: 99px; background: #1e293b; transition: background .15s ease; }
 .experienceFields .closeFilter input::before { content: ''; position: absolute; top: .18rem; left: .18rem; width: .9rem; height: .9rem; border-radius: 50%; background: var(--bone-dim); transition: transform .15s ease; }
 .experienceFields .closeFilter input:checked { background: var(--lime); border-color: var(--lime); }

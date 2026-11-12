@@ -46,5 +46,9 @@ export function SettingsPage({ onLoadLeague, isLoading, error, progress }: {
       </div>}
     </StudioMonitorFrame>
     <ExperienceSettings />
+    <a className={styles.spacefastCredit} href="https://spacefast.com/" target="_blank" rel="noopener noreferrer" aria-label="Built on Spacefast (opens in a new tab)">
+      <span>Built on</span>
+      <img src={`${import.meta.env.BASE_URL}spacefast-logo.jpg`} alt="" width="120" height="63" />
+    </a>
   </div></div>;
 }
