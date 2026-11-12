@@ -383,12 +383,12 @@ export function LuckPage({ league }: LuckPageProps) {
             <h2 className={styles.sectionTitle}>Injury Luck</h2>
             <p className={styles.note}><Link to="/blue-tent">Open The Blue Tent for the full season comparison →</Link></p>
             <p className={styles.note}>
-              Weeks a drafted player sat out (byes excluded) while still on the
-              roster, priced at what he scores per game above a replacement-level
+              Weeks a drafted player or waiver pickup sat out (byes excluded)
+              during his ownership window, priced at what he scores per game above a replacement-level
               pickup at his position. A player no better than the waiver wire
               costs nothing when he sits; a stud costs the gap. Only weeks after
-              his first game count: a player drafted while already hurt (or
-              suspended, or holding out) was a draft call, not bad luck. The week
+              his first game for that team count: a player acquired while already hurt
+              is not counted until he first plays. The week
               in progress counts once the injury report has him out.
             </p>
             <div className={`${styles.table} scroll-x-hint`}>

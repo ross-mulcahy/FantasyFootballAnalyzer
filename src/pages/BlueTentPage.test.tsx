@@ -15,7 +15,7 @@ beforeEach(() => {
   vi.mocked(completedMatchups).mockReturnValue([{ week: 1, team1Id: 'a', team2Id: 'b', team1Points: 90, team2Points: 95 }]);
   vi.mocked(leagueInjuryLuck).mockReturnValue([
     { teamId: 'a', gamesMissed: 1, valueLost: 8, players: [{ playerId: 'p1', name: 'First Player', position: 'RB', weeksMissed: 1, missedWeeks: [2], perGame: 18, replacementPerGame: 10, valueLost: 8 }] },
-    { teamId: 'b', gamesMissed: 2, valueLost: 22, players: [{ playerId: 'p2', name: 'Second Player', position: 'WR', weeksMissed: 2, missedWeeks: [2, 3], perGame: 21, replacementPerGame: 10, valueLost: 22 }] },
+    { teamId: 'b', gamesMissed: 2, valueLost: 22, players: [{ playerId: 'p2', name: 'Second Player', position: 'WR', acquisition: 'waiver', weeksMissed: 2, missedWeeks: [2, 3], perGame: 21, replacementPerGame: 10, valueLost: 22 }] },
   ]);
 });
 
@@ -27,11 +27,12 @@ it('ranks teams by estimated cost and reveals player weeks without presenting th
   fireEvent.click(within(board).getByText('Team B'));
   expect(within(board).getByText('Second Player')).toBeInTheDocument();
   expect(within(board).getByText('WK 3')).toBeInTheDocument();
+  expect(within(board).getByText(/waiver \/ free agent/)).toBeInTheDocument();
   expect(screen.getByText(/Historical absences can include non-injury reasons/)).toBeInTheDocument();
 });
 
 it('explains missing coverage instead of reporting a clean medical board', () => {
   vi.mocked(leagueInjuryLuck).mockReturnValue([]);
   render(<MemoryRouter><BlueTentPage league={league} /></MemoryRouter>);
-  expect(screen.getByText(/does not have enough completed-week, draft, and player-game history/)).toBeInTheDocument();
+  expect(screen.getByText(/does not have enough completed-week, player-game, and acquisition history/)).toBeInTheDocument();
 });

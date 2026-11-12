@@ -1,6 +1,6 @@
 // Injury luck (luckDetails.injuryLuck) wired to this app's data: league-scoring
 // replacement levels from the bundled pool, Sleeper's games-played feed, and
-// a projection for a drafted player who hasn't played yet. Shared by the Luck
+// a projection fallback when a player has no usable weekly point history. Shared by the Luck
 // tab and the Infirmary / Iron Man awards so both read the same numbers.
 
 import type { League, Player } from '@/types';

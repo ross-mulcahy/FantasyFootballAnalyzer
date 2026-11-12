@@ -11,6 +11,8 @@ it('groups the full connected command navigation and keeps matchups league-scope
   mount('/trades');
   const nav = within(screen.getByRole('navigation', { name: 'Main navigation' }));
   for (const group of ['CONTROL ROOM', 'FRONT OFFICE', 'TELEMETRY', 'THE VAULT']) expect(nav.getByRole('heading', { name: group })).toBeInTheDocument();
+  expect(within(nav.getByRole('heading', { name: 'FRONT OFFICE' }).parentElement!).getByRole('link', { name: 'The Blue Tent' })).toHaveAttribute('href', '/blue-tent');
+  expect(within(nav.getByRole('heading', { name: 'TELEMETRY' }).parentElement!).queryByRole('link', { name: 'The Blue Tent' })).not.toBeInTheDocument();
   expect(nav.getByRole('link', { name: 'League Matchups' })).toHaveAttribute('href', '/game-day?league=sleeper%3Al1&year=2026');
   expect(nav.getByRole('link', { name: 'Trades' })).toHaveAttribute('aria-current', 'page');
   expect(nav.queryByRole('link', { name: 'PDF Export' })).not.toBeInTheDocument();

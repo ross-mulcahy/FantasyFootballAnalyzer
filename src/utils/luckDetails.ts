@@ -4,8 +4,8 @@
 //    relative to those opponents' own norms ("they saved their best for you").
 //  - Schedule swap: every team's record had it played every other team's
 //    schedule. The cleanest picture of how much the schedule decided.
-//  - Injury luck: weeks each team's draft picks sat out (not a bye) while
-//    still on the roster, priced at what they score above replacement.
+//  - Injury luck: weeks a team's draft picks or waiver additions sat out (not
+//    a bye) while owned, priced at what they score above replacement.
 //
 // All of it runs on finished weeks only (pass completedMatchups()).
 
@@ -220,16 +220,15 @@ export function summarizeScheduleSwap(swap: ScheduleSwap): ScheduleSwapSummary[]
 
 // ─── Injury luck ──────────────────────────────────────────────────────────
 //
-// What a manager actually loses when a drafted player sits: the roster spot
+// What a manager actually loses when an owned player sits: the roster spot
 // stops producing above what the waiver wire would have given. So each missed
 // week is priced at max(0, his per-game rate - replacement per game at his
 // position). A sub-replacement player missing time costs nothing (you'd have
 // streamed that slot anyway); a stud missing time costs the gap.
 //
-// Only weeks after his first game count. A player who hadn't played yet was
-// hurt (or suspended, or holding out) before the season, which the drafter
-// knew or could have known; that's a draft call, not luck. The week in
-// progress counts when the injury report already has him out.
+// Only weeks after his first game in that ownership spell count. A player who
+// has not played since being drafted or claimed may already have been hurt
+// when acquired. The week in progress counts when the injury report has him out.
 
 // Sleeper's per-week `gp` flags (league.gamesPlayed). Structural so this file
 // doesn't depend on where the type lives.
@@ -245,6 +244,8 @@ export interface MissedPlayer {
   position: string;
   weeksMissed: number;
   missedWeeks: number[];
+  // How this team acquired him during the counted ownership spells.
+  acquisition?: 'draft' | 'waiver' | 'both';
   // Per game in the weeks he played (0-point games included), or his
   // projection when he hasn't played at all.
   perGame: number;
@@ -283,18 +284,36 @@ export interface InjuryLuckContext {
   byeWeek?: (p: Player) => number | undefined;
 }
 
-// Week a team let the player go (drop or trade), or Infinity if he stayed.
-function releaseWeek(team: League['teams'][number], player: Player, trades: League['trades']): number {
-  let week = Infinity;
-  for (const t of team.transactions ?? []) {
-    if (t.drops.some(d => d.id === player.id)) week = Math.min(week, Math.max(1, t.week));
+interface OwnershipSpell {
+  player: Player;
+  acquisition: 'draft' | 'waiver';
+  startWeek: number;
+  endWeek: number;
+  seasonPoints?: number;
+}
+
+function ownershipSpells(team: League['teams'][number], trades: League['trades']): OwnershipSpell[] {
+  const acquired = [
+    ...(team.draftPicks ?? []).map(pick => ({ player: pick.player, acquisition: 'draft' as const, week: 1, at: -Infinity, seasonPoints: pick.seasonPoints })),
+    ...(team.transactions ?? []).filter(t => t.type === 'waiver' || t.type === 'free_agent').flatMap(t =>
+      t.adds.map(player => ({ player, acquisition: 'waiver' as const, week: Math.max(1, t.week), at: t.timestamp, seasonPoints: undefined }))),
+  ].sort((a, b) => a.week - b.week || a.at - b.at);
+  const released = [
+    ...(team.transactions ?? []).flatMap(t => t.drops.map(player => ({ playerId: player.id, week: Math.max(1, t.week), at: t.timestamp }))),
+    ...[...(trades ?? []), ...(team.trades ?? [])].filter(trade => trade.status === 'completed').flatMap(trade =>
+      (trade.teams.find(side => side.teamId === team.id)?.playersSent ?? []).map(player => ({ playerId: player.id, week: Math.max(1, trade.week), at: trade.timestamp }))),
+  ];
+  const spells: OwnershipSpell[] = [];
+  for (const item of acquired) {
+    const previous = spells.find(spell => spell.player.id === item.player.id && item.week < spell.endWeek);
+    if (previous) continue; // Duplicate provider add while already owned.
+    const release = released.filter(event => event.playerId === item.player.id &&
+      (event.week > item.week || (event.week === item.week && event.at > item.at)))
+      .sort((a, b) => a.week - b.week || a.at - b.at)[0];
+    spells.push({ player: item.player, acquisition: item.acquisition, startWeek: item.week,
+      endWeek: release?.week ?? Infinity, seasonPoints: item.seasonPoints });
   }
-  for (const trade of [...(trades ?? []), ...(team.trades ?? [])]) {
-    if (trade.status !== 'completed') continue;
-    const side = trade.teams.find(s => s.teamId === team.id);
-    if (side?.playersSent.some(p => p.id === player.id)) week = Math.min(week, Math.max(1, trade.week));
-  }
-  return week;
+  return spells;
 }
 
 // Returns [] when there is no way to tell played weeks from missed ones (no
@@ -319,8 +338,9 @@ export function injuryLuck(
     if (playedCache.has(p.id)) return playedCache.get(p.id);
     let set: Set<number> | undefined;
     const sid = gp ? ctx.sleeperIdOf?.(p) : undefined;
-    if (gp && sid) set = new Set(gp.bySleeperId[sid] ?? []);
-    else if (!gp) {
+    if (gp && sid && Object.prototype.hasOwnProperty.call(gp.bySleeperId, sid)) {
+      set = new Set(gp.bySleeperId[sid]);
+    } else {
       const pts = pointsOf(p);
       if (pts) set = new Set(Object.keys(pts).map(Number));
     }
@@ -329,13 +349,17 @@ export function injuryLuck(
   };
 
   const isCore = (pos: string) => pos !== 'K' && pos !== 'DST' && pos !== 'DEF';
-  const picksByTeam = league.teams.map(team => ({
+  const spellsByTeam = league.teams.map(team => ({
     team,
-    picks: (team.draftPicks ?? []).filter(pk => isCore(pk.player.position)),
+    spells: ownershipSpells(team, league.trades).filter(spell => isCore(spell.player.position)),
   }));
-  const allPicks = picksByTeam.flatMap(t => t.picks);
-  const covered = allPicks.filter(pk => playedWeeks(pk.player)).length;
-  if (allPicks.length === 0 || covered < allPicks.length / 2) return [];
+  const allSpells = spellsByTeam.flatMap(t => t.spells);
+  // Sparse transaction history must not hide an otherwise usable draft
+  // report. Waiver-only leagues use the same coverage check on their claims.
+  const baseline = allSpells.filter(spell => spell.acquisition === 'draft');
+  const coverageBase = baseline.length ? baseline : allSpells;
+  const covered = coverageBase.filter(spell => playedWeeks(spell.player)).length;
+  if (coverageBase.length === 0 || covered < coverageBase.length / 2) return [];
 
   // Bye weeks, inferred: the judged week in which no player we know of on
   // that NFL team played. A week of missing data reads as everyone's bye,
@@ -352,23 +376,24 @@ export function injuryLuck(
   for (const t of league.teams) {
     t.roster?.forEach(noteTeam);
     t.draftPicks?.forEach(pk => noteTeam(pk.player));
+    t.transactions?.forEach(transaction => transaction.adds.forEach(noteTeam));
   }
 
-  return picksByTeam.map(({ team, picks }) => {
-    const players: MissedPlayer[] = [];
-    for (const pk of picks) {
-      const p = pk.player;
+  return spellsByTeam.map(({ team, spells }) => {
+    const byPlayer = new Map<string, MissedPlayer>();
+    for (const spell of spells) {
+      const p = spell.player;
       const played = playedWeeks(p);
       const nflWeeks = p.team ? nflPlayed.get(p.team) : undefined;
       // No known NFL team means no bye to exclude; skip rather than guess.
       if (!played || !nflWeeks) continue;
-      const until = releaseWeek(team, p, league.trades);
-      // Missing before his first game is a preseason absence, not luck.
-      const firstPlayed = judged.find(w => played.has(w));
+      // A waiver claim starts a new ownership spell. Pre-pickup absences and
+      // time after a drop are never charged to this team.
+      const firstPlayed = judged.find(w => w >= spell.startWeek && w < spell.endWeek && played.has(w));
       if (firstPlayed === undefined) continue;
       const missedWeeks: number[] = [];
       for (const w of judged) {
-        if (w <= firstPlayed || w >= until || !nflWeeks.has(w)) continue;
+        if (w <= firstPlayed || w >= spell.endWeek || !nflWeeks.has(w) || ctx.byeWeek?.(p) === w) continue;
         if (!played.has(w)) missedWeeks.push(w);
       }
       const injury = ctx.injuryNow?.(p);
@@ -377,7 +402,7 @@ export function injuryLuck(
         cur !== undefined &&
         !judged.includes(cur) &&
         cur > firstPlayed &&
-        cur < until &&
+        cur < spell.endWeek &&
         injury?.outNow === true &&
         !played.has(cur) &&
         ctx.byeWeek?.(p) !== cur;
@@ -385,7 +410,7 @@ export function injuryLuck(
       const weeksMissed = missedWeeks.length;
       if (weeksMissed === 0) continue;
 
-      const playedJudged = judged.filter(w => played.has(w));
+      const playedJudged = judged.filter(w => w >= spell.startWeek && w < spell.endWeek && played.has(w));
       const pts = pointsOf(p);
       let perGame: number | undefined;
       if (playedJudged.length > 0) {
@@ -395,8 +420,14 @@ export function injuryLuck(
           // A season total covers every game to date: the in-progress week
           // (Yahoo adds it back) and playoff weeks, which judged leaves out.
           // Divide by every game played, or the rate inflates.
-          const total = pk.seasonPoints ?? p.seasonPoints;
-          if (total !== undefined) perGame = total / Math.max(played.size, playedJudged.length);
+          if (spell.acquisition === 'waiver') {
+            // Whole-season totals include games before the pickup. Use the
+            // provider's pickup-window rate only when weekly points are absent.
+            if (p.gamesSincePickup) perGame = (p.pointsSincePickup ?? 0) / p.gamesSincePickup;
+          } else {
+            const total = spell.seasonPoints ?? p.seasonPoints;
+            if (total !== undefined) perGame = total / Math.max(played.size, playedJudged.length);
+          }
         }
       }
       perGame ??= ctx.projectedPerGame?.(p);
@@ -405,12 +436,25 @@ export function injuryLuck(
       const repl = ctx.replacementPerGame(p.position);
       const valueLost = weeksMissed * Math.max(0, perGame - repl);
       if (valueLost <= 0) continue;
-      players.push({
+      const previous = byPlayer.get(p.id);
+      if (previous) {
+        previous.missedWeeks = [...new Set([...previous.missedWeeks, ...missedWeeks])].sort((a, b) => a - b);
+        previous.weeksMissed = previous.missedWeeks.length;
+        previous.valueLost = round1(previous.valueLost + valueLost);
+        previous.perGame = round1(perGame);
+        previous.replacementPerGame = round1(repl);
+        previous.acquisition = previous.acquisition === spell.acquisition ? previous.acquisition : 'both';
+        previous.outThisWeek ||= outThisWeek;
+        previous.seasonEnding ||= injury?.seasonEnding;
+        continue;
+      }
+      byPlayer.set(p.id, {
         playerId: p.id,
         name: p.name,
         position: p.position,
         weeksMissed,
         missedWeeks,
+        acquisition: spell.acquisition,
         perGame: round1(perGame),
         replacementPerGame: round1(repl),
         valueLost: round1(valueLost),
@@ -418,6 +462,7 @@ export function injuryLuck(
         ...(injury?.seasonEnding && { seasonEnding: true }),
       });
     }
+    const players = [...byPlayer.values()];
     players.sort((a, b) => b.valueLost - a.valueLost);
     return {
       teamId: team.id,

@@ -130,6 +130,55 @@ describe('injuryLuck', () => {
     expect(a.gamesMissed).toBe(1);
   });
 
+  it('counts waiver pickups only after they first play for the acquiring team', () => {
+    const waiver = {
+      ...league,
+      teams: [
+        { id: 'A', name: 'A', transactions: [{ id: 'claim', type: 'waiver', timestamp: 10, week: 2, teamId: 'A', teamName: 'A', adds: [star], drops: [] }] },
+        { id: 'B', name: 'B', draftPicks: [pick(1, mate, 'B')] },
+      ],
+      // Star missed W1, played W2, and missed W3 while his NFL teammate played.
+      playerWeeklyPoints: { '1': { 2: 20 }, '2': { 1: 10, 2: 12, 3: 8 } },
+    } as League;
+    const a = injuryLuck(waiver, [1, 2, 3], ctx).find(r => r.teamId === 'A')!;
+    expect(a.gamesMissed).toBe(1);
+    expect(a.valueLost).toBe(12);
+    expect(a.players[0]).toMatchObject({ acquisition: 'waiver', missedWeeks: [3] });
+  });
+
+  it('does not charge a claim made while a player is already absent until he appears', () => {
+    const waiver = {
+      ...league,
+      teams: league.teams.map(t => t.id === 'A' ? {
+        id: 'A', name: 'A', transactions: [{ id: 'claim', type: 'free_agent', timestamp: 10, week: 2, teamId: 'A', teamName: 'A', adds: [star], drops: [] }],
+      } : t),
+      playerWeeklyPoints: { ...league.playerWeeklyPoints, '1': { 1: 20 } },
+    } as League;
+    const a = injuryLuck(waiver, [1, 2, 3], ctx).find(r => r.teamId === 'A')!;
+    expect(a.gamesMissed).toBe(0);
+  });
+
+  it('separates draft and later waiver ownership spells without double-counting provider adds', () => {
+    const replay = {
+      ...league,
+      teams: league.teams.map(t => t.id === 'A' ? { ...t, transactions: [
+        { id: 'drop', type: 'free_agent', timestamp: 10, week: 3, teamId: 'A', teamName: 'A', adds: [], drops: [star] },
+        { id: 'reclaim', type: 'waiver', timestamp: 20, week: 4, teamId: 'A', teamName: 'A', adds: [star], drops: [] },
+        { id: 'duplicate', type: 'waiver', timestamp: 21, week: 4, teamId: 'A', teamName: 'A', adds: [star], drops: [] },
+      ] } : t),
+      playerWeeklyPoints: {
+        ...league.playerWeeklyPoints,
+        '1': { 1: 20, 4: 20 },
+        '2': { 1: 10, 2: 12, 3: 8, 4: 10, 5: 9 },
+      },
+    } as League;
+    const a = injuryLuck(replay, [1, 2, 3, 4, 5], ctx).find(r => r.teamId === 'A')!;
+    expect(a.gamesMissed).toBe(2);
+    expect(a.valueLost).toBe(24);
+    expect(a.players).toHaveLength(1);
+    expect(a.players[0]).toMatchObject({ acquisition: 'both', missedWeeks: [2, 5] });
+  });
+
   it('counts a played 0-point game as played when the gp feed is present', () => {
     // Weekly points have no W2 entry for the WR (Sleeper drops zeros), but
     // the gp feed says he played. Without the feed it would read as missed.

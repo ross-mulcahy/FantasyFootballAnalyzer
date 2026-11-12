@@ -41,7 +41,7 @@ export function BlueTentPage({ league }: { league: League }) {
     </header>
     <StudioTeleprompterBar league={league} takes={takes} />
     {ranked.length === 0 ? <StudioMonitorFrame as="section" channelCode="MED 00" title="NO SEASON SIGNAL" padded className={styles.empty}>
-      <p>This league does not have enough completed-week, draft, and player-game history for a fair comparison. Try refreshing its data; the report stays empty if coverage is unavailable.</p>
+      <p>This league does not have enough completed-week, player-game, and acquisition history for a fair comparison. Try refreshing its data; the report stays empty if coverage is unavailable.</p>
     </StudioMonitorFrame> : <>
       <div className={styles.stats}>
         <StudioMonitorFrame channelCode="MED 01" title="HEAVIEST HIT" padded><strong>{top && top.valueLost > 0 ? nameOf.get(top.teamId) : 'No losses recorded'}</strong><span>{top && top.valueLost > 0 ? `${points(top.valueLost)} estimated pts` : '0.0 estimated pts'}</span></StudioMonitorFrame>
@@ -59,7 +59,7 @@ export function BlueTentPage({ league }: { league: League }) {
             return <details className={styles.team} key={team.teamId}>
               <summary><span className={styles.rank}>{String(index + 1).padStart(2, '0')}</span><span className={styles.teamName}><TeamLink teamId={team.teamId} name={nameOf.get(team.teamId) ?? 'Unknown team'} /></span><span className={styles.bar} aria-hidden="true"><i style={{ width: `${top?.valueLost ? team.valueLost / top.valueLost * 100 : 0}%` }} /></span><span className={styles.cost}>{points(team.valueLost)} <small>PTS</small></span><span className={styles.games}>{team.gamesMissed} MISSED</span><span className={styles.expand} aria-hidden="true">⌄</span></summary>
               <div className={styles.details}>{team.players.length ? team.players.map(player => <div className={styles.player} key={player.playerId}>
-                <div><b>{player.name}</b><span>{player.position} · {starts.get(player.playerId) ?? 0} recorded starts · {player.weeksMissed} missed {player.weeksMissed === 1 ? 'game' : 'games'}{player.outThisWeek ? ' · OUT THIS WEEK' : ''}</span></div>
+                <div><b>{player.name}</b><span>{player.position} · {player.acquisition === 'both' ? 'drafted + reclaimed' : player.acquisition === 'waiver' ? 'waiver / free agent' : 'drafted'} · {starts.get(player.playerId) ?? 0} recorded starts · {player.weeksMissed} missed {player.weeksMissed === 1 ? 'game' : 'games'}{player.outThisWeek ? ' · OUT THIS WEEK' : ''}</span></div>
                 <div className={styles.weeks}>{player.missedWeeks.map(week => <span key={week}>WK {week}</span>)}</div>
                 <strong>−{points(player.valueLost)} PTS</strong>
               </div>) : <p>No above-replacement missed games recorded for this team.</p>}</div>
@@ -71,6 +71,6 @@ export function BlueTentPage({ league }: { league: League }) {
         <div className={styles.weekGrid}>{[...weekCosts].sort(([a], [b]) => a - b).map(([week, cost]) => <div className={styles.week} key={week}><span>WK {week}</span><div aria-label={`Week ${week}: ${points(cost)} estimated points lost`}><i style={{ height: `${Math.max(6, cost / maxWeekCost * 100)}%` }} /></div><b>{points(cost)}</b></div>)}</div>
       </StudioMonitorFrame>}
     </>}
-    <p className={styles.method}>The estimate counts drafted players still with their team who missed an NFL game after first playing, excluding byes and releases. Cost = missed games × points per played game above a league-specific replacement. Historical absences can include non-injury reasons; only a current OUT report is confirmed as an injury flag. It does not claim those points or wins would have occurred. Zero-point games count as played when the games-played feed is available. Waiver pickups and players who never appeared are outside this estimate.</p>
+    <p className={styles.method}>The estimate covers drafted players and waiver or free-agent pickups during the weeks each team owned them. Only absences after their first game in that ownership spell count; byes and weeks after a drop are excluded. Cost = missed games × points per played game above a league-specific replacement. Historical absences can include non-injury reasons; only a current OUT report is confirmed as an injury flag. It does not claim those points or wins would have occurred. Zero-point games count as played when the games-played feed is available. Players who never appeared and trade acquisitions are outside this estimate.</p>
   </div></div>;
 }
