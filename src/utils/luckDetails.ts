@@ -240,9 +240,11 @@ export interface GamesPlayedLike {
 }
 
 export interface MissedPlayer {
+  playerId: string;
   name: string;
   position: string;
   weeksMissed: number;
+  missedWeeks: number[];
   // Per game in the weeks he played (0-point games included), or his
   // projection when he hasn't played at all.
   perGame: number;
@@ -364,10 +366,10 @@ export function injuryLuck(
       // Missing before his first game is a preseason absence, not luck.
       const firstPlayed = judged.find(w => played.has(w));
       if (firstPlayed === undefined) continue;
-      let weeksMissed = 0;
+      const missedWeeks: number[] = [];
       for (const w of judged) {
         if (w <= firstPlayed || w >= until || !nflWeeks.has(w)) continue;
-        if (!played.has(w)) weeksMissed++;
+        if (!played.has(w)) missedWeeks.push(w);
       }
       const injury = ctx.injuryNow?.(p);
       const cur = ctx.currentWeek;
@@ -379,7 +381,8 @@ export function injuryLuck(
         injury?.outNow === true &&
         !played.has(cur) &&
         ctx.byeWeek?.(p) !== cur;
-      if (outThisWeek) weeksMissed++;
+      if (outThisWeek && cur !== undefined) missedWeeks.push(cur);
+      const weeksMissed = missedWeeks.length;
       if (weeksMissed === 0) continue;
 
       const playedJudged = judged.filter(w => played.has(w));
@@ -403,9 +406,11 @@ export function injuryLuck(
       const valueLost = weeksMissed * Math.max(0, perGame - repl);
       if (valueLost <= 0) continue;
       players.push({
+        playerId: p.id,
         name: p.name,
         position: p.position,
         weeksMissed,
+        missedWeeks,
         perGame: round1(perGame),
         replacementPerGame: round1(repl),
         valueLost: round1(valueLost),

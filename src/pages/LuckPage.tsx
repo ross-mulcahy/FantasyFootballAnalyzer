@@ -381,6 +381,7 @@ export function LuckPage({ league }: LuckPageProps) {
         {showInjuries && (
           <StudioMonitorFrame as="section" padded className={styles.section}>
             <h2 className={styles.sectionTitle}>Injury Luck</h2>
+            <p className={styles.note}><Link to="/blue-tent">Open The Blue Tent for the full season comparison →</Link></p>
             <p className={styles.note}>
               Weeks a drafted player sat out (byes excluded) while still on the
               roster, priced at what he scores per game above a replacement-level

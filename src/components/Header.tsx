@@ -60,7 +60,7 @@ export function Header({ league, isGuest, onRefresh, isRefreshing, yearSelector 
   const groups = [
     { title: 'CONTROL ROOM', items: [['Game Day Hub', '/', 'grid'], ['League Matchups', navLeague ? leagueGameDayHref(navLeague) : '/settings', 'activity']] },
     { title: 'FRONT OFFICE', items: navLeague ? [['Rosters', '/rosters', 'users'], ['Waivers', '/waivers', 'activity'], ['Trades', '/trades', 'swap'], ['Players', '/players', 'users']] : [['Rankings', '/rankings', 'users'], ['Values', '/values', 'activity'], ['Trends', '/trends', 'activity']] },
-    { title: 'TELEMETRY', items: navLeague ? [['Teams Dossier', '/teams', 'shield'], ['Draft Grades', '/draft', 'file'], ['Luck & PAR', '/luck', 'activity'], ['Draft Room', '/draft-room', 'grid']] : [['Draft Room', '/draft-room', 'grid']] },
+    { title: 'TELEMETRY', items: navLeague ? [['Teams Dossier', '/teams', 'shield'], ['Draft Grades', '/draft', 'file'], ['Luck & PAR', '/luck', 'activity'], ['The Blue Tent', '/blue-tent', 'activity'], ['Draft Room', '/draft-room', 'grid']] : [['Draft Room', '/draft-room', 'grid']] },
     { title: 'THE VAULT', items: [...(navLeague ? [['History', '/history', 'file'], ['Awards', '/awards', 'award']] : []), ['Recap', '/recap', 'file'], ['Settings', '/settings', 'settings']] },
   ];
   const active = (href: string) => href === '/' ? location.pathname === '/' : href.startsWith('/game-day') ? location.pathname === '/game-day' : href === '/rosters' ? location.pathname === '/rosters' || (location.pathname === '/teams' && new URLSearchParams(location.search).has('team')) : location.pathname === href && !(href === '/teams' && new URLSearchParams(location.search).has('team'));

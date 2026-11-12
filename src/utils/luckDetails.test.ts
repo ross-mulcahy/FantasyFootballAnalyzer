@@ -110,6 +110,7 @@ describe('injuryLuck', () => {
     expect(a.gamesMissed).toBe(2);
     expect(a.valueLost).toBe(24);
     expect(a.players[0].name).toBe('P1');
+    expect(a.players[0].missedWeeks).toEqual([2, 3]);
   });
 
   it('charges nothing for a sub-replacement player sitting', () => {

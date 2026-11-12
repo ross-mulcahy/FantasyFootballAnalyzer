@@ -44,6 +44,7 @@ const RostersPage = lazyPage(() => import('@/pages/RostersPage'), 'RostersPage')
 const HistoryPage = lazyPage(() => import('@/pages/HistoryPage'), 'HistoryPage');
 const AwardsPage = lazyPage(() => import('@/pages/AwardsPage'), 'AwardsPage');
 const LuckPage = lazyPage(() => import('@/pages/LuckPage'), 'LuckPage');
+const BlueTentPage = lazyPage(() => import('@/pages/BlueTentPage'), 'BlueTentPage');
 const PlayerJourneyPage = lazyPage(() => import('@/pages/PlayerJourneyPage'), 'PlayerJourneyPage');
 import { useLeague } from '@/hooks/useLeague';
 import { GameDayContext, useGameDayState } from '@/hooks/useGameDay';
@@ -121,6 +122,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/history': 'History',
   '/awards': 'Awards',
   '/luck': 'Luck',
+  '/blue-tent': 'The Blue Tent',
   '/players': 'Player Journey',
   '/trade-analyzer': 'Trade Analyzer',
   '/draft-grades': 'Draft Grades',
@@ -777,6 +779,7 @@ function App() {
           <Route path="/history" element={dataRoute(l => <HistoryPage league={l} />)} />
           <Route path="/awards" element={dataRoute(l => <AwardsPage league={l} />)} />
           <Route path="/luck" element={dataRoute(l => <LuckPage league={l} />)} />
+          <Route path="/blue-tent" element={dataRoute(l => <BlueTentPage league={l} />)} />
           <Route path="/players" element={dataRoute(l => <PlayerJourneyPage league={l} />)} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
