@@ -123,7 +123,7 @@ describe('buildShareLists (snake)', () => {
     const text = shareListText(lists, 'values');
     expect(text).toContain('Biggest Steals · 2026 draft');
     expect(text).toContain(`pick 4, ADP 1 (fell 3)`);
-    expect(text).toContain('Witching Hour');
+    expect(text).toContain('The Witching Hour');
     expect(shareListText(lists, 'reaches')).toContain('(18 early)');
   });
 });
@@ -257,8 +257,8 @@ describe('text edge cases', () => {
       superflex: false,
     });
     const all = shareAllText(lists);
-    expect(all.match(/Witching Hour/g)).toHaveLength(1);
-    expect(all.endsWith('Witching Hour')).toBe(true);
+    expect(all.match(/The Witching Hour/g)).toHaveLength(1);
+    expect(all.endsWith('The Witching Hour')).toBe(true);
     expect(all).toContain('Draft Scoreboard · 2026 draft');
   });
 });

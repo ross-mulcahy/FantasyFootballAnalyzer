@@ -1,6 +1,7 @@
 .sidebar { position: fixed; inset: 0 auto 0 0; width: 220px; z-index: 60; display: flex; flex-direction: column; background: var(--ink-2); border-right: 1px solid var(--rule); padding: 24px 14px 16px; }
 .wordmark { color: var(--bone); font: 850 19px/1.2 var(--font-body); letter-spacing: -.03em; white-space: nowrap; }
 .wordmark span { color: var(--lime); }
+.wordmark .article { color: var(--gold); font: 700 10px var(--font-display); letter-spacing: .04em; margin-right: 2px; }
 .tagline { color: var(--bone-dim); font-size: 10px; margin: 6px 0 18px; }
 .broadcast { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; padding: 7px; color: #fb7185; border: 1px solid #e11d4866; background: #e11d4826; border-radius: 4px; font: 400 10px var(--font-mono); }
 .broadcast b { font-weight: 600; }

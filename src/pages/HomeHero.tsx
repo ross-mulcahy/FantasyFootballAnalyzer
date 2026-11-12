@@ -28,7 +28,7 @@ export function HomeHero() {
     <header className={styles.hero}>
       <div className={styles.heroGrid}>
         <div>
-          <h1 className={styles.title}>Witching Hour</h1>
+          <h1 className={styles.title}>The Witching Hour</h1>
           <p className={styles.subtitle}>
             I built this to prep for my own drafts and review them after.
             Daily consensus rankings, mock drafts, a live draft room, trade

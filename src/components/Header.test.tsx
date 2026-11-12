@@ -24,6 +24,8 @@ it('offers working public prep routes without exposing unavailable analysis acti
   expect(screen.queryByRole('link', { name: 'Trades' })).not.toBeInTheDocument();
   expect(screen.queryByRole('link', { name: 'PDF Export' })).not.toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Sync All Leagues' })).toBeDisabled();
+  expect(screen.getByText('STUDIO 00 // FIRST VISIT')).toBeInTheDocument();
+  expect(within(screen.getByRole('navigation', { name: 'League dock' })).getByRole('link', { name: 'Start Here' })).toHaveAttribute('href', '/');
 });
 it('keeps roster navigation active on canonical team detail links', () => {
   mount('/teams?team=2');

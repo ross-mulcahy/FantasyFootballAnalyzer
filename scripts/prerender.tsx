@@ -8,7 +8,7 @@
 // contract to keep; the injected markup is purely for crawlers and first paint.
 //
 // Pages emitted (each a real dist/<route>/index.html that returns HTTP 200):
-//   - index.html              - Game Day entry and Settings link.
+//   - index.html              - no-league studio guide and Settings link.
 //   - rankings/               - top-200 half-PPR consensus rankings table.
 //   - rankings/<pos>/         - one per position (qb, rb, wr, te, k, dst, flex).
 //   - trends/                 - day/week consensus-board risers and fallers.
@@ -21,8 +21,8 @@
 // route (the ones a guest can land on) gets its own prerendered file; gated
 // data routes stay on the shim and aren't meant to be indexed.
 //
-// The homepage is a generic Game Day shell; private league data is loaded
-// only in the user's browser. Rankings use a static pool snapshot.
+// The homepage is the no-league studio guide. Connected users see the live
+// Game Day wall after the client reads their locally saved leagues.
 //
 // This must never fail the build: a throw here degrades to the empty-root SPA
 // (crawlers lose the prerendered copy, users are unaffected) rather than
@@ -342,7 +342,8 @@ async function prerender() {
     }
 
     // --- Homepage ---
-    const homeMarkup = `<main class="container"><h1>Game Day</h1><p>Your teams across every saved league, in one scoreboard.</p><p>Leagues and team choices are saved locally in your browser.</p><a href="${basePath}settings">Connect leagues in Settings</a></main>`
+    const { StudioLandingPage } = await vite.ssrLoadModule('/src/pages/StudioLandingPage.tsx')
+    const homeMarkup = `<main id="main-content">${renderToStaticMarkup(createElement(StudioLandingPage))}</main>`
     writeFileSync(DIST_HTML, inject(homeMarkup))
     console.log(`[prerender] injected ${homeMarkup.length} bytes of homepage HTML`)
 

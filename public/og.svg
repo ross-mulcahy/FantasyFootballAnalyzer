@@ -1,1 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630"><rect width="1200" height="630" fill="#0B0F17"/><rect x="40" y="40" width="1120" height="550" rx="6" fill="#131B2E" stroke="#233047"/><rect x="80" y="82" width="220" height="36" rx="4" fill="#E11D4826" stroke="#E11D4866"/><circle cx="100" cy="100" r="5" fill="#E11D48"/><text x="118" y="106" fill="#FB7185" font-family="monospace" font-size="14">QUAD-BOX // LIVE</text><text x="80" y="270" fill="#F8FAFC" font-family="Inter,Helvetica,Arial,sans-serif" font-weight="900" font-size="92" letter-spacing="-3">WITCHING<tspan fill="#10B981"> HOUR</tspan></text><text x="84" y="336" fill="#94A3B8" font-family="Inter,Helvetica,Arial,sans-serif" font-size="30">Where Losses Become Wins</text><path d="M84 400h1032" stroke="#233047"/><text x="84" y="459" fill="#10B981" font-family="monospace" font-size="20">MULTI-LEAGUE COMMAND DECK</text><text x="84" y="504" fill="#94A3B8" font-family="monospace" font-size="16">SCOREBUGS / LINEUP HAZARDS / ROOTING PARADOXES</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0B0F17"/>
+  <rect x="40" y="40" width="1120" height="550" fill="#131B2E" stroke="#64748B" stroke-width="6"/>
+  <rect x="52" y="52" width="1096" height="526" fill="#0D1836" stroke="#0F172A" stroke-width="4"/>
+  <rect x="80" y="82" width="220" height="36" fill="#E11D4826" stroke="#E11D48"/>
+  <circle cx="100" cy="100" r="5" fill="#E11D48"/>
+  <text x="118" y="106" fill="#FB7185" font-family="monospace" font-size="14">OCTOBOX // LIVE</text>
+  <text x="80" y="220" fill="#FFB800" font-family="Inter,Helvetica,Arial,sans-serif" font-weight="900" font-size="44">THE</text>
+  <text x="80" y="320" fill="#F8FAFC" font-family="Inter,Helvetica,Arial,sans-serif" font-weight="900" font-size="92" letter-spacing="-3">WITCHING<tspan fill="#10B981"> HOUR</tspan></text>
+  <text x="84" y="383" fill="#94A3B8" font-family="Inter,Helvetica,Arial,sans-serif" font-size="30">Where Losses Become Wins</text>
+  <path d="M84 430h1032" stroke="#2A3F7A" stroke-width="3"/>
+  <text x="84" y="490" fill="#10B981" font-family="monospace" font-size="20">MULTI-LEAGUE COMMAND DECK</text>
+  <text x="84" y="531" fill="#94A3B8" font-family="monospace" font-size="16">SCOREBUGS / LINEUP HAZARDS / ROOTING PARADOXES</text>
+</svg>

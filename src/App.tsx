@@ -17,6 +17,7 @@ import { TacticalLoading } from '@/components/TacticalLoading';
 // all reach the full draft pool), so importing the homepage through it would drag
 // them — and the pool — back into the eager entry chunk.
 import { MyGameDayPage } from '@/pages/MyGameDayPage';
+import { StudioLandingPage } from '@/pages/StudioLandingPage';
 import { SettingsPage } from '@/pages/SettingsPage';
 import { ToolLanding } from '@/pages/ToolLanding';
 import { TOOL_LANDINGS } from '@/pages/toolLandings';
@@ -47,6 +48,7 @@ const LuckPage = lazyPage(() => import('@/pages/LuckPage'), 'LuckPage');
 const BlueTentPage = lazyPage(() => import('@/pages/BlueTentPage'), 'BlueTentPage');
 const PlayerJourneyPage = lazyPage(() => import('@/pages/PlayerJourneyPage'), 'PlayerJourneyPage');
 import { useLeague } from '@/hooks/useLeague';
+import { useSavedLeagues } from '@/hooks/useSavedLeagues';
 import { GameDayContext, useGameDayState } from '@/hooks/useGameDay';
 import { useSounds } from '@/hooks/useSounds';
 import {
@@ -155,6 +157,7 @@ function App() {
     league, credentials, isLoading, error, progress, load, refresh, clear, enterGuest, updateGuest,
     seasonFallbackNotice, dismissSeasonFallbackNotice,
   } = useLeague();
+  const savedLeagues = useSavedLeagues();
   const gameDay = useGameDayState(league, credentials, { poll: true });
   const globalPage = ['/', '/settings', '/recap'].includes(location.pathname);
   useEffect(() => {
@@ -221,9 +224,9 @@ function App() {
       ? posForSlug(location.pathname.slice('/rankings/'.length).replace(/\/+$/, ''))
       : undefined;
     const page = rankPos ? `${labelForPos(rankPos)} Rankings` : PAGE_TITLES[location.pathname];
-    document.title = location.pathname === '/' ? 'Witching Hour // Multi-League Command Deck' : page
-      ? `${page} · Witching Hour`
-      : 'Witching Hour';
+    document.title = location.pathname === '/' ? 'The Witching Hour // Multi-League Command Deck' : page
+      ? `${page} · The Witching Hour`
+      : 'The Witching Hour';
     // Sanitized, path-only page_view (gtag's automatic one is disabled so the
     // token-bearing /yahoo-success URL never reaches GA). Fires per SPA route.
     Analytics.pageView(location.pathname);
@@ -704,7 +707,11 @@ function App() {
             (pageIn, in index.css). Entrance-only - no exit orchestration. */}
         <div key={location.pathname} className="page-in">
         <Routes>
-          <Route path="/" element={<MyGameDayPage currentLeague={league} />} />
+          <Route path="/" element={savedLeagues.length || (league && !league.isGuest)
+            ? <MyGameDayPage currentLeague={league} />
+            : shareLoadPending
+              ? <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><TacticalLoading /></div>
+              : <StudioLandingPage />} />
           <Route path="/recap" element={<GameDayRecapPage />} />
           <Route path="/settings" element={<SettingsPage onLoadLeague={handleLoadLeague} isLoading={isLoading} error={error} progress={progress} />} />
 

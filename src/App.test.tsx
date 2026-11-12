@@ -140,6 +140,7 @@ vi.mock('@/pages/SettingsPage', () => ({
 }));
 vi.mock('@/pages/GameDayRecapPage', () => ({ GameDayRecapPage: () => <div data-testid="recap-page" /> }));
 vi.mock('@/pages/MyGameDayPage', () => ({ MyGameDayPage: () => <div data-testid="home-page" /> }));
+vi.mock('@/pages/StudioLandingPage', () => ({ StudioLandingPage: () => <div data-testid="studio-landing" /> }));
 // The lazy pages the routes below can reach (lazyPage resolves these mocks
 // through the same dynamic import).
 vi.mock('@/pages/GameDayPage', () => ({ GameDayPage: () => <div data-testid="league-game-day" /> }));
@@ -202,6 +203,21 @@ beforeEach(() => {
   });
   h.enterGuestMock.mockImplementation(() => {
     h.store.set({ league: sleeperLeague('guest', { isGuest: true } as Partial<League>) });
+  });
+});
+
+describe('home experience', () => {
+  it('opens the studio guide when no league is connected', () => {
+    renderApp('/');
+    expect(screen.getByTestId('studio-landing')).toBeInTheDocument();
+    expect(screen.queryByTestId('home-page')).not.toBeInTheDocument();
+  });
+
+  it('keeps the live Game Day wall for a connected league', () => {
+    h.store.league = sleeperLeague('55');
+    renderApp('/');
+    expect(screen.getByTestId('home-page')).toBeInTheDocument();
+    expect(screen.queryByTestId('studio-landing')).not.toBeInTheDocument();
   });
 });
 

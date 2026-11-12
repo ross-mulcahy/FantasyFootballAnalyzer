@@ -376,7 +376,7 @@ export function LeagueWatchMode({ saved, snapshot, data, changes, hazards, now, 
   const updateVideoPhase = (videoId: string, phase: VideoPhase) => setPlayingVideo(current => current?.video.id === videoId && current.phase !== 'blocked' && current.phase !== 'unavailable' ? { ...current, phase } : current);
 
   return createPortal(<div className={styles.overlay} ref={panelRef} role="dialog" aria-modal="true" aria-label={`${saved.name} watch mode`}>
-    <header className={styles.header}><div className={styles.brand}><span className={styles.live}>● LIVE</span><div><strong>WITCHING HOUR // WATCH MODE</strong><small>{saved.name} · Week {snapshot.week} · {channels.length} {channels.length === 1 ? 'game' : 'games'}</small></div></div><div className={styles.headerActions}>
+    <header className={styles.header}><div className={styles.brand}><span className={styles.live}>● LIVE</span><div><strong>THE WITCHING HOUR // WATCH MODE</strong><small>{saved.name} · Week {snapshot.week} · {channels.length} {channels.length === 1 ? 'game' : 'games'}</small></div></div><div className={styles.headerActions}>
       <button type="button" aria-pressed={highlightsOpen} onClick={() => { setHighlightsOpen(value => !value); setDiagnosticsOpen(false); }}>NFL HIGHLIGHTS</button>
       <button type="button" aria-pressed={diagnosticsOpen} onClick={() => { setDiagnosticsOpen(value => !value); setHighlightsOpen(false); }}>DIRECTOR DIAGNOSTICS</button>
       <button type="button" onClick={() => updatePreferences(previous => ({ ...previous, frequency: previous.frequency === 'balanced' ? 'more' : previous.frequency === 'more' ? 'less' : 'balanced' }))}>CLIPS: {preferences.frequency.toUpperCase()}</button>
