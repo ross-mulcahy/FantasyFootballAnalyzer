@@ -2,28 +2,50 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './OpenChannel.module.css';
 import { nflMoments } from './nflMoments';
+import type { ChannelMood, ChannelOutlook } from '@/utils/openChannelMood';
+import { shuffledMomentIndexes } from '@/utils/openChannelReel';
 const CHANNEL_SWITCH_MS = 650;
 
-export function OpenChannel({ className, patchHref, patchLabel }: { className: string; patchHref: string; patchLabel: string }) {
+export function OpenChannel({ className, patchHref, patchLabel, contextKey, contextLabel, outlook }: { className: string; patchHref: string; patchLabel: string; contextKey: string; contextLabel: string; outlook: ChannelOutlook }) {
   const [powered, setPowered] = useState(false);
-  const [index, setIndex] = useState(0);
+  const [order, setOrder] = useState<number[]>([]);
+  const [position, setPosition] = useState(0);
+  const [deckMood, setDeckMood] = useState<ChannelMood>('neutral');
   const [switching, setSwitching] = useState(false);
   const [switchTarget, setSwitchTarget] = useState(0);
   const switchTimer = useRef<number | null>(null);
-  const startSwitch = useCallback(() => {
-    if (switchTimer.current !== null) return;
-    setSwitchTarget((index + 1) % nflMoments.length);
+  const previousContext = useRef(contextKey);
+  const patchChannel = useCallback((nextOrder: number[], nextPosition: number) => {
+    setSwitchTarget(nextOrder[nextPosition]);
     setSwitching(true);
     switchTimer.current = window.setTimeout(() => {
-      setIndex(current => (current + 1) % nflMoments.length);
+      setOrder(nextOrder);
+      setPosition(nextPosition);
+      setDeckMood(outlook.mood);
       setSwitching(false);
       switchTimer.current = null;
     }, CHANNEL_SWITCH_MS);
-  }, [index]);
+  }, [outlook.mood]);
+  const startSwitch = useCallback(() => {
+    if (switchTimer.current !== null) return;
+    const freshDeck = deckMood !== outlook.mood || position >= order.length - 1;
+    const nextOrder = freshDeck ? shuffledMomentIndexes(outlook.mood, order[position]) : order;
+    patchChannel(nextOrder, freshDeck ? 0 : position + 1);
+  }, [deckMood, order, outlook.mood, patchChannel, position]);
+  useEffect(() => {
+    if (previousContext.current === contextKey) return;
+    previousContext.current = contextKey;
+    if (!powered) return;
+    if (switchTimer.current !== null) window.clearTimeout(switchTimer.current);
+    switchTimer.current = null;
+    patchChannel(shuffledMomentIndexes(outlook.mood, order[position]), 0);
+  // A league switch retunes at once; score-driven mood changes wait for clip end.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contextKey]);
   useEffect(() => () => {
     if (switchTimer.current !== null) window.clearTimeout(switchTimer.current);
   }, []);
-  const gif = nflMoments[index];
+  const gif = nflMoments[order[position] ?? 0];
 
   function togglePower() {
     if (powered) {
@@ -31,7 +53,11 @@ export function OpenChannel({ className, patchHref, patchLabel }: { className: s
       switchTimer.current = null;
       setSwitching(false);
     } else {
-      setSwitchTarget(index);
+      const nextOrder = shuffledMomentIndexes(outlook.mood, order[position]);
+      setOrder(nextOrder);
+      setPosition(0);
+      setDeckMood(outlook.mood);
+      setSwitchTarget(nextOrder[0]);
       setSwitching(true);
       switchTimer.current = window.setTimeout(() => {
         setSwitching(false);
@@ -57,7 +83,7 @@ export function OpenChannel({ className, patchHref, patchLabel }: { className: s
         </div>}
       </div>
       <div className={styles.overlay}>
-        <div className={styles.caption}><strong>{gif.title}</strong><a href={gif.page} target="_blank" rel="noopener noreferrer">SOURCE ↗</a></div>
+        <div className={styles.caption}><small>{contextLabel} // {outlook.mood === 'win' ? 'WINNING' : outlook.mood === 'lose' ? 'CHASING' : outlook.mood === 'mixed' ? 'MIXED BAG' : 'EVEN / PENDING'} · {outlook.wins}W–{outlook.losses}L</small><strong>{gif.title}</strong><a href={gif.page} target="_blank" rel="noopener noreferrer">SOURCE ↗</a></div>
         <div className={styles.controls}>
           <button type="button" className={styles.next} onClick={startSwitch} disabled={switching}>NEXT GIF →</button>
           <button type="button" className={styles.power} aria-pressed="true" onClick={togglePower}>
@@ -69,12 +95,12 @@ export function OpenChannel({ className, patchHref, patchLabel }: { className: s
     </> : <>
       <span>REDZONE // OPEN CHANNEL</span>
       <strong>PUT ANOTHER GAME ON THE WALL</strong>
-      <div className={styles.controls}>
-        <Link to={patchHref}>{patchLabel}</Link>
-        <button type="button" className={styles.power} aria-pressed="false" onClick={togglePower}>
-          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 2v10 M7 5a9 9 0 1 0 10 0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" /></svg>
+      <div className={styles.standbyActions}>
+        <button type="button" className={styles.powerOn} aria-pressed="false" onClick={togglePower}>
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 2v10 M7 5a9 9 0 1 0 10 0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" /></svg>
           POWER ON // NFL MOMENTS
         </button>
+        <Link to={patchHref}>{patchLabel}</Link>
       </div>
     </>}
   </div>;
