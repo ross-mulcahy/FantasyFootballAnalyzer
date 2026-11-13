@@ -1,0 +1,23 @@
+// Full-size GIFs from their source pages, rather than padded embeds.
+export const nflMoments = [
+  { title: 'Mark Sanchez · Butt Fumble', src: 'https://media1.tenor.com/m/5NCumOyPxhMAAAAd/butt-fumble.gif', page: 'https://tenor.com/view/butt-fumble-mark-sanchez-football-gif-14955141' },
+  { title: 'Antonio Brown · Punter Kick', src: 'https://media1.tenor.com/m/7I3m3O5la0YAAAAd/browns-vs-steelers-steelers-vs-browns.gif', page: 'https://tenor.com/view/browns-vs-steelers-steelers-vs-browns-kick-antonio-brown-steelers-gif-18850552' },
+  { title: 'Jags Fan · What Just Happened?', src: 'https://media1.tenor.com/m/jg-jU487zDMAAAAd/jags-fan-wth.gif', page: 'https://tenor.com/view/jags-fan-wth-wtf-i-dont-get-it-gif-14231910' },
+  { title: 'Jared Allen · Orlovsky Runs Out of Bounds', src: 'https://media1.tenor.com/m/KT2xAEaFr3gAAAAd/orlovsky-jared-allen.gif', page: 'https://tenor.com/view/orlovsky-jared-allen-gif-21869891' },
+  { title: 'Gronk · Victory Dance', src: 'https://media1.tenor.com/m/M3ocpeWZSRkAAAAd/gronk-dance.gif', page: 'https://tenor.com/view/gronk-dance-patriots-winners-patriotsa-gif-7309690' },
+  { title: 'Stefon Diggs · Minneapolis Miracle', src: 'https://media1.tenor.com/m/vmvvcdlKS0MAAAAd/minneapolis-miracle-stefon-diggs.gif', page: 'https://tenor.com/view/minneapolis-miracle-stefon-diggs-skol-vikings-gif-10788494' },
+  { title: 'Nick Foles · Philly Special', src: 'https://media1.tenor.com/m/FtYBe6tFQpgAAAAd/philly-special-eagles.gif', page: 'https://tenor.com/view/philly-special-eagles-doug-pederson-nick-foles-trey-burton-gif-19829486' },
+  { title: 'Derrick Henry · Stiff Arm', src: 'https://media1.tenor.com/m/HQZloo1rEz4AAAAd/derrick-henry-stiff-arm.gif', page: 'https://tenor.com/view/derrick-henry-stiff-arm-nfl-out-of-my-way-tennessee-gif-17029905' },
+  { title: 'Saquon Barkley · Reverse Hurdle', src: 'https://media1.tenor.com/m/MQmHPAi8j4oAAAAd/saquon-barkley.gif', page: 'https://tenor.com/view/saquon-barkley-saquon-barkley-hurdle-reverse-hurdle-gif-3533504074563227530' },
+  { title: 'Marshawn Lynch · Beast Quake', src: 'https://media1.tenor.com/m/UMn0iF5zIMsAAAAd/football-marshawn.gif', page: 'https://tenor.com/view/football-marshawn-lynch-gif-3721843' },
+  { title: 'David Tyree · Helmet Catch', src: 'https://media1.tenor.com/m/0MmlmxlEK5oAAAAd/patriots-giants.gif', page: 'https://tenor.com/view/patriots-giants-helmet-catch-super-gif-7597946' },
+  { title: 'Jerome Simpson · Front Flip', src: 'https://media1.tenor.com/m/XI8GTtTAfssAAAAd/jerome-simpson.gif', page: 'https://tenor.com/view/jerome-simpson-nfl-jump-endzone-gif-6669556508805594827' },
+  { title: 'Aaron Rodgers · Hail Mary', src: 'https://media1.tenor.com/m/A7B46VyTtSkAAAAd/hail-mary-aaron-rodgers.gif', page: 'https://tenor.com/view/hail-mary-aaron-rodgers-packers-gif-7551145' },
+  { title: 'Odell Beckham Jr. · One-Handed Catch', src: 'https://media1.tenor.com/m/uzYX8H3eoNoAAAAd/odell-beckham-jr-american-football.gif', page: 'https://tenor.com/view/odell-beckham-jr-american-football-receiver-omg-football-gif-15794892' },
+  { title: 'Tyreek Hill · Touchdown Backflip', src: 'https://media1.tenor.com/m/M79cPx2ryBMAAAAd/tyreek-hill-backflip.gif', page: 'https://tenor.com/view/tyreek-hill-backflip-miami-dolphins-touchdown-gif-3728800442636552211' },
+  { title: 'Justin Jefferson · Fourth-Down Catch', src: 'https://media1.tenor.com/m/6atOZRE0ikAAAAAd/justin-jefferson-minnesota-vikings.gif', page: 'https://tenor.com/view/justin-jefferson-minnesota-vikings-bills-vikings-vikings-bills-justin-jefferson-catch-nfl-football-gif-16837637827842050624' },
+  { title: 'Patrick Mahomes · No-Look Pass', src: 'https://media1.tenor.com/m/VC-abXKQ7K0AAAAd/patrick-mahomes-no-look-pass.gif', page: 'https://tenor.com/view/patrick-mahomes-no-look-pass-chiefs-kansas-city-showtime-gif-13984938' },
+  { title: 'Lamar Jackson · Bengals Spin Move', src: 'https://media1.tenor.com/m/7_tjP-XgoogAAAAd/lamar-jackson-run.gif', page: 'https://tenor.com/view/lamar-jackson-run-running-touchdown-baltimore-ravens-gif-15566788' },
+  { title: 'James Harrison · Interception Hurdle', src: 'https://media1.tenor.com/m/2Tn053AaJWUAAAAd/james-harrison-hurdle.gif', page: 'https://tenor.com/view/james-harrison-hurdle-interception-steelers-gif-4930903' },
+  { title: 'Josh Allen · Hurdles Anthony Barr', src: 'https://media1.tenor.com/m/oVFaIRS1iIMAAAAd/anthony-barr-josh-allen.gif', page: 'https://tenor.com/view/anthony-barr-josh-allen-gif-13716349' },
+] as const;
