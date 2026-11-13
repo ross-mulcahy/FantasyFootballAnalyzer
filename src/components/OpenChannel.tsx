@@ -2,10 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './OpenChannel.module.css';
 import { nflMoments } from './nflMoments';
-
-
-
-const CHANNEL_HOLD_MS = 12000;
 const CHANNEL_SWITCH_MS = 650;
 
 export function OpenChannel({ className, patchHref, patchLabel }: { className: string; patchHref: string; patchLabel: string }) {
@@ -22,15 +18,9 @@ export function OpenChannel({ className, patchHref, patchLabel }: { className: s
       switchTimer.current = null;
     }, CHANNEL_SWITCH_MS);
   }, []);
-  useEffect(() => {
-    if (!powered) return;
-    const timer = window.setInterval(startSwitch, CHANNEL_HOLD_MS);
-    return () => {
-      window.clearInterval(timer);
-      if (switchTimer.current !== null) window.clearTimeout(switchTimer.current);
-      switchTimer.current = null;
-    };
-  }, [powered, startSwitch]);
+  useEffect(() => () => {
+    if (switchTimer.current !== null) window.clearTimeout(switchTimer.current);
+  }, []);
   const gif = nflMoments[index];
 
   function togglePower() {
@@ -51,7 +41,7 @@ export function OpenChannel({ className, patchHref, patchLabel }: { className: s
   return <div className={`${className} ${powered ? styles.powered : ''}`}>
     {powered ? <>
       <div className={styles.screen}>
-        <img key={gif.src} src={gif.src} alt={`${gif.title} GIF`} loading="lazy" />
+        {!switching && <video key={gif.video} src={gif.video} aria-label={`${gif.title} clip`} autoPlay muted playsInline preload="auto" onEnded={startSwitch} />}
         <div className={styles.scanlines} aria-hidden="true" />
         {switching && <div className={styles.tuning} role="status" aria-label="Changing NFL GIF channel"><span className={styles.tuningLine} /><strong>TUNING // CH {String((index + 1) % nflMoments.length + 1).padStart(2, '0')}</strong></div>}
       </div>

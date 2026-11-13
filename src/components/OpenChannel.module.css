@@ -1,6 +1,6 @@
 .powered.powered { position: relative; display: block; min-height: 230px; height: 100%; overflow: hidden; padding: 0; background: #020617; }
 .screen { position: absolute; inset: 0; overflow: hidden; background: #020617; }
-.screen img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.screen video { display: block; width: 100%; height: 100%; object-fit: contain; }
 .scanlines { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, #02061720 0 1px, transparent 1px 4px); }
 .overlay { position: absolute; z-index: 2; inset: auto 0 0; display: flex; align-items: end; justify-content: space-between; gap: 8px; padding: 24px 10px 10px; background: linear-gradient(transparent, #020617e8 45%); opacity: 0; pointer-events: none; transition: opacity .15s ease; }
 .powered:hover .overlay, .powered:focus-within .overlay { opacity: 1; pointer-events: auto; }
