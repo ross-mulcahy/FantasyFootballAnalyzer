@@ -14,6 +14,7 @@ interface ImportMetaEnv {
   // release so an error can be traced back to the exact deploy.
   readonly VITE_BUILD_SHA?: string;
   readonly VITE_BUILD_TIME?: string;
+  readonly VITE_APP_VERSION?: string;
 }
 
 interface ImportMeta {

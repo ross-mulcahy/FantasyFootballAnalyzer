@@ -6,10 +6,10 @@ import { nflMoments } from './nflMoments';
 
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 
-it('plays each of the 20 moments once and advances only when the clip ends', () => {
-  expect(nflMoments).toHaveLength(20);
-  expect(new Set(nflMoments.map(moment => moment.src)).size).toBe(20);
-  expect(new Set(nflMoments.map(moment => moment.video)).size).toBe(20);
+it('plays each of the 40 moments once and advances only when the clip ends', () => {
+  expect(nflMoments).toHaveLength(40);
+  expect(new Set(nflMoments.map(moment => moment.src)).size).toBe(40);
+  expect(new Set(nflMoments.map(moment => moment.video)).size).toBe(40);
   vi.useFakeTimers();
   render(<MemoryRouter><OpenChannel className="standby" patchHref="/settings" patchLabel="PATCH IN A LEAGUE ↗" /></MemoryRouter>);
   expect(screen.queryByLabelText(/clip$/)).not.toBeInTheDocument();

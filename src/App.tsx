@@ -808,11 +808,8 @@ function App() {
             <p className="footer-attribution">Fantasy data provided by Yahoo Fantasy</p>
           )}
         </div>
-        {/* Build version. Only rendered in deployed builds where
-            VITE_BUILD_TIME is injected; in `vite dev` the env var is
-            undefined and showing "vdev" is just noise. */}
-        {import.meta.env.VITE_BUILD_TIME && (
-          <span className="footer-version">v{import.meta.env.VITE_BUILD_TIME}</span>
+        {import.meta.env.VITE_APP_VERSION && (
+          <span className="footer-version">v{import.meta.env.VITE_APP_VERSION} · BUILD {import.meta.env.VITE_BUILD_SHA ?? 'dev'}</span>
         )}
       </footer>
       </div>

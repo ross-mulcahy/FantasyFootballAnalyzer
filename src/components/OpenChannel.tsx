@@ -8,16 +8,18 @@ export function OpenChannel({ className, patchHref, patchLabel }: { className: s
   const [powered, setPowered] = useState(false);
   const [index, setIndex] = useState(0);
   const [switching, setSwitching] = useState(false);
+  const [switchTarget, setSwitchTarget] = useState(0);
   const switchTimer = useRef<number | null>(null);
   const startSwitch = useCallback(() => {
     if (switchTimer.current !== null) return;
+    setSwitchTarget((index + 1) % nflMoments.length);
     setSwitching(true);
     switchTimer.current = window.setTimeout(() => {
       setIndex(current => (current + 1) % nflMoments.length);
       setSwitching(false);
       switchTimer.current = null;
     }, CHANNEL_SWITCH_MS);
-  }, []);
+  }, [index]);
   useEffect(() => () => {
     if (switchTimer.current !== null) window.clearTimeout(switchTimer.current);
   }, []);
@@ -29,6 +31,7 @@ export function OpenChannel({ className, patchHref, patchLabel }: { className: s
       switchTimer.current = null;
       setSwitching(false);
     } else {
+      setSwitchTarget(index);
       setSwitching(true);
       switchTimer.current = window.setTimeout(() => {
         setSwitching(false);
@@ -41,9 +44,17 @@ export function OpenChannel({ className, patchHref, patchLabel }: { className: s
   return <div className={`${className} ${powered ? styles.powered : ''}`}>
     {powered ? <>
       <div className={styles.screen}>
-        {!switching && <video key={gif.video} src={gif.video} aria-label={`${gif.title} clip`} autoPlay muted playsInline preload="auto" onEnded={startSwitch} />}
+        {!switching && <video key={gif.video} src={gif.video} aria-label={`${gif.title} clip`} autoPlay muted playsInline preload="auto" onEnded={startSwitch} onError={startSwitch} />}
         <div className={styles.scanlines} aria-hidden="true" />
-        {switching && <div className={styles.tuning} role="status" aria-label="Changing NFL GIF channel"><span className={styles.tuningLine} /><strong>TUNING // CH {String((index + 1) % nflMoments.length + 1).padStart(2, '0')}</strong></div>}
+        {switching && <div className={styles.tuning} role="status" aria-label="Changing NFL GIF channel">
+          <span className={styles.tuningLine} />
+          <div className={styles.signalCard}>
+            <span className={styles.signalEyebrow}>OCTOBOX // SIGNAL CONTROL</span>
+            <span className={styles.signalBars} aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /></span>
+            <strong>CH {String(switchTarget + 1).padStart(2, '0')}</strong>
+            <span className={styles.signalStatus}>PATCHING NEXT MOMENT</span>
+          </div>
+        </div>}
       </div>
       <div className={styles.overlay}>
         <div className={styles.caption}><strong>{gif.title}</strong><a href={gif.page} target="_blank" rel="noopener noreferrer">SOURCE ↗</a></div>

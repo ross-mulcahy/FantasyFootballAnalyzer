@@ -4,16 +4,21 @@
 .scanlines { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, #02061720 0 1px, transparent 1px 4px); }
 .overlay { position: absolute; z-index: 2; inset: auto 0 0; display: flex; align-items: end; justify-content: space-between; gap: 8px; padding: 24px 10px 10px; background: linear-gradient(transparent, #020617e8 45%); opacity: 0; pointer-events: none; transition: opacity .15s ease; }
 .powered:hover .overlay, .powered:focus-within .overlay { opacity: 1; pointer-events: auto; }
-.tuning { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; overflow: hidden; background: repeating-linear-gradient(0deg, #020617 0 2px, #cbd5e1 2px 3px, #334155 3px 5px, #0f172a 5px 7px); animation: channelFlicker 650ms steps(5, end) both; }
-.tuning::before { content: ''; position: absolute; inset: -25%; opacity: .7; background: repeating-linear-gradient(90deg, transparent 0 6px, #f8fafc 6px 7px, transparent 7px 15px); transform: rotate(-7deg); animation: staticDrift 180ms steps(3, end) infinite; }
-.tuning::after { content: ''; position: absolute; inset: 0; background: linear-gradient(transparent 43%, #f8fafc 49%, #f8fafc 51%, transparent 57%); animation: syncFlash 650ms ease-in-out both; }
-.tuning strong { position: relative; z-index: 2; padding: 4px 6px; background: #020617; color: #ffb800; font: 8px/1.4 var(--font-arcade); letter-spacing: .06em; }
-.tuningLine { position: absolute; inset: 0; z-index: 2; border-top: 2px solid #f8fafc; animation: trackingRoll 650ms linear both; }
-@keyframes channelFlicker { 0%, 12%, 30%, 75% { opacity: 1; } 8%, 24%, 60% { opacity: .45; } 100% { opacity: 0; } }
-@keyframes staticDrift { from { translate: -8px -5px; } to { translate: 9px 6px; } }
+.tuning { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; overflow: hidden; isolation: isolate; background: #050a1b; }
+.tuning::before { content: ''; position: absolute; inset: -20%; opacity: .45; background: repeating-linear-gradient(0deg, #f8fafc 0 1px, #020617 1px 3px, #64748b 3px 4px, #020617 4px 7px); transform: skewY(-4deg); animation: staticDrift 130ms steps(3, end) infinite; }
+.tuning::after { content: ''; position: absolute; inset: 0; background: linear-gradient(transparent 46%, #f8fafc 49%, #f8fafc 51%, transparent 54%); animation: syncFlash 650ms ease-in-out both; pointer-events: none; }
+.tuningLine { position: absolute; inset: 0; z-index: 2; border-top: 3px solid #ffb800; box-shadow: 0 0 16px #ffb800; animation: trackingRoll 650ms linear both; }
+.signalCard { position: relative; z-index: 3; display: grid; justify-items: center; gap: 5px; width: min(80%, 260px); padding: 10px 14px; border: 2px solid #64748b; border-bottom-width: 4px; background: #0d1836; box-shadow: 4px 4px 0 #000, inset 0 0 0 2px #1e3264; text-align: center; animation: signalLock 650ms steps(3, end) both; }
+.signalEyebrow, .signalStatus { color: #e2e8f0; font: 7px/1.5 var(--font-arcade); letter-spacing: .03em; }
+.signalStatus { color: #10b981; }
+.signalCard strong { color: #ffb800; font: 13px/1.2 var(--font-arcade); text-shadow: 2px 2px 0 #000; }
+.signalBars { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; width: 100%; height: 12px; border: 2px solid #020617; background: #020617; }
+.signalBars i:nth-child(1) { background: #f8fafc; }.signalBars i:nth-child(2) { background: #ffb800; }.signalBars i:nth-child(3) { background: #10b981; }.signalBars i:nth-child(4) { background: #38bdf8; }.signalBars i:nth-child(5) { background: #a78bfa; }.signalBars i:nth-child(6) { background: #e11d48; }.signalBars i:nth-child(7) { background: #0f172a; }
+@keyframes staticDrift { from { translate: -8px -10px; } to { translate: 9px 10px; } }
 @keyframes syncFlash { 0%, 50% { transform: scaleY(.02); } 70% { transform: scaleY(1); opacity: .85; } 100% { transform: scaleY(0); opacity: 0; } }
 @keyframes trackingRoll { from { translate: 0 -2px; } to { translate: 0 120px; } }
-@media (prefers-reduced-motion: reduce) { .tuning, .tuning::before, .tuning::after, .tuningLine { animation: none; } }
+@keyframes signalLock { 0%, 25%, 56% { opacity: .15; transform: translateX(8px); } 12%, 40%, 72%, 100% { opacity: 1; transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) { .tuning::before, .tuning::after, .tuningLine, .signalCard { animation: none; } }
 .caption { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; color: #f8fafc; text-align: left; }
 .caption strong { font: 700 12px/1.2 var(--font-display); text-transform: uppercase; }
 .caption a { flex: none; font: 7px/1.2 var(--font-arcade); color: #ffb800; }

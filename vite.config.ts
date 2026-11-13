@@ -4,10 +4,12 @@ import react from '@vitejs/plugin-react'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 import path from 'path'
 import { execSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { localYahooApi } from './scripts/localYahooApi'
 import { blockerSafeName } from './scripts/chunkNames'
 
 const SITE_URL = 'https://fantasyfootballanalyzer.app/'
+const APP_VERSION = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version as string
 
 // Source map upload only happens when an auth token is present, which is CI
 // only (GitHub secret). Local builds and PRs see no token, so the Sentry plugin
@@ -131,6 +133,7 @@ export default defineConfig({
     },
   },
   define: {
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(APP_VERSION),
     'import.meta.env.VITE_BUILD_TIME': JSON.stringify(new Date().toISOString().slice(11, 19)),
     'import.meta.env.VITE_BUILD_SHA': JSON.stringify(gitSha()),
   },
