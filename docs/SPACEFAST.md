@@ -22,6 +22,8 @@ The local and hosted addresses have separate browser storage. In local **Setting
 
 The connected GitHub `master` branch deploys automatically. Spacefast's repository build settings must use `npm run build:spacefast` as the build command and `dist` as the output directory. This overrides the repo's `vercel.json`, which is for the separate Vercel API-only deployment. From the repository root, use Node.js 24 and push the tested commit:
 
+Before each release commit, run `npm version patch --no-git-tag-version` and include both `package.json` and `package-lock.json` in that commit. Use a minor or major bump for an explicitly planned release. The footer's `vX.Y.Z` comes from `package.json`; the separate build ID is the commit SHA. A push alone does not change the package version.
+
 ```sh
 npm ci
 npm run test:run
