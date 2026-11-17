@@ -67,3 +67,8 @@
 
 .sidebar { position: absolute; padding-bottom: 16px; }
 .dock, .mobileBar { flex-shrink: 0; }
+.spacefastCredit { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin: -5px 10px 8px; padding: 10px 0 0; border-top: 1px solid #1e3264; color: #94a3b8; text-decoration: none; }
+.spacefastCredit span { font: 8px/1.3 var(--font-arcade); letter-spacing: .06em; }
+.spacefastCredit img { display: block; width: 100%; max-width: 180px; height: 38px; object-fit: cover; object-position: center; }
+.spacefastCredit:hover, .spacefastCredit:focus-visible { color: #f8fafc; }
+.spacefastCredit:focus-visible { outline: 2px solid #ffb800; outline-offset: 3px; }

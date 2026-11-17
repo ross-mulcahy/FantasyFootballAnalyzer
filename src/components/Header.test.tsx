@@ -16,6 +16,10 @@ it('groups the full connected command navigation and keeps matchups league-scope
   expect(nav.getByRole('link', { name: 'League Matchups' })).toHaveAttribute('href', '/game-day?league=sleeper%3Al1&year=2026');
   expect(nav.getByRole('link', { name: 'Trades' })).toHaveAttribute('aria-current', 'page');
   expect(nav.queryByRole('link', { name: 'PDF Export' })).not.toBeInTheDocument();
+  const credit = nav.getByRole('link', { name: 'Built with Spacefast (opens in a new tab)' });
+  expect(credit).toHaveAttribute('href', 'https://spacefast.com/');
+  expect(credit.querySelector('img')).toHaveAttribute('src', '/spacefast-logo.jpg');
+  expect(nav.getByRole('link', { name: 'Settings' }).compareDocumentPosition(credit) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 });
 it('offers working public prep routes without exposing unavailable analysis actions', () => {
   mount('/rankings', false);
